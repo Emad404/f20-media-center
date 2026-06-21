@@ -38,7 +38,7 @@ const toolsNav: NavItem[] = [
   { href: '/reports', icon: BarChart3, label: 'تقارير الأداء' },
   { href: '/predictions', icon: Trophy, label: 'توقعات الهلال' },
   { href: '/courses', icon: BookOpen, label: 'الدورات التدريبية' },
-  { href: '/employees', icon: Users, label: 'الموظفون' },
+  { href: '/employees', icon: Users, label: 'الموظفين' },
   { href: '/calendar', icon: Calendar, label: 'التقويم' },
 ]
 
