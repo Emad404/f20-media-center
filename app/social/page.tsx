@@ -1,6 +1,9 @@
+'use client'
+
 import PageHeader from '@/components/PageHeader'
 import { socialAccounts } from '@/data/social'
 import { Mail, Globe } from 'lucide-react'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 function SocialIcon({ type }: { type: string }) {
   if (type === 'email') return <Mail size={24} />
@@ -36,14 +39,15 @@ function SocialIcon({ type }: { type: string }) {
 }
 
 export default function SocialPage() {
+  const isMobile = useIsMobile()
   return (
     <div>
       <PageHeader
         title="حسابات التواصل الاجتماعي"
         subtitle="قنوات التواصل الرسمية لـ F20 Event"
       />
-      <div style={{ padding: '28px 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
           {socialAccounts.map((account) => (
             <div
               key={account.id}

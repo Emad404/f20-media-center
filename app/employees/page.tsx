@@ -5,6 +5,7 @@ import { X, Search, Mail, Phone } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { employees, type Employee } from '@/data/employees'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 function deptVariant(dept: string): 'gold' | 'success' | 'warning' | 'info' | 'neutral' {
   if (dept === 'الإدارة العليا') return 'gold'
@@ -100,6 +101,7 @@ function VerticalLine() {
 }
 
 export default function EmployeesPage() {
+  const isMobile = useIsMobile()
   const [view, setView] = useState<'org' | 'list'>('org')
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
   const [search, setSearch] = useState('')
@@ -196,11 +198,15 @@ export default function EmployeesPage() {
         }
       />
 
-      <div style={{ padding: '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {view === 'org' ? (
           /* ORG CHART */
           <div style={{ overflowX: 'auto', paddingBottom: '16px' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '900px' }}>
+            <div style={{
+              display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '900px',
+              transform: isMobile ? 'scale(0.7)' : undefined,
+              transformOrigin: isMobile ? 'top center' : undefined,
+            }}>
               {/* CEO */}
               <OrgNode emp={ceo} onSelect={setSelectedEmployee} />
               <VerticalLine />
@@ -285,7 +291,7 @@ export default function EmployeesPage() {
           /* LIST VIEW */
           <div>
             {/* Filters */}
-            <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: isMobile ? 'stretch' : 'center' }}>
               <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '280px' }}>
                 <Search size={14} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
                 <input
@@ -305,7 +311,7 @@ export default function EmployeesPage() {
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
               {filteredEmployees.map((emp) => (
                 <div
                   key={emp.id}

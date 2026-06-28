@@ -13,6 +13,7 @@ import { reports } from '@/data/reports'
 import { socialAccounts } from '@/data/social'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { CalendarDays, Globe, Building2, Users, Mail, ExternalLink } from 'lucide-react'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 const today = new Date('2026-06-19')
 
@@ -88,6 +89,7 @@ function statusVariant(status: string): 'success' | 'info' | 'neutral' {
 }
 
 export default function DashboardPage() {
+  const isMobile = useIsMobile()
   return (
     <div>
       <PageHeader
@@ -95,9 +97,9 @@ export default function DashboardPage() {
         subtitle="مرحباً بك في المركز الإعلامي — F20 Event"
       />
 
-      <div style={{ padding: '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
           <StatCard value={10} label="فعالية قادمة في المملكة" icon={CalendarDays} />
           <StatCard value={3} label="أيام دولية هذا الشهر" icon={Globe} />
           <StatCard value={3} label="معارض مسجّلة" icon={Building2} />
@@ -105,7 +107,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Two column grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '60% 40%', gap: '16px', marginBottom: '24px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '60% 40%', gap: '16px', marginBottom: '24px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             {/* KSA Events */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
@@ -222,7 +224,7 @@ export default function DashboardPage() {
         {/* Social accounts */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>حسابات التواصل الاجتماعي</h2>
-          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '8px' : '12px', flexWrap: 'wrap' }}>
             {socialAccounts.map((account) => (
               <a
                 key={account.id}
@@ -234,11 +236,11 @@ export default function DashboardPage() {
                   flexDirection: 'column',
                   alignItems: 'center',
                   gap: '6px',
-                  padding: '14px 16px',
+                  padding: isMobile ? '10px 12px' : '14px 16px',
                   borderRadius: '10px',
                   border: '1px solid var(--border)',
                   color: 'var(--text-secondary)',
-                  minWidth: '80px',
+                  minWidth: isMobile ? '64px' : '80px',
                   cursor: 'pointer',
                   transition: 'background-color 0.15s ease',
                   textDecoration: 'none',

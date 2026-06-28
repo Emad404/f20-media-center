@@ -6,8 +6,10 @@ import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { courses } from '@/data/courses'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 export default function CoursesPage() {
+  const isMobile = useIsMobile()
   const [categoryFilter, setCategoryFilter] = useState('الكل')
   const [showRequiredFirst, setShowRequiredFirst] = useState(false)
 
@@ -38,7 +40,7 @@ export default function CoursesPage() {
         style={{
           background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
-          padding: '14px 32px',
+          padding: isMobile ? '12px 16px' : '14px 32px',
           display: 'flex',
           alignItems: 'center',
           gap: '10px',
@@ -91,8 +93,8 @@ export default function CoursesPage() {
         </button>
       </div>
 
-      <div style={{ padding: '28px 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '16px' }}>
           {filtered.map((course) => (
             <div
               key={course.id}

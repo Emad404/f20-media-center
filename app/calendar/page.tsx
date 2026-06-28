@@ -8,6 +8,7 @@ import Avatar from '@/components/Avatar'
 import Modal from '@/components/Modal'
 import { tasks as initialTasks, type Task, type TaskType } from '@/data/tasks'
 import { employees } from '@/data/employees'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 const DAYS_AR = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 
@@ -90,7 +91,10 @@ const emptyForm = {
   location: '',
 }
 
+const DAYS_AR_SHORT = ['الأح', 'الإث', 'الثل', 'الأر', 'الخم', 'الجم', 'الست']
+
 export default function CalendarPage() {
+  const isMobile = useIsMobile()
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 6, 1))
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
   const [taskList, setTaskList] = useState<Task[]>(initialTasks)
@@ -175,7 +179,7 @@ export default function CalendarPage() {
         }
       />
 
-      <div style={{ padding: '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {/* Month navigation */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0 20px' }}>
           <button onClick={goToPrevMonth} style={navBtnStyle}><ChevronRight size={18} /></button>
@@ -199,13 +203,13 @@ export default function CalendarPage() {
         >
           {/* Day headers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
-            {DAYS_AR.map((d) => (
+            {(isMobile ? DAYS_AR_SHORT : DAYS_AR).map((d) => (
               <div
                 key={d}
                 style={{
                   padding: '8px',
                   textAlign: 'center',
-                  fontSize: '12px',
+                  fontSize: isMobile ? '10px' : '12px',
                   fontWeight: 500,
                   color: 'var(--text-muted)',
                   background: 'var(--bg-page)',
@@ -221,7 +225,7 @@ export default function CalendarPage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)' }}>
             {/* Leading empty slots */}
             {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-              <div key={`empty-start-${i}`} style={{ minHeight: '88px' }} />
+              <div key={`empty-start-${i}`} style={{ minHeight: isMobile ? '60px' : '88px' }} />
             ))}
 
             {/* Current month days */}
@@ -238,7 +242,7 @@ export default function CalendarPage() {
                   key={dateStr}
                   onClick={() => setSelectedDay(dateStr === selectedDay ? null : dateStr)}
                   style={{
-                    minHeight: '88px',
+                    minHeight: isMobile ? '60px' : '88px',
                     background: isToday ? 'var(--gold-light)' : 'var(--bg-card)',
                     border: isSelected
                       ? '2px solid var(--gold)'
@@ -255,9 +259,9 @@ export default function CalendarPage() {
                   }}
                 >
                   <div style={{
-                    fontSize: '13px',
+                    fontSize: isMobile ? '11px' : '13px',
                     fontWeight: isToday ? 700 : 500,
-                    width: 24, height: 24,
+                    width: isMobile ? 20 : 24, height: isMobile ? 20 : 24,
                     borderRadius: '50%',
                     background: isToday ? 'var(--gold)' : 'transparent',
                     color: isToday ? '#fff' : 'var(--text-secondary)',
@@ -286,7 +290,7 @@ export default function CalendarPage() {
 
             {/* Trailing empty slots */}
             {Array.from({ length: trailingEmpty }).map((_, i) => (
-              <div key={`empty-end-${i}`} style={{ minHeight: '88px' }} />
+              <div key={`empty-end-${i}`} style={{ minHeight: isMobile ? '60px' : '88px' }} />
             ))}
           </div>
         </div>

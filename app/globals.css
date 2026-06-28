@@ -1,6 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
+* {
+  max-width: 100%;
+}
 :root {
   --bg-page: #F4F5F7;
   --bg-card: #FFFFFF;

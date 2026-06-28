@@ -5,6 +5,7 @@ import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { hilalMatches, leaderboard } from '@/data/predictions'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 type Prediction = { home: string; away: string; name: string }
 
@@ -21,6 +22,7 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function PredictionsPage() {
+  const isMobile = useIsMobile()
   const [predictions, setPredictions] = useState<Record<number, Prediction>>({})
   const [forms, setForms] = useState<Record<number, { home: string; away: string; name: string }>>(
     Object.fromEntries(hilalMatches.map((m) => [m.id, { home: '0', away: '0', name: '' }]))
@@ -57,7 +59,7 @@ export default function PredictionsPage() {
         subtitle="توقّع النتيجة الصحيحة وفُز بهدية 🎁"
       />
 
-      <div style={{ padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Match cards */}
         {hilalMatches.map((match) => {
           const pred = predictions[match.id]
@@ -72,7 +74,7 @@ export default function PredictionsPage() {
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
                 borderRadius: '12px',
-                padding: '20px 24px',
+                padding: isMobile ? '14px 16px' : '20px 24px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
               }}
             >
@@ -146,7 +148,7 @@ export default function PredictionsPage() {
                     max="20"
                     value={form.home}
                     onChange={(e) => updateForm(match.id, 'home', e.target.value)}
-                    style={{ ...inputStyle, maxWidth: '60px', textAlign: 'center' }}
+                    style={{ ...inputStyle, maxWidth: '60px', textAlign: 'center', minHeight: '44px' }}
                   />
                   <span style={{ fontSize: '18px', fontWeight: 600, color: 'var(--text-secondary)' }}>:</span>
                   <input
@@ -155,7 +157,7 @@ export default function PredictionsPage() {
                     max="20"
                     value={form.away}
                     onChange={(e) => updateForm(match.id, 'away', e.target.value)}
-                    style={{ ...inputStyle, maxWidth: '60px', textAlign: 'center' }}
+                    style={{ ...inputStyle, maxWidth: '60px', textAlign: 'center', minHeight: '44px' }}
                   />
                   <button
                     onClick={() => handleSubmit(match.id)}
@@ -240,6 +242,7 @@ export default function PredictionsPage() {
                       color: 'var(--text-muted)',
                       borderBottom: '1px solid var(--border)',
                       background: 'var(--bg-page)',
+                      display: isMobile && h === 'المركز' ? 'none' : undefined,
                     }}
                   >
                     {h}
@@ -255,16 +258,16 @@ export default function PredictionsPage() {
                     background: entry.rank === 1 ? 'var(--gold-light)' : 'transparent',
                   }}
                 >
-                  <td style={{ padding: '12px 16px', fontSize: '14px', borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '12px 16px', fontSize: '14px', borderBottom: '1px solid var(--border)', display: isMobile ? 'none' : undefined }}>
                     {entry.rank === 1 ? '🥇' : entry.rank}
                   </td>
-                  <td style={{ padding: '12px 16px', fontSize: '14px', fontWeight: entry.rank === 1 ? 600 : 400, borderBottom: '1px solid var(--border)' }}>
-                    {entry.employeeName}
+                  <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontWeight: entry.rank === 1 ? 600 : 400, borderBottom: '1px solid var(--border)' }}>
+                    {isMobile && entry.rank === 1 ? '🥇 ' : ''}{entry.employeeName}
                   </td>
-                  <td style={{ padding: '12px 16px', fontSize: '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
                     {entry.correctPredictions}
                   </td>
-                  <td style={{ padding: '12px 16px', fontSize: '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
+                  <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
                     {entry.totalPredictions}
                   </td>
                 </tr>

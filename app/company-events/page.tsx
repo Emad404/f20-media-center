@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader'
 import Avatar from '@/components/Avatar'
 import { companyEvents } from '@/data/companyEvents'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 function StatusBadge({ status }: { status: string }) {
   const isActive = status === 'جارٍ' || status === 'جاري'
@@ -33,6 +34,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function CompanyEventsPage() {
+  const isMobile = useIsMobile()
   const [statusFilter, setStatusFilter] = useState('الكل')
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
@@ -53,9 +55,10 @@ export default function CompanyEventsPage() {
         style={{
           background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
-          padding: '14px 32px',
+          padding: isMobile ? '12px 16px' : '14px 32px',
           display: 'flex',
           gap: '8px',
+          flexWrap: 'wrap',
         }}
       >
         {statuses.map((s) => (
@@ -80,7 +83,7 @@ export default function CompanyEventsPage() {
         ))}
       </div>
 
-      <div style={{ padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {filtered.map((event) => {
           const isExpanded = expandedId === event.id
           return (
@@ -90,7 +93,7 @@ export default function CompanyEventsPage() {
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
                 borderRadius: '12px',
-                padding: '20px 24px',
+                padding: isMobile ? '14px 16px' : '20px 24px',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
               }}
             >
@@ -126,7 +129,7 @@ export default function CompanyEventsPage() {
                   {/* Stacked avatars */}
                   <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
                     {event.teamMembers.slice(0, 4).map((member, idx) => (
-                      <div key={idx} style={{ marginLeft: idx === 0 ? 0 : '-8px' }}>
+                      <div key={idx} style={{ marginLeft: idx === 0 ? 0 : isMobile ? '-4px' : '-8px' }}>
                         <Avatar name={member} size="sm" />
                       </div>
                     ))}

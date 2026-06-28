@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { exhibitions } from '@/data/exhibitions'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 function cityBadgeVariant(city: string): 'riyadh' | 'eastern' | 'jeddah' | 'neutral' {
   if (city === 'الرياض') return 'riyadh'
@@ -21,6 +22,7 @@ function catBadgeVariant(cat: string): 'neutral' | 'info' | 'gold' {
 }
 
 export default function ExhibitionsPage() {
+  const isMobile = useIsMobile()
   const [categoryFilter, setCategoryFilter] = useState('الكل')
   const [cityFilter, setCityFilter] = useState('الكل')
 
@@ -59,10 +61,11 @@ export default function ExhibitionsPage() {
         style={{
           background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
-          padding: '14px 32px',
+          padding: isMobile ? '12px 16px' : '14px 32px',
           display: 'flex',
-          alignItems: 'center',
-          gap: '10px',
+          alignItems: isMobile ? 'flex-start' : 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '10px' : '10px',
           flexWrap: 'wrap',
         }}
       >
@@ -91,13 +94,13 @@ export default function ExhibitionsPage() {
         </select>
       </div>
 
-      <div style={{ padding: '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)', fontSize: '14px' }}>
             لا توجد نتائج مطابقة
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
             {filtered.map((ex) => (
               <div
                 key={ex.id}

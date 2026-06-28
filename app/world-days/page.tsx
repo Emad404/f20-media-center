@@ -5,6 +5,7 @@ import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { worldDays } from '@/data/worldDays'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 const categoryColors: Record<string, 'success' | 'info' | 'warning' | 'neutral' | 'gold'> = {
   'صحة': 'success',
@@ -18,6 +19,7 @@ const categoryColors: Record<string, 'success' | 'info' | 'warning' | 'neutral' 
 }
 
 export default function WorldDaysPage() {
+  const isMobile = useIsMobile()
   const [categoryFilter, setCategoryFilter] = useState('الكل')
   const [nationalOnly, setNationalOnly] = useState(false)
 
@@ -52,7 +54,7 @@ export default function WorldDaysPage() {
         style={{
           background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
-          padding: '14px 32px',
+          padding: isMobile ? '12px 16px' : '14px 32px',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
@@ -83,7 +85,7 @@ export default function WorldDaysPage() {
         
       </div>
 
-      <div style={{ padding: '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {grouped.size === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)', fontSize: '14px' }}>
             لا توجد أيام مطابقة
@@ -143,7 +145,7 @@ export default function WorldDaysPage() {
                         {/* Title */}
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            <span style={{ fontSize: isMobile ? '13px' : '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
                               {day.title}
                             </span>
                             {day.isNational && (

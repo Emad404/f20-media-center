@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { kSAEvents } from '@/data/events'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 const cityOrder: Record<string, number> = { 'الرياض': 0, 'الشرقية': 1, 'جدة': 2 }
 
@@ -26,6 +27,7 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function EventsPage() {
+  const isMobile = useIsMobile()
   const [search, setSearch] = useState('')
   const [cityFilter, setCityFilter] = useState('الكل')
   const [categoryFilter, setCategoryFilter] = useState('الكل')
@@ -63,10 +65,11 @@ export default function EventsPage() {
         style={{
           background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
-          padding: '16px 32px',
+          padding: isMobile ? '12px 16px' : '16px 32px',
           display: 'flex',
-          alignItems: 'center',
-          gap: '16px',
+          alignItems: isMobile ? 'flex-start' : 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: isMobile ? '10px' : '16px',
           flexWrap: 'wrap',
         }}
       >
@@ -130,14 +133,14 @@ export default function EventsPage() {
         </select>
       </div>
 
-      <div style={{ padding: '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)' }}>
             <SearchX size={36} style={{ margin: '0 auto 12px', opacity: 0.4, display: 'block' }} />
             <p style={{ fontSize: '14px' }}>لا توجد فعاليات مطابقة للبحث</p>
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
             {filtered.map((event) => (
               <div
                 key={event.id}

@@ -9,6 +9,7 @@ import StarRating from '@/components/StarRating'
 import Modal from '@/components/Modal'
 import { reports as initialReports, type PerformanceReport } from '@/data/reports'
 import { formatArabicDate } from '@/lib/dateUtils'
+import { useIsMobile } from '@/hooks/useIsMobile'
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-input)',
@@ -63,6 +64,7 @@ const emptyForm = {
 }
 
 export default function ReportsPage() {
+  const isMobile = useIsMobile()
   const [reportList, setReportList] = useState<PerformanceReport[]>(initialReports)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
@@ -130,16 +132,19 @@ export default function ReportsPage() {
         }
       />
 
-      <div style={{ display: 'flex', height: 'calc(100vh - 65px)', overflow: 'hidden' }}>
-        {/* Left panel — 35% */}
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: isMobile ? 'auto' : 'calc(100vh - 65px)', overflow: isMobile ? 'visible' : 'hidden' }}>
+        {/* Left panel — 35% on desktop, full width + fixed height on mobile */}
         <div
           style={{
-            width: '35%',
-            borderLeft: '1px solid var(--border)',
+            width: isMobile ? '100%' : '35%',
+            height: isMobile ? '300px' : 'auto',
+            overflowY: isMobile ? 'auto' : 'hidden',
+            borderLeft: isMobile ? 'none' : '1px solid var(--border)',
+            borderBottom: isMobile ? '1px solid var(--border)' : 'none',
             display: 'flex',
             flexDirection: 'column',
             background: 'var(--bg-card)',
-            overflow: 'hidden',
+            overflow: isMobile ? 'auto' : 'hidden',
           }}
         >
           {/* Filters */}
@@ -201,8 +206,8 @@ export default function ReportsPage() {
           </div>
         </div>
 
-        {/* Right panel — 65% */}
-        <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)', padding: '24px' }}>
+        {/* Right panel — 65% on desktop, full width below on mobile */}
+        <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)', padding: isMobile ? '16px' : '24px' }}>
           {!selected ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontSize: '14px' }}>
               اختر تقريراً من القائمة

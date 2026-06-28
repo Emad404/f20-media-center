@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import './globals.css'
 import Sidebar from '@/components/Sidebar'
+import MainWrapper from '@/components/MainWrapper'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-page)' }}>
           <Sidebar />
-          <main style={{ flex: 1, marginRight: '220px', minHeight: '100vh' }}>
+          <MainWrapper>
             {children}
-          </main>
+          </MainWrapper>
         </div>
       </body>
     </html>
