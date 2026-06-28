@@ -67,14 +67,14 @@ export default function EventsPage() {
           borderBottom: '1px solid var(--border)',
           padding: isMobile ? '12px 16px' : '16px 32px',
           display: 'flex',
-          alignItems: isMobile ? 'flex-start' : 'center',
           flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? '10px' : '16px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: '10px',
           flexWrap: 'wrap',
         }}
       >
         {/* Search */}
-        <div style={{ position: 'relative', flex: '1 1 220px', maxWidth: '320px' }}>
+        <div style={{ position: 'relative', width: '100%', flex: isMobile ? undefined : '1 1 220px', maxWidth: isMobile ? undefined : '320px' }}>
           <Search
             size={15}
             style={{
@@ -97,7 +97,7 @@ export default function EventsPage() {
 
         {/* City label + tabs */}
         <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>المدينة:</span>
-        <div style={{ display: 'flex', gap: '6px' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {cities.map((city) => (
             <button
               key={city}
@@ -125,7 +125,7 @@ export default function EventsPage() {
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          style={{ ...inputStyle, cursor: 'pointer' }}
+          style={{ ...inputStyle, width: isMobile ? '100%' : 'auto', cursor: 'pointer' }}
         >
           {categories.map((cat) => (
             <option key={cat} value={cat}>{cat}</option>

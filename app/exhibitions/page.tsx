@@ -63,19 +63,21 @@ export default function ExhibitionsPage() {
           borderBottom: '1px solid var(--border)',
           padding: isMobile ? '12px 16px' : '14px 32px',
           display: 'flex',
-          alignItems: isMobile ? 'flex-start' : 'center',
           flexDirection: isMobile ? 'column' : 'row',
-          gap: isMobile ? '10px' : '10px',
+          alignItems: isMobile ? 'stretch' : 'center',
+          gap: '10px',
           flexWrap: 'wrap',
         }}
       >
         <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>النوع:</span>
-        {categories.map((cat) => (
-          <button key={cat} onClick={() => setCategoryFilter(cat)} style={btnStyle(categoryFilter === cat)}>
-            {cat}
-          </button>
-        ))}
-        <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 4px' }} />
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+          {categories.map((cat) => (
+            <button key={cat} onClick={() => setCategoryFilter(cat)} style={btnStyle(categoryFilter === cat)}>
+              {cat}
+            </button>
+          ))}
+        </div>
+        {!isMobile && <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 4px' }} />}
         <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>المدينة:</span>
         <select
           value={cityFilter}
@@ -88,6 +90,7 @@ export default function ExhibitionsPage() {
             fontSize: '13px',
             color: 'var(--text-primary)',
             cursor: 'pointer',
+            width: isMobile ? '100%' : 'auto',
           }}
         >
           {cities.map((c) => <option key={c} value={c}>{c}</option>)}

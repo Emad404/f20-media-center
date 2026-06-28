@@ -291,8 +291,8 @@ export default function EmployeesPage() {
           /* LIST VIEW */
           <div>
             {/* Filters */}
-            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '12px', marginBottom: '20px', flexWrap: 'wrap', alignItems: isMobile ? 'stretch' : 'center' }}>
-              <div style={{ position: 'relative', flex: '1 1 200px', maxWidth: '280px' }}>
+            <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '10px', marginBottom: '20px', flexWrap: 'wrap', alignItems: isMobile ? 'stretch' : 'center' }}>
+              <div style={{ position: 'relative', width: isMobile ? '100%' : undefined, flex: isMobile ? undefined : '1 1 200px', maxWidth: isMobile ? undefined : '280px' }}>
                 <Search size={14} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
                 <input
                   placeholder="بحث بالاسم أو المسمى..."
@@ -302,11 +302,11 @@ export default function EmployeesPage() {
                 />
               </div>
               <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>القسم:</span>
-              <select value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+              <select value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)} style={{ ...inputStyle, cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}>
                 {departments.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
               <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>المسمى:</span>
-              <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} style={{ ...inputStyle, cursor: 'pointer' }}>
+              <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} style={{ ...inputStyle, cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}>
                 {roles.map((r) => <option key={r} value={r}>{r}</option>)}
               </select>
             </div>

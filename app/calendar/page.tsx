@@ -91,7 +91,6 @@ const emptyForm = {
   location: '',
 }
 
-const DAYS_AR_SHORT = ['الأح', 'الإث', 'الثل', 'الأر', 'الخم', 'الجم', 'الست']
 
 export default function CalendarPage() {
   const isMobile = useIsMobile()
@@ -185,7 +184,7 @@ export default function CalendarPage() {
           <button onClick={goToPrevMonth} style={navBtnStyle}><ChevronRight size={18} /></button>
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--navy)' }}>
-              {currentMonth.toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })}
+              {currentMonth.toLocaleDateString('ar-SA', { calendar: 'gregory', month: 'long', year: 'numeric' })}
             </h2>
           </div>
           <button onClick={goToNextMonth} style={navBtnStyle}><ChevronLeft size={18} /></button>
@@ -203,17 +202,19 @@ export default function CalendarPage() {
         >
           {/* Day headers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
-            {(isMobile ? DAYS_AR_SHORT : DAYS_AR).map((d) => (
+            {DAYS_AR.map((d) => (
               <div
                 key={d}
                 style={{
-                  padding: '8px',
+                  padding: isMobile ? '6px 1px' : '8px',
                   textAlign: 'center',
                   fontSize: isMobile ? '10px' : '12px',
                   fontWeight: 500,
                   color: 'var(--text-muted)',
                   background: 'var(--bg-page)',
                   borderBottom: '1px solid var(--border)',
+                  wordBreak: 'break-word',
+                  lineHeight: 1.3,
                 }}
               >
                 {d}
@@ -309,6 +310,7 @@ export default function CalendarPage() {
           >
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--navy)', marginBottom: '16px' }}>
               {new Date(selectedDay + 'T00:00:00').toLocaleDateString('ar-SA', {
+                calendar: 'gregory',
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',

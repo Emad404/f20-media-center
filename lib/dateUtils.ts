@@ -1,6 +1,7 @@
 export function formatArabicDate(dateStr: string): string {
   const date = new Date(dateStr)
   return date.toLocaleDateString('ar-SA', {
+    calendar: 'gregory',
     year: 'numeric',
     month: 'long',
     day: 'numeric',
@@ -9,7 +10,7 @@ export function formatArabicDate(dateStr: string): string {
 
 export function getMonthName(dateStr: string): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
+  return date.toLocaleDateString('ar-SA', { calendar: 'gregory', month: 'long', year: 'numeric' })
 }
 
 export function formatDateRange(start: string, end: string): string {
