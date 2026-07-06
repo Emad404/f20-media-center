@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import './globals.css'
-import Sidebar from '@/components/Sidebar'
-import MainWrapper from '@/components/MainWrapper'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -10,7 +8,7 @@ const geistSans = Geist({
 })
 
 export const metadata: Metadata = {
-  title: 'F20 Event — المركز الإعلامي',
+  title: 'F20 Event – المركز الإعلامي',
   description: 'نظام إدارة المركز الإعلامي الداخلي لشركة F20 Event',
 }
 
@@ -24,12 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-page)' }}>
-          <Sidebar />
-          <MainWrapper>
-            {children}
-          </MainWrapper>
-        </div>
+        {children}
       </body>
     </html>
   )
