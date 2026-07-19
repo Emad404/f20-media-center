@@ -175,7 +175,7 @@ export default function EmployeesPage() {
                 transition: 'background-color 0.15s ease, color 0.15s ease',
               }}
             >
-              شجرة التنظيم
+              هيكلة التنظيم
             </button>
             <button
               onClick={() => setView('list')}

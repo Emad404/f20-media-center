@@ -1,9 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect, useRef } from 'react'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { createClient } from '@/lib/supabase/client'
+import { useUserProfile } from '@/lib/context/UserProfileContext'
 import {
   LayoutDashboard,
   CalendarDays,
@@ -16,6 +18,9 @@ import {
   BookOpen,
   Users,
   Calendar,
+  LogOut,
+  User,
+  BookUser,
 } from 'lucide-react'
 
 interface NavItem {
@@ -23,6 +28,8 @@ interface NavItem {
   icon: React.ElementType
   label: string
 }
+
+const CONTACTS_ALLOWED_ROLES = ['developer', 'ceo', 'project_manager', 'media_manager']
 
 const mainNav: NavItem[] = [
   { href: '/', icon: LayoutDashboard, label: 'الرئيسية' },
@@ -33,15 +40,16 @@ const contentNav: NavItem[] = [
   { href: '/world-days', icon: Globe, label: 'الأيام العالمية' },
   { href: '/exhibitions', icon: Building2, label: 'المعارض والمؤتمرات' },
   { href: '/company-events', icon: Star, label: 'فعاليات الشركة' },
-  { href: '/social', icon: Share2, label: 'السوشال ميديا' },
+ 
 ]
 
 const toolsNav: NavItem[] = [
   { href: '/reports', icon: BarChart3, label: 'تقارير الأداء' },
   { href: '/predictions', icon: Trophy, label: 'توقعات الهلال' },
   { href: '/courses', icon: BookOpen, label: 'الدورات التدريبية' },
-  { href: '/employees', icon: Users, label: 'الموظفين' },
+  { href: '/employees', icon: Users, label: 'قائمة الموظفين' },
   { href: '/calendar', icon: Calendar, label: 'التقويم' },
+  { href: '/social', icon: Share2, label: 'السوشال ميديا' }
 ]
 
 function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
@@ -87,6 +95,27 @@ export default function Sidebar() {
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
+
+  const supabase = createClient()
+  const router = useRouter()
+  const { profile: userProfile } = useUserProfile()
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/login')
+  }
 
   const isActive = (href: string) => {
     if (href === '/') return pathname === '/'
@@ -224,38 +253,125 @@ export default function Sidebar() {
           {toolsNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
+          {!!userProfile && CONTACTS_ALLOWED_ROLES.includes(userProfile.role) && (
+            <NavLink
+              key="/contacts"
+              item={{ href: '/contacts', icon: BookUser, label: 'جهات الاتصال' }}
+              isActive={isActive('/contacts')}
+              onClick={isMobile ? closeSidebar : undefined}
+            />
+          )}
         </nav>
 
         {/* User info */}
         <div
+          ref={dropdownRef}
           style={{
+            position: 'relative',
             padding: '16px 20px',
             borderTop: '1px solid rgba(255,255,255,0.06)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
           }}
         >
+          {dropdownOpen && (
+            <div style={{
+              position: 'absolute',
+              bottom: '70px',
+              right: '12px',
+              left: '12px',
+              background: 'var(--sidebar-bg)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              zIndex: 200,
+              boxShadow: '0 -4px 20px rgba(0,0,0,0.3)',
+            }}>
+              <div style={{
+                padding: '12px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.06)',
+              }}>
+                <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 600 }}>
+                  {userProfile?.full_name_ar || 'المستخدم'}
+                </div>
+                <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)', marginTop: '2px' }}>
+                  {userProfile?.role || 'موظف'}
+                </div>
+              </div>
+              <button
+                onClick={() => { setDropdownOpen(false); router.push('/profile') }}
+                style={{
+                  width: '100%',
+                  padding: '11px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: 'var(--text-on-dark-muted)',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  borderBottom: '1px solid rgba(255,255,255,0.06)',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--sidebar-hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <User size={14} />
+                <span>الملف الشخصي</span>
+              </button>
+              <button
+                onClick={handleLogout}
+                style={{
+                  width: '100%',
+                  padding: '11px 16px',
+                  background: 'transparent',
+                  border: 'none',
+                  color: '#FF6B6B',
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,107,107,0.1)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                <LogOut size={14} />
+                <span>تسجيل الخروج</span>
+              </button>
+            </div>
+          )}
+
           <div
+            onClick={() => setDropdownOpen(o => !o)}
             style={{
-              width: 34,
-              height: 34,
-              borderRadius: '50%',
-              background: 'var(--navy-mid)',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 600,
-              color: 'var(--gold)',
-              flexShrink: 0,
+              gap: '10px',
+              cursor: 'pointer',
+              padding: '6px 4px',
+              borderRadius: '8px',
             }}
+            onMouseEnter={e => e.currentTarget.style.background = 'var(--sidebar-hover)'}
+            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
           >
-            م ع
-          </div>
-          <div>
-            <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 500 }}>المستخدم</div>
-            <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)' }}>موظف</div>
+            <img
+              src={userProfile?.profile_image_url || '/employee_placeholder.png'}
+              alt={userProfile?.full_name_ar || 'المستخدم'}
+              style={{
+                width: 34,
+                height: 34,
+                borderRadius: '50%',
+                objectFit: 'cover',
+                flexShrink: 0,
+              }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {userProfile?.full_name_ar || 'المستخدم'}
+              </div>
+              <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)' }}>
+                {userProfile?.role || 'موظف'}
+              </div>
+            </div>
           </div>
         </div>
       </aside>
