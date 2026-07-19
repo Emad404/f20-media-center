@@ -1,0 +1,16 @@
+{
+  "Login": {
+    "title": "F - Twenty Event Management",
+    "subtitle": "Media Center",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "loginButton": "Log In",
+    "loggingIn": "Logging in...",
+    "errorMessage": "Incorrect email or password",
+    "footerNote": "You must have an active account to access the system"
+  },
+  "Dashboard": {
+    "welcomeTitle": "Dashboard",
+    "welcomeSubtitle": "Welcome to the Media Center — F20 Event"
+  }
+}

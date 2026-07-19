@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useTranslations } from 'next-intl'
 import PageHeader from '@/components/PageHeader'
 import StatCard from '@/components/StatCard'
 import Badge from '@/components/Badge'
@@ -89,12 +90,13 @@ function statusVariant(status: string): 'success' | 'info' | 'neutral' {
 }
 
 export default function DashboardPage() {
+  const t = useTranslations('Dashboard')
   const isMobile = useIsMobile()
   return (
     <div>
       <PageHeader
-        title="لوحة التحكم"
-        subtitle="مرحباً بك في المركز الإعلامي — F20 Event"
+        title={t('welcomeTitle')}
+        subtitle={t('welcomeSubtitle')}
       />
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>

@@ -1,0 +1,16 @@
+{
+  "Login": {
+    "title": "F - Twenty Event Management",
+    "subtitle": "المركز الإعلامي",
+    "emailPlaceholder": "البريد الإلكتروني",
+    "passwordPlaceholder": "كلمة المرور",
+    "loginButton": "تسجيل الدخول",
+    "loggingIn": "جارٍ تسجيل الدخول...",
+    "errorMessage": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
+    "footerNote": "للوصول إلى النظام يجب أن يكون لديك حساب مفعّل"
+  },
+  "Dashboard": {
+    "welcomeTitle": "لوحة التحكم",
+    "welcomeSubtitle": "مرحباً بك في المركز الإعلامي — F20 Event"
+  }
+}

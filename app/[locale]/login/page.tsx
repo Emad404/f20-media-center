@@ -2,10 +2,12 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
+  const t = useTranslations('Login')
   const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -18,7 +20,7 @@ export default function LoginPage() {
     setError('')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
-      setError('البريد الإلكتروني أو كلمة المرور غير صحيحة')
+      setError(t('errorMessage'))
       setLoading(false)
     } else {
       router.push('/')
@@ -52,17 +54,17 @@ export default function LoginPage() {
             style={{ marginBottom: '16px' }}
           />
           <p style={{ color: '#FFFFFF', fontSize: '17px', fontWeight: 600, margin: 0, textAlign: 'center' }}>
-            F - Twenty Event Management
+            {t('title')}
           </p>
           <p style={{ color: '#9A9A9A', fontSize: '13px', margin: '6px 0 0 0', textAlign: 'center' }}>
-            المركز الإعلامي
+            {t('subtitle')}
           </p>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           <input
             type="email"
-            placeholder="البريد الإلكتروني"
+            placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             dir="rtl"
@@ -80,7 +82,7 @@ export default function LoginPage() {
           />
           <input
             type="password"
-            placeholder="كلمة المرور"
+            placeholder={t('passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             dir="rtl"
@@ -121,11 +123,11 @@ export default function LoginPage() {
             transition: 'background 0.2s'
           }}
         >
-          {loading ? 'جارٍ تسجيل الدخول...' : 'تسجيل الدخول'}
+          {loading ? t('loggingIn') : t('loginButton')}
         </button>
 
         <p style={{ color: '#666666', fontSize: '12px', textAlign: 'center', margin: '16px 0 0 0' }}>
-          للوصول إلى النظام يجب أن يكون لديك حساب مفعّل
+          {t('footerNote')}
         </p>
       </div>
     </div>
