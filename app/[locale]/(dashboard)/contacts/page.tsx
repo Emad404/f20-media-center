@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Search, Mail, Phone, Pencil, Trash2 } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
@@ -57,6 +58,8 @@ const emptyForm: ContactForm = {
 }
 
 export default function ContactsPage() {
+  const t = useTranslations('Contacts')
+  const locale = useLocale()
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
@@ -130,7 +133,7 @@ export default function ContactsPage() {
 
   const handleSave = async () => {
     if (!form.full_name_ar.trim()) {
-      setSaveError('الاسم الكامل (عربي) مطلوب')
+      setSaveError(t('fullNameRequiredError'))
       return
     }
 
@@ -165,7 +168,7 @@ export default function ContactsPage() {
   }
 
   const handleDelete = async (contact: Contact) => {
-    if (!window.confirm(`هل تريد حذف "${contact.full_name_ar}"؟`)) return
+    if (!window.confirm(t('deleteConfirm', { name: contact.full_name_ar }))) return
     const { error } = await supabase.from('contacts').delete().eq('id', contact.id)
     if (error) {
       window.alert(error.message)
@@ -196,7 +199,7 @@ export default function ContactsPage() {
   return (
     <div>
       <PageHeader
-        title="جهات الاتصال"
+        title={t('pageTitle')}
         action={
           canManage ? (
             <button
@@ -213,7 +216,7 @@ export default function ContactsPage() {
                 transition: 'background-color 0.15s ease',
               }}
             >
-              + إضافة جهة اتصال
+              {t('addButton')}
             </button>
           ) : undefined
         }
@@ -224,7 +227,7 @@ export default function ContactsPage() {
         <div style={{ marginBottom: '20px', position: 'relative', width: isMobile ? '100%' : '280px' }}>
           <Search size={14} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
           <input
-            placeholder="بحث بالاسم أو الشركة أو المسمى..."
+            placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             style={{ ...inputStyle, paddingRight: '30px' }}
@@ -232,14 +235,18 @@ export default function ContactsPage() {
         </div>
 
         {loading ? (
-          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>جارٍ التحميل...</div>
+          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('loading')}</div>
         ) : filteredContacts.length === 0 ? (
           <div style={{ padding: '64px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
-            لا توجد جهات اتصال بعد
+            {t('emptyState')}
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
-            {filteredContacts.map((contact, index) => (
+            {filteredContacts.map((contact, index) => {
+              const displayName = locale === 'en' && contact.full_name_en ? contact.full_name_en : contact.full_name_ar
+              const displayJobTitle = locale === 'en' && contact.job_title_en ? contact.job_title_en : contact.job_title_ar
+              const displayCompany = locale === 'en' && contact.company_en ? contact.company_en : contact.company_ar
+              return (
               <div
                 key={contact.id}
                 onMouseEnter={() => setHoveredId(contact.id)}
@@ -270,7 +277,7 @@ export default function ContactsPage() {
                   >
                     <button
                       onClick={() => openEditModal(contact)}
-                      aria-label="تعديل"
+                      aria-label={t('editAria')}
                       style={{
                         background: 'var(--bg-input)',
                         border: '1px solid var(--border)',
@@ -285,7 +292,7 @@ export default function ContactsPage() {
                     </button>
                     <button
                       onClick={() => handleDelete(contact)}
-                      aria-label="حذف"
+                      aria-label={t('deleteAria')}
                       style={{
                         background: 'var(--bg-input)',
                         border: '1px solid var(--border)',
@@ -305,20 +312,20 @@ export default function ContactsPage() {
                 <div style={{ padding: '20px 20px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
                   <img
                     src="/employee_placeholder.png"
-                    alt={contact.full_name_ar}
+                    alt={displayName}
                     style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--border)', marginBottom: 12 }}
                   />
                   <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {contact.full_name_ar}
+                    {displayName}
                   </div>
-                  {contact.job_title_ar && (
+                  {displayJobTitle && (
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 2 }}>
-                      {contact.job_title_ar}
+                      {displayJobTitle}
                     </div>
                   )}
-                  {contact.company_ar && (
+                  {displayCompany && (
                     <div style={{ marginTop: 8 }}>
-                      <Badge text={contact.company_ar} variant="neutral" />
+                      <Badge text={displayCompany} variant="neutral" />
                     </div>
                   )}
                 </div>
@@ -342,7 +349,8 @@ export default function ContactsPage() {
                   )}
                 </div>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
@@ -350,11 +358,11 @@ export default function ContactsPage() {
       <Modal
         isOpen={isModalOpen}
         onClose={closeModal}
-        title={editingContact ? 'تعديل جهة الاتصال' : 'إضافة جهة اتصال جديدة'}
+        title={editingContact ? t('editModalTitle') : t('addModalTitle')}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <label style={labelStyle}>الاسم الكامل (عربي)</label>
+            <label style={labelStyle}>{t('fullNameArLabel')}</label>
             <input
               dir="rtl"
               value={form.full_name_ar}
@@ -365,7 +373,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>Full Name (English)</label>
+            <label style={labelStyle}>{t('fullNameEnLabel')}</label>
             <input
               dir="ltr"
               value={form.full_name_en}
@@ -375,7 +383,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>المسمى الوظيفي (عربي)</label>
+            <label style={labelStyle}>{t('jobTitleArLabel')}</label>
             <input
               dir="rtl"
               value={form.job_title_ar}
@@ -385,7 +393,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>Job Title (English)</label>
+            <label style={labelStyle}>{t('jobTitleEnLabel')}</label>
             <input
               dir="ltr"
               value={form.job_title_en}
@@ -395,7 +403,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>الشركة (عربي)</label>
+            <label style={labelStyle}>{t('companyArLabel')}</label>
             <input
               dir="rtl"
               value={form.company_ar}
@@ -405,7 +413,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>Company (English)</label>
+            <label style={labelStyle}>{t('companyEnLabel')}</label>
             <input
               dir="ltr"
               value={form.company_en}
@@ -415,7 +423,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>رقم الهاتف</label>
+            <label style={labelStyle}>{t('phoneLabel')}</label>
             <input
               dir="ltr"
               value={form.phone}
@@ -425,7 +433,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>البريد الإلكتروني</label>
+            <label style={labelStyle}>{t('emailLabel')}</label>
             <input
               dir="ltr"
               type="email"
@@ -436,7 +444,7 @@ export default function ContactsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>ملاحظات</label>
+            <label style={labelStyle}>{t('notesLabel')}</label>
             <textarea
               dir="rtl"
               value={form.notes}
@@ -466,7 +474,7 @@ export default function ContactsPage() {
                 opacity: saving ? 0.7 : 1,
               }}
             >
-              {saving ? 'جارٍ الحفظ...' : 'حفظ'}
+              {saving ? t('saving') : t('saveButton')}
             </button>
             <button
               onClick={closeModal}
@@ -481,7 +489,7 @@ export default function ContactsPage() {
                 cursor: 'pointer',
               }}
             >
-              إلغاء
+              {t('cancelButton')}
             </button>
           </div>
         </div>

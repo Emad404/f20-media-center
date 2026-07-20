@@ -12,5 +12,30 @@
   "Dashboard": {
     "welcomeTitle": "لوحة التحكم",
     "welcomeSubtitle": "مرحباً بك في المركز الإعلامي — F20 Event"
+  },
+  "Contacts": {
+    "pageTitle": "جهات الاتصال",
+    "addButton": "+ إضافة جهة اتصال",
+    "searchPlaceholder": "بحث بالاسم أو الشركة أو المسمى...",
+    "loading": "جارٍ التحميل...",
+    "emptyState": "لا توجد جهات اتصال بعد",
+    "editAria": "تعديل",
+    "deleteAria": "حذف",
+    "addModalTitle": "إضافة جهة اتصال جديدة",
+    "editModalTitle": "تعديل جهة الاتصال",
+    "fullNameArLabel": "الاسم الكامل (عربي)",
+    "fullNameEnLabel": "الاسم الكامل (إنجليزي)",
+    "jobTitleArLabel": "المسمى الوظيفي (عربي)",
+    "jobTitleEnLabel": "المسمى الوظيفي (إنجليزي)",
+    "companyArLabel": "الشركة (عربي)",
+    "companyEnLabel": "الشركة (إنجليزي)",
+    "phoneLabel": "رقم الهاتف",
+    "emailLabel": "البريد الإلكتروني",
+    "notesLabel": "ملاحظات",
+    "saveButton": "حفظ",
+    "saving": "جارٍ الحفظ...",
+    "cancelButton": "إلغاء",
+    "fullNameRequiredError": "الاسم الكامل (عربي) مطلوب",
+    "deleteConfirm": "هل تريد حذف \"{name}\"؟"
   }
 }

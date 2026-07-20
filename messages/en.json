@@ -12,5 +12,30 @@
   "Dashboard": {
     "welcomeTitle": "Dashboard",
     "welcomeSubtitle": "Welcome to the Media Center — F20 Event"
+  },
+  "Contacts": {
+    "pageTitle": "Contacts",
+    "addButton": "+ Add Contact",
+    "searchPlaceholder": "Search by name, company, or title...",
+    "loading": "Loading...",
+    "emptyState": "No contacts yet",
+    "editAria": "Edit",
+    "deleteAria": "Delete",
+    "addModalTitle": "Add New Contact",
+    "editModalTitle": "Edit Contact",
+    "fullNameArLabel": "Full Name (Arabic)",
+    "fullNameEnLabel": "Full Name (English)",
+    "jobTitleArLabel": "Job Title (Arabic)",
+    "jobTitleEnLabel": "Job Title (English)",
+    "companyArLabel": "Company (Arabic)",
+    "companyEnLabel": "Company (English)",
+    "phoneLabel": "Phone Number",
+    "emailLabel": "Email",
+    "notesLabel": "Notes",
+    "saveButton": "Save",
+    "saving": "Saving...",
+    "cancelButton": "Cancel",
+    "fullNameRequiredError": "Full name (Arabic) is required",
+    "deleteConfirm": "Delete \"{name}\"?"
   }
 }

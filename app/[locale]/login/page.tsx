@@ -34,8 +34,7 @@ export default function LoginPage() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: 'Noto Kufi Arabic, sans-serif',
-      direction: 'rtl'
+      fontFamily: 'Noto Kufi Arabic, sans-serif'
     }}>
       <div style={{
         background: '#2C2C2C',
@@ -67,7 +66,6 @@ export default function LoginPage() {
             placeholder={t('emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            dir="rtl"
             style={{
               width: '100%',
               padding: '13px 16px',
@@ -85,7 +83,6 @@ export default function LoginPage() {
             placeholder={t('passwordPlaceholder')}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            dir="rtl"
             style={{
               width: '100%',
               padding: '13px 16px',
