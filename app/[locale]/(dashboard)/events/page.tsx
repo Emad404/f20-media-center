@@ -1,21 +1,81 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { Search, SearchX, CalendarDays, ExternalLink } from 'lucide-react'
+import { Search, SearchX, CalendarDays, Mail, Phone } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
-import { kSAEvents } from '@/data/events'
-import { formatArabicDate } from '@/lib/dateUtils'
+import Modal from '@/components/Modal'
+import PersonCardMenu from '@/components/PersonCardMenu'
+import { createClient } from '@/lib/supabase/client'
+import { formatDateRange } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 const ALL = '__all__'
+const CITY_VALUES = ['الرياض', 'الشرقية', 'جدة'] as const
+const STATUS_VALUES = ['upcoming', 'ongoing', 'tbd'] as const
 const cityOrder: Record<string, number> = { 'الرياض': 0, 'الشرقية': 1, 'جدة': 2 }
 
-function cityVariant(city: string): 'riyadh' | 'eastern' | 'jeddah' {
+interface EventRow {
+  id: string
+  title_ar: string
+  title_en: string | null
+  description_ar: string | null
+  description_en: string | null
+  city: string | null
+  location_ar: string | null
+  location_en: string | null
+  start_date: string | null
+  end_date: string | null
+  status: string | null
+  image_url: string | null
+  contact_name: string | null
+  contact_phone: string | null
+  contact_email: string | null
+  created_at: string
+}
+
+type EventForm = {
+  title_ar: string
+  title_en: string
+  description_ar: string
+  description_en: string
+  city: string
+  customCity: string
+  location_ar: string
+  location_en: string
+  start_date: string
+  end_date: string
+  status: string
+  image_url: string
+  contact_name: string
+  contact_phone: string
+  contact_email: string
+}
+
+const emptyForm: EventForm = {
+  title_ar: '',
+  title_en: '',
+  description_ar: '',
+  description_en: '',
+  city: 'الرياض',
+  customCity: '',
+  location_ar: '',
+  location_en: '',
+  start_date: '',
+  end_date: '',
+  status: 'upcoming',
+  image_url: '',
+  contact_name: '',
+  contact_phone: '',
+  contact_email: '',
+}
+
+function cityVariant(city: string | null): 'riyadh' | 'eastern' | 'jeddah' | 'neutral' {
   if (city === 'الرياض') return 'riyadh'
   if (city === 'الشرقية') return 'eastern'
-  return 'jeddah'
+  if (city === 'جدة') return 'jeddah'
+  return 'neutral'
 }
 
 const inputStyle: React.CSSProperties = {
@@ -26,39 +86,194 @@ const inputStyle: React.CSSProperties = {
   fontSize: '14px',
   color: 'var(--text-primary)',
   outline: 'none',
+  fontFamily: 'inherit',
+  width: '100%',
+}
+
+const labelStyle: React.CSSProperties = {
+  fontSize: '13px',
+  color: 'var(--text-secondary)',
+  marginBottom: '6px',
+  display: 'block',
 }
 
 export default function EventsPage() {
   const t = useTranslations('Events')
-  const isRtl = useLocale() === 'ar'
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
   const isMobile = useIsMobile()
+  const supabase = createClient()
+
+  const [events, setEvents] = useState<EventRow[]>([])
+  const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [cityFilter, setCityFilter] = useState(ALL)
-  const [categoryFilter, setCategoryFilter] = useState(ALL)
+  const [statusFilter, setStatusFilter] = useState(ALL)
 
-  const categories = useMemo(() => {
-    const cats = Array.from(new Set(kSAEvents.map((e) => e.category)))
-    return [ALL, ...cats]
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingEvent, setEditingEvent] = useState<EventRow | null>(null)
+  const [form, setForm] = useState<EventForm>(emptyForm)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
+
+  const flashSuccess = (message: string) => {
+    setSuccessMessage(message)
+    setTimeout(() => setSuccessMessage(''), 3000)
+  }
+
+  const fetchEvents = async () => {
+    setLoading(true)
+    const { data } = await supabase.from('events').select('*').order('created_at', { ascending: false })
+    setEvents(data || [])
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    fetchEvents()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const filtered = useMemo(() => {
-    return kSAEvents
-      .filter((e) => cityFilter === ALL || e.city === cityFilter)
-      .filter((e) => categoryFilter === ALL || e.category === categoryFilter)
-      .filter(
-        (e) =>
-          search === '' ||
-          e.title.includes(search) ||
-          e.description.includes(search)
-      )
-      .sort((a, b) => {
-        const cd = (cityOrder[a.city] ?? 3) - (cityOrder[b.city] ?? 3)
-        if (cd !== 0) return cd
-        return new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
-      })
-  }, [search, cityFilter, categoryFilter])
+  const displayTitle = (e: EventRow) => (locale === 'en' && e.title_en ? e.title_en : e.title_ar)
+  const displayDescription = (e: EventRow) => ((locale === 'en' && e.description_en ? e.description_en : e.description_ar) || '')
+  const displayLocation = (e: EventRow) => ((locale === 'en' && e.location_en ? e.location_en : e.location_ar) || '')
 
-  const cities = [ALL, 'الرياض', 'الشرقية', 'جدة']
+  const statusLabel = (status: string | null) => {
+    if (status === 'upcoming') return t('statusUpcoming')
+    if (status === 'ongoing') return t('statusOngoing')
+    if (status === 'tbd') return t('statusTbd')
+    return status || ''
+  }
+
+  const cities = [ALL, ...CITY_VALUES]
+
+  const filtered = useMemo(() => {
+    return events
+      .filter((e) => cityFilter === ALL || e.city === cityFilter)
+      .filter((e) => statusFilter === ALL || e.status === statusFilter)
+      .filter((e) => {
+        if (search === '') return true
+        return displayTitle(e).includes(search) || displayDescription(e).includes(search)
+      })
+      .sort((a, b) => {
+        const cd = (cityOrder[a.city || ''] ?? 3) - (cityOrder[b.city || ''] ?? 3)
+        if (cd !== 0) return cd
+        if (!a.start_date && !b.start_date) return 0
+        if (!a.start_date) return 1
+        if (!b.start_date) return -1
+        return new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+      })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [events, search, cityFilter, statusFilter, locale])
+
+  const openAddModal = () => {
+    setEditingEvent(null)
+    setForm(emptyForm)
+    setSaveError('')
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (ev: EventRow) => {
+    setEditingEvent(ev)
+    const isFixedCity = (CITY_VALUES as readonly string[]).includes(ev.city || '')
+    setForm({
+      title_ar: ev.title_ar || '',
+      title_en: ev.title_en || '',
+      description_ar: ev.description_ar || '',
+      description_en: ev.description_en || '',
+      city: ev.city ? (isFixedCity ? ev.city : 'custom') : 'الرياض',
+      customCity: ev.city && !isFixedCity ? ev.city : '',
+      location_ar: ev.location_ar || '',
+      location_en: ev.location_en || '',
+      start_date: ev.start_date || '',
+      end_date: ev.end_date || '',
+      status: ev.status || 'upcoming',
+      image_url: ev.image_url || '',
+      contact_name: ev.contact_name || '',
+      contact_phone: ev.contact_phone || '',
+      contact_email: ev.contact_email || '',
+    })
+    setSaveError('')
+    setIsModalOpen(true)
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false)
+    setEditingEvent(null)
+    setSaveError('')
+  }
+
+  const handleSave = async () => {
+    if (!form.title_ar.trim()) {
+      setSaveError(t('titleArRequiredError'))
+      return
+    }
+
+    const resolvedCity = form.city === 'custom' ? form.customCity.trim() : form.city
+
+    const payload = {
+      title_ar: form.title_ar.trim(),
+      title_en: form.title_en.trim() || null,
+      description_ar: form.description_ar.trim() || null,
+      description_en: form.description_en.trim() || null,
+      city: resolvedCity || null,
+      location_ar: form.location_ar.trim() || null,
+      location_en: form.location_en.trim() || null,
+      start_date: form.start_date || null,
+      end_date: form.end_date || null,
+      status: form.status,
+      image_url: form.image_url.trim() || null,
+      contact_name: form.contact_name.trim() || null,
+      contact_phone: form.contact_phone.trim() || null,
+      contact_email: form.contact_email.trim() || null,
+    }
+
+    setSaving(true)
+    setSaveError('')
+
+    const { error } = editingEvent
+      ? await supabase.from('events').update(payload).eq('id', editingEvent.id)
+      : await supabase.from('events').insert(payload)
+
+    setSaving(false)
+    if (error) {
+      setSaveError(error.message)
+      return
+    }
+    closeModal()
+    await fetchEvents()
+    flashSuccess(editingEvent ? t('saveSuccess') : t('addSuccess'))
+  }
+
+  const handleDelete = async (ev: EventRow) => {
+    if (!window.confirm(t('deleteConfirm', { title: displayTitle(ev) }))) return
+    const { error } = await supabase.from('events').delete().eq('id', ev.id)
+    if (error) {
+      window.alert(error.message)
+      return
+    }
+    await fetchEvents()
+    flashSuccess(t('deleteSuccess'))
+  }
+
+  const addButton = (
+    <button
+      onClick={openAddModal}
+      style={{
+        background: 'var(--gold)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: 500,
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+      }}
+    >
+      {t('addButton')}
+    </button>
+  )
 
   return (
     <div>
@@ -96,7 +311,7 @@ export default function EventsPage() {
             placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={isRtl ? { ...inputStyle, width: '100%', paddingRight: '32px' } : { ...inputStyle, width: '100%', paddingLeft: '32px' }}
+            style={isRtl ? { ...inputStyle, paddingRight: '32px' } : { ...inputStyle, paddingLeft: '32px' }}
           />
         </div>
 
@@ -125,24 +340,43 @@ export default function EventsPage() {
           ))}
         </div>
 
-        {/* Category label + select */}
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('categoryLabel')}</span>
+        {/* Status label + select */}
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('statusLabel')}</span>
         <select
-          value={categoryFilter}
-          onChange={(e) => setCategoryFilter(e.target.value)}
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
           style={{ ...inputStyle, width: isMobile ? '100%' : 'auto', cursor: 'pointer' }}
         >
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat === ALL ? t('allOption') : cat}</option>
+          <option value={ALL}>{t('allOption')}</option>
+          {STATUS_VALUES.map((s) => (
+            <option key={s} value={s}>{statusLabel(s)}</option>
           ))}
         </select>
+
+        {!isMobile && <div style={{ marginInlineStart: 'auto' }}>{addButton}</div>}
+        {isMobile && addButton}
       </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
-        {filtered.length === 0 ? (
+        {successMessage && (
+          <div style={{
+            marginBottom: '16px',
+            padding: '10px 14px',
+            borderRadius: '8px',
+            background: 'var(--success-bg)',
+            color: 'var(--success-text)',
+            fontSize: '13px',
+          }}>
+            {successMessage}
+          </div>
+        )}
+
+        {loading ? (
+          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('loading')}</div>
+        ) : filtered.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)' }}>
             <SearchX size={36} style={{ margin: '0 auto 12px', opacity: 0.4, display: 'block' }} />
-            <p style={{ fontSize: '14px' }}>{t('noResultsMessage')}</p>
+            <p style={{ fontSize: '14px' }}>{events.length === 0 ? t('emptyState') : t('noResultsMessage')}</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
@@ -174,10 +408,10 @@ export default function EventsPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  {event.image ? (
+                  {event.image_url ? (
                     <img
-                      src={event.image}
-                      alt={event.title}
+                      src={event.image_url}
+                      alt={displayTitle(event)}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -200,8 +434,7 @@ export default function EventsPage() {
                       {t('noImageText')}
                     </div>
                   )}
-                  {/* Status badge overlaid on image */}
-                  {event.status === 'جارٍ' && (
+                  {event.status === 'ongoing' && (
                     <span style={{
                       position: 'absolute', top: 10, left: 10,
                       background: '#16a34a', color: '#fff',
@@ -210,17 +443,17 @@ export default function EventsPage() {
                       display: 'flex', alignItems: 'center', gap: 5
                     }}>
                       <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block' }} />
-                      يعمل الآن
+                      {t('statusOngoing')}
                     </span>
                   )}
-                  {event.status === 'تاريخ غير محدد' && (
+                  {event.status === 'tbd' && (
                     <span style={{
                       position: 'absolute', top: 10, left: 10,
                       background: 'rgba(0,0,0,0.6)', color: '#fff',
                       fontSize: '11px', fontWeight: 500,
                       padding: '3px 10px', borderRadius: '20px',
                     }}>
-                      تاريخ غير محدد
+                      {t('statusTbd')}
                     </span>
                   )}
                 </div>
@@ -228,8 +461,17 @@ export default function EventsPage() {
                 {/* Content */}
                 <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                    <Badge text={event.category} variant="neutral" />
-                    <Badge text={event.city} variant={cityVariant(event.city)} />
+                    <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                      {event.city && <Badge text={event.city} variant={cityVariant(event.city)} />}
+                    </div>
+                    <PersonCardMenu
+                      isRtl={isRtl}
+                      optionsAria={t('optionsAria')}
+                      editLabel={t('editAria')}
+                      deleteLabel={t('deleteAria')}
+                      onEdit={() => openEditModal(event)}
+                      onDelete={() => handleDelete(event)}
+                    />
                   </div>
 
                   <h3 style={{
@@ -237,44 +479,48 @@ export default function EventsPage() {
                     overflow: 'hidden', display: '-webkit-box',
                     WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.4,
                   }}>
-                    {event.title}
+                    {displayTitle(event)}
                   </h3>
 
-                  {event.status === 'قادم' && event.dateStart && (
+                  {event.status === 'upcoming' && event.start_date && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', color: 'var(--text-muted)' }}>
                       <CalendarDays size={13} />
-                      <span>
-                        {event.dateStart === event.dateEnd
-                          ? formatArabicDate(event.dateStart)
-                          : `${formatArabicDate(event.dateStart)} — ${formatArabicDate(event.dateEnd)}`}
-                      </span>
+                      <span>{formatDateRange(event.start_date, event.end_date || event.start_date)}</span>
                     </div>
                   )}
 
-                  <p style={{
-                    fontSize: '13px', color: 'var(--text-secondary)',
-                    overflow: 'hidden', display: '-webkit-box',
-                    WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.5, flex: 1,
-                  }}>
-                    {event.description}
-                  </p>
+                  {displayLocation(event) && (
+                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>{displayLocation(event)}</div>
+                  )}
 
-                  {event.link && (
-                    <a
-                      href={event.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        marginTop: 4,
-                        background: 'var(--gold)', color: '#fff',
-                        borderRadius: '8px', padding: '7px 14px',
-                        fontSize: '13px', fontWeight: 500,
-                        textDecoration: 'none', alignSelf: 'flex-start',
-                      }}
-                    >
-                      {t('officialWebsiteButton')} <ExternalLink size={13} />
-                    </a>
+                  {displayDescription(event) && (
+                    <p style={{
+                      fontSize: '13px', color: 'var(--text-secondary)',
+                      overflow: 'hidden', display: '-webkit-box',
+                      WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.5, flex: 1,
+                    }}>
+                      {displayDescription(event)}
+                    </p>
+                  )}
+
+                  {(event.contact_email || event.contact_phone) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+                      {event.contact_name && (
+                        <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{event.contact_name}</span>
+                      )}
+                      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                        {event.contact_email && (
+                          <a href={`mailto:${event.contact_email}`} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '12px', color: 'var(--gold-dark)', textDecoration: 'none' }}>
+                            <Mail size={12} /> {event.contact_email}
+                          </a>
+                        )}
+                        {event.contact_phone && (
+                          <a href={`tel:${event.contact_phone}`} style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: '12px', color: 'var(--gold-dark)', textDecoration: 'none' }}>
+                            <Phone size={12} /> {event.contact_phone}
+                          </a>
+                        )}
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -282,6 +528,137 @@ export default function EventsPage() {
           </div>
         )}
       </div>
+
+      {/* Add / Edit Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={editingEvent ? t('editModalTitle') : t('addModalTitle')}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div>
+            <label style={labelStyle}>{t('titleArLabel')}</label>
+            <input dir="rtl" value={form.title_ar} onChange={(e) => setForm((f) => ({ ...f, title_ar: e.target.value }))} style={inputStyle} required />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('titleEnLabel')}</label>
+            <input dir="ltr" value={form.title_en} onChange={(e) => setForm((f) => ({ ...f, title_en: e.target.value }))} style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('descriptionArLabel')}</label>
+            <textarea dir="rtl" value={form.description_ar} onChange={(e) => setForm((f) => ({ ...f, description_ar: e.target.value }))} style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('descriptionEnLabel')}</label>
+            <textarea dir="ltr" value={form.description_en} onChange={(e) => setForm((f) => ({ ...f, description_en: e.target.value }))} style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('cityFieldLabel')}</label>
+            <select value={form.city} onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} style={{ ...inputStyle, cursor: 'pointer' }}>
+              {CITY_VALUES.map((c) => <option key={c} value={c}>{c}</option>)}
+              <option value="custom">{t('cityCustomOption')}</option>
+            </select>
+          </div>
+
+          {form.city === 'custom' && (
+            <div>
+              <label style={labelStyle}>{t('customCityLabel')}</label>
+              <input dir={isRtl ? 'rtl' : 'ltr'} value={form.customCity} onChange={(e) => setForm((f) => ({ ...f, customCity: e.target.value }))} style={inputStyle} />
+            </div>
+          )}
+
+          <div>
+            <label style={labelStyle}>{t('locationArLabel')}</label>
+            <input dir="rtl" value={form.location_ar} onChange={(e) => setForm((f) => ({ ...f, location_ar: e.target.value }))} style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('locationEnLabel')}</label>
+            <input dir="ltr" value={form.location_en} onChange={(e) => setForm((f) => ({ ...f, location_en: e.target.value }))} style={inputStyle} />
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>{t('startDateLabel')}</label>
+              <input type="date" value={form.start_date} onChange={(e) => setForm((f) => ({ ...f, start_date: e.target.value }))} style={inputStyle} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={labelStyle}>{t('endDateLabel')}</label>
+              <input type="date" value={form.end_date} onChange={(e) => setForm((f) => ({ ...f, end_date: e.target.value }))} style={inputStyle} />
+            </div>
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('statusFieldLabel')}</label>
+            <select value={form.status} onChange={(e) => setForm((f) => ({ ...f, status: e.target.value }))} style={{ ...inputStyle, cursor: 'pointer' }}>
+              {STATUS_VALUES.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('imageUrlLabel')}</label>
+            <input dir="ltr" value={form.image_url} onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))} style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('contactNameLabel')}</label>
+            <input dir={isRtl ? 'rtl' : 'ltr'} value={form.contact_name} onChange={(e) => setForm((f) => ({ ...f, contact_name: e.target.value }))} style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('contactPhoneLabel')}</label>
+            <input dir="ltr" value={form.contact_phone} onChange={(e) => setForm((f) => ({ ...f, contact_phone: e.target.value }))} style={inputStyle} />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('contactEmailLabel')}</label>
+            <input dir="ltr" type="email" value={form.contact_email} onChange={(e) => setForm((f) => ({ ...f, contact_email: e.target.value }))} style={inputStyle} />
+          </div>
+
+          {saveError && (
+            <div style={{ fontSize: '13px', color: 'var(--danger-text)' }}>{saveError}</div>
+          )}
+
+          <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              style={{
+                background: 'var(--gold)',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: saving ? 'not-allowed' : 'pointer',
+                opacity: saving ? 0.7 : 1,
+              }}
+            >
+              {saving ? t('saving') : editingEvent ? t('saveButtonEdit') : t('saveButton')}
+            </button>
+            <button
+              onClick={closeModal}
+              style={{
+                background: 'transparent',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-strong)',
+                borderRadius: '8px',
+                padding: '10px 20px',
+                fontSize: '14px',
+                fontWeight: 500,
+                cursor: 'pointer',
+              }}
+            >
+              {t('cancelButton')}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   )
 }
