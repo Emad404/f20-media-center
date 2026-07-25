@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Clock, ExternalLink } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
@@ -8,19 +9,23 @@ import { courses } from '@/data/courses'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
+const ALL = '__all__'
+
 export default function CoursesPage() {
+  const t = useTranslations('Courses')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
-  const [categoryFilter, setCategoryFilter] = useState('الكل')
+  const [categoryFilter, setCategoryFilter] = useState(ALL)
   const [showRequiredFirst, setShowRequiredFirst] = useState(false)
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(courses.map((c) => c.category)))
-    return ['الكل', ...cats]
+    return [ALL, ...cats]
   }, [])
 
   const filtered = useMemo(() => {
     const list = courses.filter(
-      (c) => categoryFilter === 'الكل' || c.category === categoryFilter
+      (c) => categoryFilter === ALL || c.category === categoryFilter
     )
     if (showRequiredFirst) {
       return [...list].sort((a, b) => Number(b.isRequired) - Number(a.isRequired))
@@ -31,8 +36,8 @@ export default function CoursesPage() {
   return (
     <div>
       <PageHeader
-        title="الدورات التدريبية"
-        subtitle="دورات أضافها المدير التنفيذي للفريق"
+        title={t('pageTitle')}
+        subtitle={t('subtitle')}
       />
 
       {/* Controls */}
@@ -45,6 +50,7 @@ export default function CoursesPage() {
           alignItems: 'center',
           gap: '10px',
           flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
         {categories.map((cat) => (
@@ -64,7 +70,7 @@ export default function CoursesPage() {
               transition: 'background-color 0.15s ease, color 0.15s ease',
             }}
           >
-            {cat}
+            {cat === ALL ? t('allOption') : cat}
           </button>
         ))}
 
@@ -89,11 +95,11 @@ export default function CoursesPage() {
           }}
         >
           {showRequiredFirst && <span style={{ fontSize: '11px' }}>✓</span>}
-          الإلزامية أولاً
+          {t('requiredFirstButton')}
         </button>
       </div>
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(2, 1fr)', gap: '16px' }}>
           {filtered.map((course) => (
             <div
@@ -112,7 +118,7 @@ export default function CoursesPage() {
               {/* Top row: badges */}
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                 <Badge text={course.category} variant="neutral" />
-                {course.isRequired && <Badge text="إلزامي" variant="gold" />}
+                {course.isRequired && <Badge text={t('requiredBadge')} variant="gold" />}
               </div>
 
               {/* Title */}
@@ -151,7 +157,7 @@ export default function CoursesPage() {
               {/* Divider */}
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                  أضافه: {course.addedBy} · {formatArabicDate(course.dateAdded)}
+                  {t('addedByLabel')} {course.addedBy} · {formatArabicDate(course.dateAdded)}
                 </span>
                 <a
                   href={course.link}
@@ -169,7 +175,7 @@ export default function CoursesPage() {
                     transition: 'background-color 0.15s ease',
                   }}
                 >
-                  فتح الدورة ←
+                  {t('openCourseButton')}
                 </a>
               </div>
             </div>
@@ -178,7 +184,7 @@ export default function CoursesPage() {
 
         {filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)', fontSize: '14px' }}>
-            لا توجد دورات مطابقة
+            {t('noCoursesMessage')}
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useTranslations, useLocale } from 'next-intl'
 import { Camera } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
@@ -16,6 +17,9 @@ function getInitials(name: string): string {
 }
 
 export default function ProfilePage() {
+  const t = useTranslations('Profile')
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile, loading, refreshProfile } = useUserProfile()
@@ -77,12 +81,12 @@ export default function ProfilePage() {
     setPhotoError('')
 
     if (!file.type.startsWith('image/')) {
-      setPhotoError('يرجى اختيار ملف صورة صحيح')
+      setPhotoError(t('invalidImageError'))
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
     if (file.size > 2 * 1024 * 1024) {
-      setPhotoError('يجب أن تكون الصورة أقل من 2 ميجابايت')
+      setPhotoError(t('imageTooLargeError'))
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
@@ -175,15 +179,19 @@ export default function ProfilePage() {
     gap: '6px',
   }
 
+  const displayName = locale === 'en' && profile?.full_name_en ? profile.full_name_en : profile?.full_name_ar
+  const displayJobTitle = locale === 'en' && profile?.job_title_en ? profile.job_title_en : profile?.job_title_ar
+  const displayDepartment = locale === 'en' && profile?.department_en ? profile.department_en : profile?.department_ar
+
   return (
     <div>
-      <PageHeader title="الملف الشخصي" />
+      <PageHeader title={t('pageTitle')} />
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {loading ? (
-          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>جارٍ التحميل...</div>
+          <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('loading')}</div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '20px', direction: isRtl ? 'rtl' : 'ltr' }}>
             {/* Left column */}
             <div
               style={{
@@ -200,7 +208,7 @@ export default function ProfilePage() {
               <div style={{ position: 'relative', width: 96, height: 96, margin: '0 auto' }}>
                 <img
                   src={profile?.profile_image_url || '/employee_placeholder.png'}
-                  alt={profile?.full_name_ar}
+                  alt={displayName}
                   onClick={() => fileInputRef.current?.click()}
                   style={{
                     width: 96,
@@ -213,11 +221,11 @@ export default function ProfilePage() {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  aria-label="تغيير الصورة"
+                  aria-label={t('changePhotoAria')}
                   style={{
                     position: 'absolute',
                     bottom: 0,
-                    left: 0,
+                    [isRtl ? 'left' : 'right']: 0,
                     width: 28,
                     height: 28,
                     borderRadius: '50%',
@@ -243,7 +251,7 @@ export default function ProfilePage() {
 
               {uploading && (
                 <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '10px' }}>
-                  جارٍ الرفع...
+                  {t('uploading')}
                 </div>
               )}
               {photoError && (
@@ -268,20 +276,20 @@ export default function ProfilePage() {
                     cursor: removingPhoto ? 'not-allowed' : 'pointer',
                   }}
                 >
-                  {removingPhoto ? 'جارٍ الإزالة...' : 'إزالة الصورة'}
+                  {removingPhoto ? t('removingPhoto') : t('removePhotoButton')}
                 </button>
               )}
 
               <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginTop: '16px' }}>
-                {profile?.full_name_ar}
+                {displayName}
               </div>
               <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                {profile?.job_title_ar}
+                {displayJobTitle}
               </div>
 
-              {profile?.department_ar && (
+              {displayDepartment && (
                 <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
-                  <Badge text={profile.department_ar} variant="neutral" />
+                  <Badge text={displayDepartment} variant="neutral" />
                 </div>
               )}
             </div>
@@ -298,12 +306,12 @@ export default function ProfilePage() {
               }}
             >
               <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                معلومات المستخدم
+                {t('sectionTitle')}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <div>
-                  <div style={labelStyle}>الاسم الكامل (عربي)</div>
+                  <div style={labelStyle}>{t('fullNameArLabel')}</div>
                   <input
                     dir="rtl"
                     value={form.full_name_ar}
@@ -313,7 +321,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <div style={labelStyle}>Full Name (English)</div>
+                  <div style={labelStyle}>{t('fullNameEnLabel')}</div>
                   <input
                     dir="ltr"
                     value={form.full_name_en}
@@ -323,7 +331,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <div style={labelStyle}>رقم الهاتف</div>
+                  <div style={labelStyle}>{t('phoneLabel')}</div>
                   <input
                     value={form.phone}
                     onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
@@ -333,32 +341,32 @@ export default function ProfilePage() {
 
                 <div>
                   <div style={labelStyle}>
-                    البريد الإلكتروني
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(لا يمكن تعديله)</span>
+                    {t('emailLabel')}
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('readOnlyNote')}</span>
                   </div>
                   <input value={profile?.email || ''} disabled style={readOnlyStyle} />
                 </div>
 
                 <div>
                   <div style={labelStyle}>
-                    المسمى الوظيفي
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(لا يمكن تعديله)</span>
+                    {t('jobTitleLabel')}
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('readOnlyNote')}</span>
                   </div>
-                  <input value={profile?.job_title_ar || ''} disabled style={readOnlyStyle} />
+                  <input value={displayJobTitle || ''} disabled style={readOnlyStyle} />
                 </div>
 
                 <div>
                   <div style={labelStyle}>
-                    القسم
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(لا يمكن تعديله)</span>
+                    {t('departmentLabel')}
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('readOnlyNote')}</span>
                   </div>
-                  <input value={profile?.department_ar || ''} disabled style={readOnlyStyle} />
+                  <input value={displayDepartment || ''} disabled style={readOnlyStyle} />
                 </div>
 
                 <div>
                   <div style={labelStyle}>
-                    الصلاحية
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>(لا يمكن تعديله)</span>
+                    {t('roleLabel')}
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('readOnlyNote')}</span>
                   </div>
                   <input value={profile?.role || ''} disabled style={readOnlyStyle} />
                 </div>
@@ -379,14 +387,14 @@ export default function ProfilePage() {
                     cursor: hasChanges && !saving ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {saving ? 'جارٍ الحفظ...' : 'حفظ'}
+                  {saving ? t('saving') : t('saveButton')}
                 </button>
 
                 {status === 'success' && (
-                  <span style={{ fontSize: '13px', color: 'var(--success-text)' }}>تم الحفظ بنجاح</span>
+                  <span style={{ fontSize: '13px', color: 'var(--success-text)' }}>{t('saveSuccess')}</span>
                 )}
                 {status === 'error' && (
-                  <span style={{ fontSize: '13px', color: 'var(--danger-text)' }}>حدث خطأ أثناء الحفظ</span>
+                  <span style={{ fontSize: '13px', color: 'var(--danger-text)' }}>{t('saveError')}</span>
                 )}
               </div>
             </div>

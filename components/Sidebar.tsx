@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
@@ -31,29 +32,10 @@ interface NavItem {
 
 const CONTACTS_ALLOWED_ROLES = ['developer', 'ceo', 'project_manager', 'media_manager']
 
-const mainNav: NavItem[] = [
-  { href: '/', icon: LayoutDashboard, label: 'الرئيسية' },
-]
-
-const contentNav: NavItem[] = [
-  { href: '/events', icon: CalendarDays, label: 'فعاليات المملكة' },
-  { href: '/world-days', icon: Globe, label: 'الأيام العالمية' },
-  { href: '/exhibitions', icon: Building2, label: 'المعارض والمؤتمرات' },
-  { href: '/company-events', icon: Star, label: 'فعاليات الشركة' },
- 
-]
-
-const toolsNav: NavItem[] = [
-  { href: '/reports', icon: BarChart3, label: 'تقارير الأداء' },
-  { href: '/predictions', icon: Trophy, label: 'توقعات الهلال' },
-  { href: '/courses', icon: BookOpen, label: 'الدورات التدريبية' },
-  { href: '/employees', icon: Users, label: 'قائمة الموظفين' },
-  { href: '/calendar', icon: Calendar, label: 'التقويم' },
-  { href: '/social', icon: Share2, label: 'السوشال ميديا' }
-]
-
 function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
   const Icon = item.icon
+  const isRtl = useLocale() === 'ar'
+  const activeBorder = isActive ? '2px solid var(--gold)' : '2px solid transparent'
   return (
     <Link
       href={item.href}
@@ -68,7 +50,8 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
         fontSize: '14px',
         color: isActive ? 'var(--gold)' : 'var(--text-on-dark-muted)',
         background: isActive ? 'var(--sidebar-active)' : 'transparent',
-        borderRight: isActive ? '2px solid var(--gold)' : '2px solid transparent',
+        borderRight: isRtl ? activeBorder : undefined,
+        borderLeft: isRtl ? undefined : activeBorder,
         transition: 'background-color 0.15s ease, color 0.15s ease',
         textDecoration: 'none',
       }}
@@ -92,13 +75,36 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
 }
 
 export default function Sidebar() {
+  const t = useTranslations('Sidebar')
+  const isRtl = useLocale() === 'ar'
   const pathname = usePathname()
   const isMobile = useIsMobile()
   const [isOpen, setIsOpen] = useState(false)
 
+  const mainNav: NavItem[] = [
+    { href: '/', icon: LayoutDashboard, label: t('home') },
+  ]
+
+  const contentNav: NavItem[] = [
+    { href: '/events', icon: CalendarDays, label: t('events') },
+    { href: '/world-days', icon: Globe, label: t('worldDays') },
+    { href: '/exhibitions', icon: Building2, label: t('exhibitions') },
+    { href: '/company-events', icon: Star, label: t('companyEvents') },
+  ]
+
+  const toolsNav: NavItem[] = [
+    { href: '/reports', icon: BarChart3, label: t('reports') },
+    { href: '/predictions', icon: Trophy, label: t('predictions') },
+    { href: '/courses', icon: BookOpen, label: t('courses') },
+    { href: '/employees', icon: Users, label: t('employees') },
+    { href: '/calendar', icon: Calendar, label: t('calendar') },
+  ]
+
   const supabase = createClient()
   const router = useRouter()
   const { profile: userProfile } = useUserProfile()
+  const locale = useLocale()
+  const displayName = locale === 'en' && userProfile?.full_name_en ? userProfile.full_name_en : userProfile?.full_name_ar
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -128,7 +134,7 @@ export default function Sidebar() {
     ? {
         position: 'fixed',
         top: 0,
-        right: 0,
+        ...(isRtl ? { right: 0 } : { left: 0 }),
         width: '260px',
         height: '100vh',
         background: 'var(--sidebar-bg)',
@@ -136,13 +142,13 @@ export default function Sidebar() {
         flexDirection: 'column',
         zIndex: 150,
         overflowY: 'auto',
-        transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+        transform: isOpen ? 'translateX(0)' : isRtl ? 'translateX(100%)' : 'translateX(-100%)',
         transition: 'transform 0.25s ease',
       }
     : {
         position: 'fixed',
         top: 0,
-        right: 0,
+        ...(isRtl ? { right: 0 } : { left: 0 }),
         width: '220px',
         height: '100vh',
         background: 'var(--sidebar-bg)',
@@ -161,7 +167,7 @@ export default function Sidebar() {
           style={{
             position: 'fixed',
             top: '12px',
-            right: '12px',
+            ...(isRtl ? { right: '12px' } : { left: '12px' }),
             width: '44px',
             height: '44px',
             background: 'var(--navy)',
@@ -222,45 +228,29 @@ export default function Sidebar() {
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
 
-          <div
-            style={{
-              fontSize: '10px',
-              color: 'var(--text-on-dark-muted)',
-              padding: '12px 20px 4px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            المحتوى
-          </div>
           {contentNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
 
           <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '8px 16px' }} />
 
-          <div
-            style={{
-              fontSize: '10px',
-              color: 'var(--text-on-dark-muted)',
-              padding: '8px 20px 4px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em',
-            }}
-          >
-            الأدوات
-          </div>
           {toolsNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
           {!!userProfile && CONTACTS_ALLOWED_ROLES.includes(userProfile.role) && (
             <NavLink
               key="/contacts"
-              item={{ href: '/contacts', icon: BookUser, label: 'جهات الاتصال' }}
+              item={{ href: '/contacts', icon: BookUser, label: t('contacts') }}
               isActive={isActive('/contacts')}
               onClick={isMobile ? closeSidebar : undefined}
             />
           )}
+          <NavLink
+            key="/social"
+            item={{ href: '/social', icon: Share2, label: t('social') }}
+            isActive={isActive('/social')}
+            onClick={isMobile ? closeSidebar : undefined}
+          />
         </nav>
 
         {/* User info */}
@@ -290,7 +280,7 @@ export default function Sidebar() {
                 borderBottom: '1px solid rgba(255,255,255,0.06)',
               }}>
                 <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 600 }}>
-                  {userProfile?.full_name_ar || 'المستخدم'}
+                  {displayName || 'المستخدم'}
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)', marginTop: '2px' }}>
                   {userProfile?.role || 'موظف'}
@@ -315,7 +305,7 @@ export default function Sidebar() {
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <User size={14} />
-                <span>الملف الشخصي</span>
+                <span>{t('profile')}</span>
               </button>
               <button
                 onClick={handleLogout}
@@ -335,7 +325,7 @@ export default function Sidebar() {
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <LogOut size={14} />
-                <span>تسجيل الخروج</span>
+                <span>{t('logout')}</span>
               </button>
             </div>
           )}
@@ -355,7 +345,7 @@ export default function Sidebar() {
           >
             <img
               src={userProfile?.profile_image_url || '/employee_placeholder.png'}
-              alt={userProfile?.full_name_ar || 'المستخدم'}
+              alt={displayName || 'المستخدم'}
               style={{
                 width: 34,
                 height: 34,
@@ -366,7 +356,7 @@ export default function Sidebar() {
             />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                {userProfile?.full_name_ar || 'المستخدم'}
+                {displayName || 'المستخدم'}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)' }}>
                 {userProfile?.role || 'موظف'}

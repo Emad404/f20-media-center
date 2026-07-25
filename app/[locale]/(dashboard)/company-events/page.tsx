@@ -1,12 +1,15 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { ChevronDown, ChevronUp, MapPin, CalendarDays } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Avatar from '@/components/Avatar'
 import { companyEvents } from '@/data/companyEvents'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+
+const ALL = '__all__'
 
 function StatusBadge({ status }: { status: string }) {
   const isActive = status === 'جارٍ' || status === 'جاري'
@@ -34,21 +37,23 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 export default function CompanyEventsPage() {
+  const t = useTranslations('CompanyEvents')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
-  const [statusFilter, setStatusFilter] = useState('الكل')
+  const [statusFilter, setStatusFilter] = useState(ALL)
   const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const filtered = useMemo(() => {
     return companyEvents.filter(
-      (e) => statusFilter === 'الكل' || e.status === statusFilter
+      (e) => statusFilter === ALL || e.status === statusFilter
     )
   }, [statusFilter])
 
-  const statuses = ['الكل', 'قادم', 'جاري', 'منتهي']
+  const statuses = [ALL, 'قادم', 'جاري', 'منتهي']
 
   return (
     <div>
-      <PageHeader title="فعاليات الشركة" />
+      <PageHeader title={t('pageTitle')} />
 
       {/* Status tabs */}
       <div
@@ -59,6 +64,7 @@ export default function CompanyEventsPage() {
           display: 'flex',
           gap: '8px',
           flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
         {statuses.map((s) => (
@@ -78,12 +84,12 @@ export default function CompanyEventsPage() {
               transition: 'background-color 0.15s ease, color 0.15s ease',
             }}
           >
-            {s}
+            {s === ALL ? t('allOption') : s}
           </button>
         ))}
       </div>
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '12px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {filtered.map((event) => {
           const isExpanded = expandedId === event.id
           return (
@@ -178,7 +184,7 @@ export default function CompanyEventsPage() {
                   {/* Requirements */}
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                      المتطلبات
+                      {t('requirementsLabel')}
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {event.requirements.map((req, idx) => (
@@ -202,7 +208,7 @@ export default function CompanyEventsPage() {
                   {/* Team members */}
                   <div>
                     <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                      فريق العمل
+                      {t('teamLabel')}
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                       {event.teamMembers.map((member, idx) => (
@@ -221,7 +227,7 @@ export default function CompanyEventsPage() {
                   {event.notes && (
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                        ملاحظات
+                        {t('notesLabel')}
                       </div>
                       <div
                         style={{
@@ -245,7 +251,7 @@ export default function CompanyEventsPage() {
 
         {filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '48px', color: 'var(--text-muted)', fontSize: '14px' }}>
-            لا توجد فعاليات مطابقة
+            {t('noResultsMessage')}
           </div>
         )}
       </div>

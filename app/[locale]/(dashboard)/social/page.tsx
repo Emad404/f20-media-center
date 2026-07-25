@@ -1,5 +1,6 @@
 'use client'
 
+import { useLocale, useTranslations } from 'next-intl'
 import PageHeader from '@/components/PageHeader'
 import { socialAccounts } from '@/data/social'
 import { Mail, Globe } from 'lucide-react'
@@ -39,16 +40,20 @@ function SocialIcon({ type }: { type: string }) {
 }
 
 export default function SocialPage() {
+  const t = useTranslations('Social')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
   return (
     <div>
       <PageHeader
-        title="حسابات التواصل الاجتماعي"
-        subtitle="قنوات التواصل الرسمية لـ F20 Event"
+        title={t('pageTitle')}
+        subtitle={t('subtitle')}
       />
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
-          {socialAccounts.map((account) => (
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fill, minmax(180px, 1fr))', gap: '16px' }}>
+          {socialAccounts.map((account) => {
+            const displayName = !isRtl && account.name_en ? account.name_en : account.name_ar
+            return (
             <div
               key={account.id}
               style={{
@@ -60,6 +65,7 @@ export default function SocialPage() {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '12px',
+                aspectRatio: '1 / 1',
               }}
             >
               <div style={{ color: 'var(--text-secondary)' }}>
@@ -67,7 +73,7 @@ export default function SocialPage() {
               </div>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '4px' }}>
-                  {account.platform}
+                  {displayName}
                 </div>
                 <div
                   style={{
@@ -100,10 +106,11 @@ export default function SocialPage() {
                   transition: 'background-color 0.15s ease',
                 }}
               >
-                {account.type === 'email' ? 'فتح البريد' : account.type === 'website' ? 'فتح الموقع' : 'فتح الحساب'}
+                {account.type === 'email' ? t('openEmailButton') : account.type === 'website' ? t('openWebsiteButton') : t('openAccountButton')}
               </a>
             </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>

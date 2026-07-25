@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { Search } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
@@ -10,6 +11,8 @@ import Modal from '@/components/Modal'
 import { reports as initialReports, type PerformanceReport } from '@/data/reports'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+
+const ALL = '__all__'
 
 const inputStyle: React.CSSProperties = {
   background: 'var(--bg-input)',
@@ -64,23 +67,25 @@ const emptyForm = {
 }
 
 export default function ReportsPage() {
+  const t = useTranslations('Reports')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
   const [reportList, setReportList] = useState<PerformanceReport[]>(initialReports)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
-  const [employeeFilter, setEmployeeFilter] = useState('الكل')
+  const [employeeFilter, setEmployeeFilter] = useState(ALL)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [form, setForm] = useState(emptyForm)
   const [formError, setFormError] = useState('')
 
   const employees = useMemo(() => {
     const names = Array.from(new Set(reportList.map((r) => r.employeeName)))
-    return ['الكل', ...names]
+    return [ALL, ...names]
   }, [reportList])
 
   const filtered = useMemo(() => {
     return reportList
-      .filter((r) => employeeFilter === 'الكل' || r.employeeName === employeeFilter)
+      .filter((r) => employeeFilter === ALL || r.employeeName === employeeFilter)
       .filter(
         (r) =>
           search === '' ||
@@ -94,7 +99,7 @@ export default function ReportsPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!form.employeeName || !form.eventName || !form.location || !form.date || !form.generalGoal || !form.programRating) {
-      setFormError('يرجى تعبئة جميع الحقول الإلزامية')
+      setFormError(t('formErrorMessage'))
       return
     }
     const newReport: PerformanceReport = {
@@ -111,7 +116,7 @@ export default function ReportsPage() {
   return (
     <div>
       <PageHeader
-        title="تقارير الأداء"
+        title={t('pageTitle')}
         action={
           <button
             onClick={() => setIsModalOpen(true)}
@@ -127,19 +132,20 @@ export default function ReportsPage() {
               transition: 'background-color 0.15s ease',
             }}
           >
-            + إضافة تقرير
+            {t('addButton')}
           </button>
         }
       />
 
-      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: isMobile ? 'auto' : 'calc(100vh - 65px)', overflow: isMobile ? 'visible' : 'hidden' }}>
+      <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: isMobile ? 'auto' : 'calc(100vh - 65px)', overflow: isMobile ? 'visible' : 'hidden', direction: isRtl ? 'rtl' : 'ltr' }}>
         {/* Left panel — 35% on desktop, full width + fixed height on mobile */}
         <div
           style={{
             width: isMobile ? '100%' : '35%',
             height: isMobile ? '300px' : 'auto',
             overflowY: isMobile ? 'auto' : 'hidden',
-            borderLeft: isMobile ? 'none' : '1px solid var(--border)',
+            borderLeft: isMobile || !isRtl ? 'none' : '1px solid var(--border)',
+            borderRight: isMobile || isRtl ? 'none' : '1px solid var(--border)',
             borderBottom: isMobile ? '1px solid var(--border)' : 'none',
             display: 'flex',
             flexDirection: 'column',
@@ -150,13 +156,23 @@ export default function ReportsPage() {
           {/* Filters */}
           <div style={{ padding: '16px', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <div style={{ position: 'relative' }}>
-              <Search size={14} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+              <Search
+                size={14}
+                style={{
+                  position: 'absolute',
+                  [isRtl ? 'right' : 'left']: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-muted)',
+                  pointerEvents: 'none',
+                }}
+              />
               <input
                 type="text"
-                placeholder="بحث..."
+                placeholder={t('searchPlaceholder')}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                style={{ ...inputStyle, paddingRight: '30px' }}
+                style={isRtl ? { ...inputStyle, paddingRight: '30px' } : { ...inputStyle, paddingLeft: '30px' }}
               />
             </div>
             <select
@@ -164,7 +180,7 @@ export default function ReportsPage() {
               onChange={(e) => setEmployeeFilter(e.target.value)}
               style={{ ...inputStyle, cursor: 'pointer' }}
             >
-              {employees.map((emp) => <option key={emp} value={emp}>{emp}</option>)}
+              {employees.map((emp) => <option key={emp} value={emp}>{emp === ALL ? t('allOption') : emp}</option>)}
             </select>
           </div>
 
@@ -200,7 +216,7 @@ export default function ReportsPage() {
             ))}
             {filtered.length === 0 && (
               <div style={{ padding: '48px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '13px' }}>
-                لا توجد نتائج
+                {t('noResultsMessage')}
               </div>
             )}
           </div>
@@ -210,36 +226,36 @@ export default function ReportsPage() {
         <div style={{ flex: 1, overflowY: 'auto', background: 'var(--bg-page)', padding: isMobile ? '16px' : '24px' }}>
           {!selected ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--text-muted)', fontSize: '14px' }}>
-              اختر تقريراً من القائمة
+              {t('selectReportMessage')}
             </div>
           ) : (
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--navy)' }}>{selected.eventName}</h2>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <DetailRow label="اسم الموظف" value={selected.employeeName} />
-                <DetailRow label="اسم الفعالية" value={selected.eventName} />
-                <DetailRow label="الموقع" value={selected.location} />
-                <DetailRow label="التاريخ" value={formatArabicDate(selected.date)} />
+                <DetailRow label={t('employeeNameLabel')} value={selected.employeeName} />
+                <DetailRow label={t('eventNameLabel')} value={selected.eventName} />
+                <DetailRow label={t('locationLabel')} value={selected.location} />
+                <DetailRow label={t('dateLabel')} value={formatArabicDate(selected.date)} />
               </div>
 
               <div style={{ height: '1px', background: 'var(--border)' }} />
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <DetailRow label="الهدف العام" value={selected.generalGoal} />
-                <DetailRow label="الأهداف المحققة" value={selected.achievedGoals} />
-                <DetailRow label="بيانات الحضور" value={selected.attendanceData} />
+                <DetailRow label={t('generalGoalLabel')} value={selected.generalGoal} />
+                <DetailRow label={t('achievedGoalsLabel')} value={selected.achievedGoals} />
+                <DetailRow label={t('attendanceDataLabel')} value={selected.attendanceData} />
               </div>
 
               <div style={{ height: '1px', background: 'var(--border)' }} />
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>تقييم البرنامج</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>{t('programRatingLabel')}</span>
                   <StarRating value={selected.programRating} />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>جودة البرنامج</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>{t('programQualityLabel')}</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ flex: 1, height: 6, background: 'var(--neutral-bg)', borderRadius: 3 }}>
                       <div
@@ -257,7 +273,7 @@ export default function ReportsPage() {
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '130px 1fr', gap: '8px', alignItems: 'center' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>الالتزام بالخطة</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 500 }}>{t('adherenceLabel')}</span>
                   <Badge text={selected.adherence} variant={adherenceVariant(selected.adherence)} />
                 </div>
               </div>
@@ -265,9 +281,9 @@ export default function ReportsPage() {
               <div style={{ height: '1px', background: 'var(--border)' }} />
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <DetailRow label="الإيجابيات" value={selected.positives} />
-                <DetailRow label="التحديات" value={selected.challenges} />
-                <DetailRow label="التوصيات" value={selected.recommendations} />
+                <DetailRow label={t('positivesLabel')} value={selected.positives} />
+                <DetailRow label={t('challengesLabel')} value={selected.challenges} />
+                <DetailRow label={t('recommendationsLabel')} value={selected.recommendations} />
               </div>
             </div>
           )}
@@ -275,8 +291,8 @@ export default function ReportsPage() {
       </div>
 
       {/* Add Report Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setForm(emptyForm); setFormError('') }} title="إضافة تقرير جديد">
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setForm(emptyForm); setFormError('') }} title={t('addModalTitle')}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', direction: isRtl ? 'rtl' : 'ltr' }}>
           {formError && (
             <div style={{ background: 'var(--danger-bg)', color: 'var(--danger-text)', borderRadius: '8px', padding: '10px 12px', fontSize: '13px' }}>
               {formError}
@@ -285,25 +301,25 @@ export default function ReportsPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={labelStyle}>اسم الموظف *</label>
+              <label style={labelStyle}>{t('employeeNameFieldLabel')}</label>
               <input style={inputStyle} value={form.employeeName} onChange={(e) => setForm({ ...form, employeeName: e.target.value })} />
             </div>
             <div>
-              <label style={labelStyle}>اسم الفعالية *</label>
+              <label style={labelStyle}>{t('eventNameFieldLabel')}</label>
               <input style={inputStyle} value={form.eventName} onChange={(e) => setForm({ ...form, eventName: e.target.value })} />
             </div>
             <div>
-              <label style={labelStyle}>الموقع *</label>
+              <label style={labelStyle}>{t('locationFieldLabel')}</label>
               <input style={inputStyle} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
             </div>
             <div>
-              <label style={labelStyle}>التاريخ *</label>
+              <label style={labelStyle}>{t('dateFieldLabel')}</label>
               <input type="date" style={inputStyle} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} />
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>الهدف العام *</label>
+            <label style={labelStyle}>{t('generalGoalFieldLabel')}</label>
             <textarea
               style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }}
               value={form.generalGoal}
@@ -312,7 +328,7 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>الأهداف المحققة</label>
+            <label style={labelStyle}>{t('achievedGoalsLabel')}</label>
             <textarea
               style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }}
               value={form.achievedGoals}
@@ -321,12 +337,12 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>بيانات الحضور</label>
+            <label style={labelStyle}>{t('attendanceDataLabel')}</label>
             <input style={inputStyle} value={form.attendanceData} onChange={(e) => setForm({ ...form, attendanceData: e.target.value })} />
           </div>
 
           <div>
-            <label style={labelStyle}>تقييم البرنامج (1-5) *</label>
+            <label style={labelStyle}>{t('programRatingFieldLabel')}</label>
             <div style={{ display: 'flex', gap: '6px' }}>
               {[1, 2, 3, 4, 5].map((star) => (
                 <button
@@ -350,7 +366,7 @@ export default function ReportsPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={labelStyle}>جودة البرنامج (0-10)</label>
+              <label style={labelStyle}>{t('programQualityFieldLabel')}</label>
               <input
                 type="number"
                 min="0"
@@ -361,29 +377,29 @@ export default function ReportsPage() {
               />
             </div>
             <div>
-              <label style={labelStyle}>الالتزام بالخطة</label>
+              <label style={labelStyle}>{t('adherenceLabel')}</label>
               <select
                 style={{ ...inputStyle, cursor: 'pointer' }}
                 value={form.adherence}
                 onChange={(e) => setForm({ ...form, adherence: e.target.value as PerformanceReport['adherence'] })}
               >
-                <option value="مطابق للخطة">مطابق للخطة</option>
-                <option value="تعديل طفيف">تعديل طفيف</option>
-                <option value="تغيير كبير">تغيير كبير</option>
+                <option value="مطابق للخطة">{t('adherenceMatchedOption')}</option>
+                <option value="تعديل طفيف">{t('adherenceMinorOption')}</option>
+                <option value="تغيير كبير">{t('adherenceMajorOption')}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>الإيجابيات</label>
+            <label style={labelStyle}>{t('positivesLabel')}</label>
             <textarea style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.positives} onChange={(e) => setForm({ ...form, positives: e.target.value })} />
           </div>
           <div>
-            <label style={labelStyle}>التحديات</label>
+            <label style={labelStyle}>{t('challengesLabel')}</label>
             <textarea style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.challenges} onChange={(e) => setForm({ ...form, challenges: e.target.value })} />
           </div>
           <div>
-            <label style={labelStyle}>التوصيات</label>
+            <label style={labelStyle}>{t('recommendationsLabel')}</label>
             <textarea style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.recommendations} onChange={(e) => setForm({ ...form, recommendations: e.target.value })} />
           </div>
 
@@ -392,14 +408,14 @@ export default function ReportsPage() {
               type="submit"
               style={{ background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: '8px', padding: '9px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}
             >
-              حفظ التقرير
+              {t('saveButton')}
             </button>
             <button
               type="button"
               onClick={() => { setIsModalOpen(false); setForm(emptyForm); setFormError('') }}
               style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-strong)', borderRadius: '8px', padding: '9px 20px', fontSize: '14px', cursor: 'pointer' }}
             >
-              إلغاء
+              {t('cancelButton')}
             </button>
           </div>
         </form>

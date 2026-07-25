@@ -2,10 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
-import { Search, Mail, Phone, Pencil, Trash2 } from 'lucide-react'
+import { Search } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
-import Badge from '@/components/Badge'
 import Modal from '@/components/Modal'
+import PersonCard from '@/components/PersonCard'
+import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
@@ -39,12 +40,6 @@ type ContactForm = {
   notes: string
 }
 
-const CARD_COLORS = ['var(--gold)', '#4F46E5', 'var(--navy-mid)', '#0891B2', '#7C3AED', 'var(--border-strong)']
-
-function cardColor(index: number): string {
-  return CARD_COLORS[index % CARD_COLORS.length]
-}
-
 const emptyForm: ContactForm = {
   full_name_ar: '',
   full_name_en: '',
@@ -75,7 +70,7 @@ export default function ContactsPage() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
 
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const isRtl = locale === 'ar'
 
   const fetchContacts = async () => {
     setLoading(true)
@@ -222,15 +217,25 @@ export default function ContactsPage() {
         }
       />
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: locale === 'ar' ? 'rtl' : 'ltr' }}>
         {/* Search */}
         <div style={{ marginBottom: '20px', position: 'relative', width: isMobile ? '100%' : '280px' }}>
-          <Search size={14} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+          <Search
+            size={14}
+            style={{
+              position: 'absolute',
+              [locale === 'ar' ? 'right' : 'left']: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--text-muted)',
+              pointerEvents: 'none',
+            }}
+          />
           <input
             placeholder={t('searchPlaceholder')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ ...inputStyle, paddingRight: '30px' }}
+            style={locale === 'ar' ? { ...inputStyle, paddingRight: '30px' } : { ...inputStyle, paddingLeft: '30px' }}
           />
         </div>
 
@@ -241,114 +246,36 @@ export default function ContactsPage() {
             {t('emptyState')}
           </div>
         ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
-            {filteredContacts.map((contact, index) => {
+          <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fill, minmax(300px, 1fr))', gap: '16px' }}>
+            {filteredContacts.map((contact) => {
               const displayName = locale === 'en' && contact.full_name_en ? contact.full_name_en : contact.full_name_ar
               const displayJobTitle = locale === 'en' && contact.job_title_en ? contact.job_title_en : contact.job_title_ar
               const displayCompany = locale === 'en' && contact.company_en ? contact.company_en : contact.company_ar
               return (
-              <div
-                key={contact.id}
-                onMouseEnter={() => setHoveredId(contact.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                style={{
-                  position: 'relative',
-                  background: 'var(--bg-card)',
-                  border: '1px solid var(--border)',
-                  borderRadius: '12px',
-                  overflow: 'hidden',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                }}
-              >
-                {/* Top color strip */}
-                <div style={{ height: '6px', background: cardColor(index) }} />
-
-                {canManage && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: '14px',
-                      left: '12px',
-                      display: 'flex',
-                      gap: '4px',
-                      opacity: hoveredId === contact.id ? 1 : 0.35,
-                      transition: 'opacity 0.15s ease',
-                    }}
-                  >
-                    <button
-                      onClick={() => openEditModal(contact)}
-                      aria-label={t('editAria')}
-                      style={{
-                        background: 'var(--bg-input)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        padding: '5px',
-                        cursor: 'pointer',
-                        color: 'var(--text-secondary)',
-                        display: 'flex',
-                      }}
-                    >
-                      <Pencil size={13} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(contact)}
-                      aria-label={t('deleteAria')}
-                      style={{
-                        background: 'var(--bg-input)',
-                        border: '1px solid var(--border)',
-                        borderRadius: '6px',
-                        padding: '5px',
-                        cursor: 'pointer',
-                        color: 'var(--danger-text)',
-                        display: 'flex',
-                      }}
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                )}
-
-                {/* Photo + info */}
-                <div style={{ padding: '20px 20px 12px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-                  <img
-                    src="/employee_placeholder.png"
-                    alt={displayName}
-                    style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--border)', marginBottom: 12 }}
-                  />
-                  <div style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {displayName}
-                  </div>
-                  {displayJobTitle && (
-                    <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: 2 }}>
-                      {displayJobTitle}
-                    </div>
-                  )}
-                  {displayCompany && (
-                    <div style={{ marginTop: 8 }}>
-                      <Badge text={displayCompany} variant="neutral" />
-                    </div>
-                  )}
-                </div>
-
-                {/* Contact info */}
-                <div style={{ borderTop: '1px solid var(--border)', padding: '12px 20px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {contact.email && (
-                    <a href={`mailto:${contact.email}`} style={{ fontSize: '12px', color: 'var(--gold-dark)', display: 'flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}>
-                      <Mail size={12} /> {contact.email}
-                    </a>
-                  )}
-                  {contact.phone && (
-                    <span style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <Phone size={12} /> {contact.phone}
-                    </span>
-                  )}
-                  {contact.notes && (
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic', paddingRight: 18 }}>
+                <PersonCard
+                  key={contact.id}
+                  name={displayName}
+                  jobTitle={displayJobTitle}
+                  subtitle={displayCompany}
+                  email={contact.email}
+                  phone={contact.phone}
+                  isRtl={isRtl}
+                  menu={canManage ? (
+                    <PersonCardMenu
+                      isRtl={isRtl}
+                      optionsAria={t('optionsAria')}
+                      editLabel={t('editAria')}
+                      deleteLabel={t('deleteAria')}
+                      onEdit={() => openEditModal(contact)}
+                      onDelete={() => handleDelete(contact)}
+                    />
+                  ) : undefined}
+                  extra={contact.notes ? (
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
                       {contact.notes}
                     </div>
-                  )}
-                </div>
-              </div>
+                  ) : undefined}
+                />
               )
             })}
           </div>

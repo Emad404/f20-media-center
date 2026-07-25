@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { hilalMatches, leaderboard } from '@/data/predictions'
@@ -22,6 +23,8 @@ const inputStyle: React.CSSProperties = {
 }
 
 export default function PredictionsPage() {
+  const t = useTranslations('Predictions')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
   const [predictions, setPredictions] = useState<Record<number, Prediction>>({})
   const [forms, setForms] = useState<Record<number, { home: string; away: string; name: string }>>(
@@ -55,11 +58,11 @@ export default function PredictionsPage() {
   return (
     <div>
       <PageHeader
-        title="توقعات مباريات الهلال"
-        subtitle="توقّع النتيجة الصحيحة وفُز بهدية 🎁"
+        title={t('pageTitle')}
+        subtitle={t('subtitle')}
       />
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {/* Match cards */}
         {hilalMatches.map((match) => {
           const pred = predictions[match.id]
@@ -137,7 +140,7 @@ export default function PredictionsPage() {
                   }}
                 >
                   <input
-                    placeholder="اسمك"
+                    placeholder={t('namePlaceholder')}
                     value={form.name}
                     onChange={(e) => updateForm(match.id, 'name', e.target.value)}
                     style={{ ...inputStyle, maxWidth: '150px' }}
@@ -174,7 +177,7 @@ export default function PredictionsPage() {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    سجّل توقعي
+                    {t('submitPredictionButton')}
                   </button>
                 </div>
               ) : (
@@ -191,7 +194,7 @@ export default function PredictionsPage() {
                 >
                   <span style={{ color: 'var(--success-text)', fontSize: '18px' }}>✓</span>
                   <span style={{ fontSize: '14px', color: 'var(--success-text)', fontWeight: 500 }}>
-                    توقعك: {pred.home} : {pred.away}
+                    {t('yourPredictionLabel')} {pred.home} : {pred.away}
                   </span>
                   <span style={{ fontSize: '13px', color: 'var(--success-text)' }}>— {pred.name}</span>
                   <button
@@ -207,7 +210,7 @@ export default function PredictionsPage() {
                       marginRight: '4px',
                     }}
                   >
-                    تعديل
+                    {t('editButton')}
                   </button>
                 </div>
               )}
@@ -226,26 +229,31 @@ export default function PredictionsPage() {
             marginTop: '8px',
           }}
         >
-          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 4 }}>🏆 المتصدرون</h2>
-          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4, marginBottom: '16px' }}>عدد التوقعات الصحيحة من إجمالي التوقعات المقدمة</p>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: 4 }}>{t('leaderboardTitle')}</h2>
+          <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 4, marginBottom: '16px' }}>{t('leaderboardSubtitle')}</p>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr>
-                {['المركز', 'الموظف', 'التوقعات الصحيحة', 'عدد التوقعات'].map((h) => (
+                {[
+                  { id: 'rank', label: t('rankHeader') },
+                  { id: 'employee', label: t('employeeHeader') },
+                  { id: 'correct', label: t('correctPredictionsHeader') },
+                  { id: 'total', label: t('totalPredictionsHeader') },
+                ].map((h) => (
                   <th
-                    key={h}
+                    key={h.id}
                     style={{
-                      textAlign: 'right',
+                      textAlign: isRtl ? 'right' : 'left',
                       padding: '10px 16px',
                       fontSize: '12px',
                       fontWeight: 500,
                       color: 'var(--text-muted)',
                       borderBottom: '1px solid var(--border)',
                       background: 'var(--bg-page)',
-                      display: isMobile && h === 'المركز' ? 'none' : undefined,
+                      display: isMobile && h.id === 'rank' ? 'none' : undefined,
                     }}
                   >
-                    {h}
+                    {h.label}
                   </th>
                 ))}
               </tr>

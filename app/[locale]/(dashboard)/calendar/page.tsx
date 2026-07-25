@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import { ChevronRight, ChevronLeft, MapPin } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
@@ -9,8 +10,6 @@ import Modal from '@/components/Modal'
 import { tasks as initialTasks, type Task, type TaskType } from '@/data/tasks'
 import { employees } from '@/data/employees'
 import { useIsMobile } from '@/hooks/useIsMobile'
-
-const DAYS_AR = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']
 
 const todayDate = new Date()
 const todayStr = `${todayDate.getFullYear()}-${String(todayDate.getMonth() + 1).padStart(2, '0')}-${String(todayDate.getDate()).padStart(2, '0')}`
@@ -22,11 +21,11 @@ function typeVariant(type: TaskType): 'info' | 'gold' | 'danger' | 'neutral' {
   return 'neutral'
 }
 
-function typeLabel(type: TaskType): string {
-  if (type === 'meeting') return 'اجتماع'
-  if (type === 'event') return 'فعالية'
-  if (type === 'deadline') return 'موعد نهائي'
-  return 'مهمة'
+function typeLabel(type: TaskType, t: (key: string) => string): string {
+  if (type === 'meeting') return t('meetingType')
+  if (type === 'event') return t('eventType')
+  if (type === 'deadline') return t('deadlineType')
+  return t('taskType')
 }
 
 function dotColor(type: TaskType): string {
@@ -93,6 +92,10 @@ const emptyForm = {
 
 
 export default function CalendarPage() {
+  const t = useTranslations('Calendar')
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
+  const daysOfWeek = t.raw('daysOfWeek') as string[]
   const isMobile = useIsMobile()
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 6, 1))
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
@@ -157,7 +160,7 @@ export default function CalendarPage() {
   return (
     <div>
       <PageHeader
-        title="التقويم"
+        title={t('pageTitle')}
         action={
           <button
             onClick={() => setIsModalOpen(true)}
@@ -173,21 +176,21 @@ export default function CalendarPage() {
               transition: 'background-color 0.15s ease',
             }}
           >
-            + إضافة مهمة
+            {t('addTaskButton')}
           </button>
         }
       />
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {/* Month navigation */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 0 20px' }}>
-          <button onClick={goToPrevMonth} style={navBtnStyle}><ChevronRight size={18} /></button>
+          <button onClick={goToPrevMonth} style={navBtnStyle}>{isRtl ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}</button>
           <div style={{ textAlign: 'center' }}>
             <h2 style={{ fontSize: '18px', fontWeight: 600, color: 'var(--navy)' }}>
-              {currentMonth.toLocaleDateString('ar-SA', { calendar: 'gregory', month: 'long', year: 'numeric' })}
+              {currentMonth.toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', { calendar: 'gregory', month: 'long', year: 'numeric' })}
             </h2>
           </div>
-          <button onClick={goToNextMonth} style={navBtnStyle}><ChevronLeft size={18} /></button>
+          <button onClick={goToNextMonth} style={navBtnStyle}>{isRtl ? <ChevronLeft size={18} /> : <ChevronRight size={18} />}</button>
         </div>
 
         {/* Calendar grid */}
@@ -202,7 +205,7 @@ export default function CalendarPage() {
         >
           {/* Day headers */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', borderBottom: '1px solid var(--border)' }}>
-            {DAYS_AR.map((d) => (
+            {daysOfWeek.map((d) => (
               <div
                 key={d}
                 style={{
@@ -309,7 +312,7 @@ export default function CalendarPage() {
             }}
           >
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--navy)', marginBottom: '16px' }}>
-              {new Date(selectedDay + 'T00:00:00').toLocaleDateString('ar-SA', {
+              {new Date(selectedDay + 'T00:00:00').toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', {
                 calendar: 'gregory',
                 weekday: 'long',
                 year: 'numeric',
@@ -320,7 +323,7 @@ export default function CalendarPage() {
 
             {selectedTasks.length === 0 ? (
               <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '24px' }}>
-                لا توجد مهام في هذا اليوم
+                {t('noTasksMessage')}
               </p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -342,7 +345,7 @@ export default function CalendarPage() {
                     }} />
                     <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <Badge text={typeLabel(task.type)} variant={typeVariant(task.type)} />
+                        <Badge text={typeLabel(task.type, t)} variant={typeVariant(task.type)} />
                         <span style={{ fontSize: '14px', fontWeight: 600 }}>{task.title}</span>
                       </div>
                       <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
@@ -371,15 +374,15 @@ export default function CalendarPage() {
       </div>
 
       {/* Add Task Modal */}
-      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setForm({ ...emptyForm }) }} title="إضافة مهمة جديدة">
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      <Modal isOpen={isModalOpen} onClose={() => { setIsModalOpen(false); setForm({ ...emptyForm }) }} title={t('addTaskModalTitle')}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', direction: isRtl ? 'rtl' : 'ltr' }}>
           <div>
-            <label style={labelStyle}>عنوان المهمة *</label>
+            <label style={labelStyle}>{t('taskTitleLabel')}</label>
             <input style={inputStyle} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required />
           </div>
 
           <div>
-            <label style={labelStyle}>الوصف</label>
+            <label style={labelStyle}>{t('descriptionLabel')}</label>
             <textarea
               style={{ ...inputStyle, minHeight: '70px', resize: 'vertical' }}
               value={form.description}
@@ -388,13 +391,13 @@ export default function CalendarPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>المسؤول</label>
+            <label style={labelStyle}>{t('assignedToLabel')}</label>
             <select
               style={{ ...inputStyle, cursor: 'pointer' }}
               value={form.assignedTo}
               onChange={(e) => handleAssignedChange(e.target.value)}
             >
-              <option value="الفريق بأكمله">الفريق بأكمله</option>
+              <option value="الفريق بأكمله">{t('wholeTeamOption')}</option>
               {employees.map((emp) => (
                 <option key={emp.id} value={emp.name}>{emp.name}</option>
               ))}
@@ -403,18 +406,18 @@ export default function CalendarPage() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={labelStyle}>التاريخ *</label>
+              <label style={labelStyle}>{t('dateLabel')}</label>
               <input type="date" style={inputStyle} value={form.date} onChange={(e) => setForm({ ...form, date: e.target.value })} required />
             </div>
             <div>
-              <label style={labelStyle}>الوقت *</label>
+              <label style={labelStyle}>{t('timeLabel')}</label>
               <input type="time" style={inputStyle} value={form.time} onChange={(e) => setForm({ ...form, time: e.target.value })} required />
             </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={labelStyle}>المدة (دقيقة)</label>
+              <label style={labelStyle}>{t('durationLabel')}</label>
               <input
                 type="number"
                 min="5"
@@ -424,22 +427,22 @@ export default function CalendarPage() {
               />
             </div>
             <div>
-              <label style={labelStyle}>النوع</label>
+              <label style={labelStyle}>{t('taskTypeLabel')}</label>
               <select
                 style={{ ...inputStyle, cursor: 'pointer' }}
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as TaskType })}
               >
-                <option value="task">مهمة</option>
-                <option value="meeting">اجتماع</option>
-                <option value="event">فعالية</option>
-                <option value="deadline">موعد نهائي</option>
+                <option value="task">{t('taskType')}</option>
+                <option value="meeting">{t('meetingType')}</option>
+                <option value="event">{t('eventType')}</option>
+                <option value="deadline">{t('deadlineType')}</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>الموقع (اختياري)</label>
+            <label style={labelStyle}>{t('locationLabel')}</label>
             <input style={inputStyle} value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
           </div>
 
@@ -448,14 +451,14 @@ export default function CalendarPage() {
               type="submit"
               style={{ background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: '8px', padding: '9px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}
             >
-              إضافة المهمة
+              {t('submitButton')}
             </button>
             <button
               type="button"
               onClick={() => { setIsModalOpen(false); setForm({ ...emptyForm }) }}
               style={{ background: 'transparent', color: 'var(--text-primary)', border: '1px solid var(--border-strong)', borderRadius: '8px', padding: '9px 20px', fontSize: '14px', cursor: 'pointer' }}
             >
-              إلغاء
+              {t('cancelButton')}
             </button>
           </div>
         </form>

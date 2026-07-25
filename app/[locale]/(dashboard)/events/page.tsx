@@ -1,112 +1,154 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { ExternalLink } from 'lucide-react'
+import { useLocale, useTranslations } from 'next-intl'
+import { Search, SearchX, CalendarDays, ExternalLink } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
-import { exhibitions } from '@/data/exhibitions'
+import { kSAEvents } from '@/data/events'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
-function cityBadgeVariant(city: string): 'riyadh' | 'eastern' | 'jeddah' | 'neutral' {
+const ALL = '__all__'
+const cityOrder: Record<string, number> = { 'الرياض': 0, 'الشرقية': 1, 'جدة': 2 }
+
+function cityVariant(city: string): 'riyadh' | 'eastern' | 'jeddah' {
   if (city === 'الرياض') return 'riyadh'
   if (city === 'الشرقية') return 'eastern'
-  if (city === 'جدة') return 'jeddah'
-  return 'neutral'
+  return 'jeddah'
 }
 
-function catBadgeVariant(cat: string): 'neutral' | 'info' | 'gold' {
-  if (cat === 'معرض') return 'neutral'
-  if (cat === 'مؤتمر') return 'info'
-  return 'gold'
+const inputStyle: React.CSSProperties = {
+  background: 'var(--bg-input)',
+  border: '1px solid var(--border)',
+  borderRadius: '8px',
+  padding: '8px 12px',
+  fontSize: '14px',
+  color: 'var(--text-primary)',
+  outline: 'none',
 }
 
-export default function ExhibitionsPage() {
+export default function EventsPage() {
+  const t = useTranslations('Events')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
-  const [categoryFilter, setCategoryFilter] = useState('الكل')
-  const [cityFilter, setCityFilter] = useState('الكل')
+  const [search, setSearch] = useState('')
+  const [cityFilter, setCityFilter] = useState(ALL)
+  const [categoryFilter, setCategoryFilter] = useState(ALL)
 
-  const cities = useMemo(() => {
-    const cs = Array.from(new Set(exhibitions.map((e) => e.city)))
-    return ['الكل', ...cs]
+  const categories = useMemo(() => {
+    const cats = Array.from(new Set(kSAEvents.map((e) => e.category)))
+    return [ALL, ...cats]
   }, [])
 
   const filtered = useMemo(() => {
-    return exhibitions
-      .filter((e) => categoryFilter === 'الكل' || e.category === categoryFilter)
-      .filter((e) => cityFilter === 'الكل' || e.city === cityFilter)
-  }, [categoryFilter, cityFilter])
+    return kSAEvents
+      .filter((e) => cityFilter === ALL || e.city === cityFilter)
+      .filter((e) => categoryFilter === ALL || e.category === categoryFilter)
+      .filter(
+        (e) =>
+          search === '' ||
+          e.title.includes(search) ||
+          e.description.includes(search)
+      )
+      .sort((a, b) => {
+        const cd = (cityOrder[a.city] ?? 3) - (cityOrder[b.city] ?? 3)
+        if (cd !== 0) return cd
+        return new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
+      })
+  }, [search, cityFilter, categoryFilter])
 
-  const categories = ['الكل', 'معرض', 'مؤتمر', 'ملتقى']
-
-  const btnStyle = (active: boolean): React.CSSProperties => ({
-    padding: '6px 14px',
-    borderRadius: '20px',
-    border: '1px solid',
-    fontSize: '13px',
-    fontWeight: 500,
-    cursor: 'pointer',
-    background: active ? 'var(--gold)' : 'transparent',
-    borderColor: active ? 'var(--gold)' : 'var(--border-strong)',
-    color: active ? '#fff' : 'var(--text-secondary)',
-    transition: 'background-color 0.15s ease, color 0.15s ease',
-  })
+  const cities = [ALL, 'الرياض', 'الشرقية', 'جدة']
 
   return (
     <div>
-      <PageHeader title="المعارض والمؤتمرات" />
+      <PageHeader title={t('pageTitle')} />
 
       {/* Controls */}
       <div
         style={{
           background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
-          padding: isMobile ? '12px 16px' : '14px 32px',
+          padding: isMobile ? '12px 16px' : '16px 32px',
           display: 'flex',
           flexDirection: isMobile ? 'column' : 'row',
           alignItems: isMobile ? 'stretch' : 'center',
           gap: '10px',
           flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>النوع:</span>
+        {/* Search */}
+        <div style={{ position: 'relative', width: '100%', flex: isMobile ? undefined : '1 1 220px', maxWidth: isMobile ? undefined : '320px' }}>
+          <Search
+            size={15}
+            style={{
+              position: 'absolute',
+              [isRtl ? 'right' : 'left']: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--text-muted)',
+              pointerEvents: 'none',
+            }}
+          />
+          <input
+            type="text"
+            placeholder={t('searchPlaceholder')}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            style={isRtl ? { ...inputStyle, width: '100%', paddingRight: '32px' } : { ...inputStyle, width: '100%', paddingLeft: '32px' }}
+          />
+        </div>
+
+        {/* City label + tabs */}
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('cityLabel')}</span>
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-          {categories.map((cat) => (
-            <button key={cat} onClick={() => setCategoryFilter(cat)} style={btnStyle(categoryFilter === cat)}>
-              {cat}
+          {cities.map((city) => (
+            <button
+              key={city}
+              onClick={() => setCityFilter(city)}
+              style={{
+                padding: '6px 14px',
+                borderRadius: '20px',
+                border: '1px solid',
+                fontSize: '13px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                background: cityFilter === city ? 'var(--gold)' : 'transparent',
+                borderColor: cityFilter === city ? 'var(--gold)' : 'var(--border-strong)',
+                color: cityFilter === city ? '#fff' : 'var(--text-secondary)',
+                transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
+              }}
+            >
+              {city === ALL ? t('allOption') : city}
             </button>
           ))}
         </div>
-        {!isMobile && <div style={{ width: '1px', height: '24px', background: 'var(--border)', margin: '0 4px' }} />}
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>المدينة:</span>
+
+        {/* Category label + select */}
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('categoryLabel')}</span>
         <select
-          value={cityFilter}
-          onChange={(e) => setCityFilter(e.target.value)}
-          style={{
-            background: 'var(--bg-input)',
-            border: '1px solid var(--border)',
-            borderRadius: '8px',
-            padding: '6px 12px',
-            fontSize: '13px',
-            color: 'var(--text-primary)',
-            cursor: 'pointer',
-            width: isMobile ? '100%' : 'auto',
-          }}
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          style={{ ...inputStyle, width: isMobile ? '100%' : 'auto', cursor: 'pointer' }}
         >
-          {cities.map((c) => <option key={c} value={c}>{c}</option>)}
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat === ALL ? t('allOption') : cat}</option>
+          ))}
         </select>
       </div>
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {filtered.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)', fontSize: '14px' }}>
-            لا توجد نتائج مطابقة
+          <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)' }}>
+            <SearchX size={36} style={{ margin: '0 auto 12px', opacity: 0.4, display: 'block' }} />
+            <p style={{ fontSize: '14px' }}>{t('noResultsMessage')}</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)', gap: '16px' }}>
-            {filtered.map((ex) => (
+            {filtered.map((event) => (
               <div
-                key={ex.id}
+                key={event.id}
                 style={{
                   background: 'var(--bg-card)',
                   border: '1px solid var(--border)',
@@ -132,10 +174,10 @@ export default function ExhibitionsPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}>
-                  {ex.image ? (
+                  {event.image ? (
                     <img
-                      src={ex.image}
-                      alt={ex.title}
+                      src={event.image}
+                      alt={event.title}
                       style={{
                         width: '100%',
                         height: '100%',
@@ -155,10 +197,11 @@ export default function ExhibitionsPage() {
                       fontSize: '13px',
                       background: 'var(--neutral-bg)',
                     }}>
-                      لا توجد صورة
+                      {t('noImageText')}
                     </div>
                   )}
-                  {ex.status === 'جارٍ' && (
+                  {/* Status badge overlaid on image */}
+                  {event.status === 'جارٍ' && (
                     <span style={{
                       position: 'absolute', top: 10, left: 10,
                       background: '#16a34a', color: '#fff',
@@ -170,7 +213,7 @@ export default function ExhibitionsPage() {
                       يعمل الآن
                     </span>
                   )}
-                  {ex.status === 'تاريخ غير محدد' && (
+                  {event.status === 'تاريخ غير محدد' && (
                     <span style={{
                       position: 'absolute', top: 10, left: 10,
                       background: 'rgba(0,0,0,0.6)', color: '#fff',
@@ -185,8 +228,8 @@ export default function ExhibitionsPage() {
                 {/* Content */}
                 <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                    <Badge text={ex.category} variant={catBadgeVariant(ex.category)} />
-                    <Badge text={ex.city} variant={cityBadgeVariant(ex.city)} />
+                    <Badge text={event.category} variant="neutral" />
+                    <Badge text={event.city} variant={cityVariant(event.city)} />
                   </div>
 
                   <h3 style={{
@@ -194,18 +237,17 @@ export default function ExhibitionsPage() {
                     overflow: 'hidden', display: '-webkit-box',
                     WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.4,
                   }}>
-                    {ex.title}
+                    {event.title}
                   </h3>
 
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                    {ex.organizer}
-                  </div>
-
-                  {ex.status === 'قادم' && ex.dateStart && (
-                    <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
-                      {ex.dateStart === ex.dateEnd
-                        ? formatArabicDate(ex.dateStart)
-                        : `${formatArabicDate(ex.dateStart)} — ${formatArabicDate(ex.dateEnd)}`}
+                  {event.status === 'قادم' && event.dateStart && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', color: 'var(--text-muted)' }}>
+                      <CalendarDays size={13} />
+                      <span>
+                        {event.dateStart === event.dateEnd
+                          ? formatArabicDate(event.dateStart)
+                          : `${formatArabicDate(event.dateStart)} — ${formatArabicDate(event.dateEnd)}`}
+                      </span>
                     </div>
                   )}
 
@@ -214,12 +256,12 @@ export default function ExhibitionsPage() {
                     overflow: 'hidden', display: '-webkit-box',
                     WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', lineHeight: 1.5, flex: 1,
                   }}>
-                    {ex.description}
+                    {event.description}
                   </p>
 
-                  {ex.registrationLink && (
+                  {event.link && (
                     <a
-                      href={ex.registrationLink}
+                      href={event.link}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
@@ -231,7 +273,7 @@ export default function ExhibitionsPage() {
                         textDecoration: 'none', alignSelf: 'flex-start',
                       }}
                     >
-                      الموقع الرسمي <ExternalLink size={13} />
+                      {t('officialWebsiteButton')} <ExternalLink size={13} />
                     </a>
                   )}
                 </div>

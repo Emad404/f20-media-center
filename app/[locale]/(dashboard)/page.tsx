@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import PageHeader from '@/components/PageHeader'
 import StatCard from '@/components/StatCard'
 import Badge from '@/components/Badge'
@@ -91,6 +91,7 @@ function statusVariant(status: string): 'success' | 'info' | 'neutral' {
 
 export default function DashboardPage() {
   const t = useTranslations('Dashboard')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
   return (
     <div>
@@ -102,10 +103,10 @@ export default function DashboardPage() {
       <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-          <StatCard value={10} label="فعالية قادمة في المملكة" icon={CalendarDays} />
-          <StatCard value={3} label="أيام دولية هذا الشهر" icon={Globe} />
-          <StatCard value={3} label="معارض مسجّلة" icon={Building2} />
-          <StatCard value={12} label="موظف في الفريق" icon={Users} />
+          <StatCard value={10} label={t('statUpcomingEventsLabel')} icon={CalendarDays} />
+          <StatCard value={3} label={t('statWorldDaysLabel')} icon={Globe} />
+          <StatCard value={3} label={t('statExhibitionsLabel')} icon={Building2} />
+          <StatCard value={12} label={t('statEmployeesLabel')} icon={Users} />
         </div>
 
         {/* Two column grid */}
@@ -114,8 +115,8 @@ export default function DashboardPage() {
             {/* KSA Events */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>أحدث فعاليات المملكة</h2>
-                <Link href="/events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>عرض الكل</Link>
+                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('kingdomEventsSectionTitle')}</h2>
+                <Link href="/events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
               {upcomingEvents.map((event, idx) => (
                 <div
@@ -142,8 +143,8 @@ export default function DashboardPage() {
             {/* World Days */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>الأيام العالمية القادمة</h2>
-                <Link href="/world-days" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>عرض الكل</Link>
+                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('worldDaysSectionTitle')}</h2>
+                <Link href="/world-days" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
               {upcomingWorldDays.map((day, idx) => (
                 <div
@@ -172,8 +173,8 @@ export default function DashboardPage() {
             {/* Company Events */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>فعاليات الشركة</h2>
-                <Link href="/company-events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>عرض الكل</Link>
+                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('companyEventsSectionTitle')}</h2>
+                <Link href="/company-events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
               {companyEvents.slice(0, 3).map((event, idx) => (
                 <div
@@ -197,8 +198,8 @@ export default function DashboardPage() {
             {/* Reports */}
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>آخر التقارير</h2>
-                <Link href="/reports" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>عرض الكل</Link>
+                <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('reportsSectionTitle')}</h2>
+                <Link href="/reports" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
               {reports.slice(0, 3).map((report, idx) => (
                 <div
@@ -225,9 +226,11 @@ export default function DashboardPage() {
 
         {/* Social accounts */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>حسابات التواصل الاجتماعي</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>{t('socialAccountsSectionTitle')}</h2>
           <div style={{ display: 'flex', gap: isMobile ? '8px' : '12px', flexWrap: 'wrap' }}>
-            {socialAccounts.map((account) => (
+            {socialAccounts.map((account) => {
+              const displayName = !isRtl && account.name_en ? account.name_en : account.name_ar
+              return (
               <a
                 key={account.id}
                 href={account.url}
@@ -250,10 +253,11 @@ export default function DashboardPage() {
               >
                 <SocialIcon type={account.type} />
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                  {account.platform}
+                  {displayName}
                 </span>
               </a>
-            ))}
+              )
+            })}
           </div>
         </div>
       </div>

@@ -1,12 +1,14 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useLocale, useTranslations } from 'next-intl'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import { worldDays } from '@/data/worldDays'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
+const ALL = '__all__'
 const categoryColors: Record<string, 'success' | 'info' | 'warning' | 'neutral' | 'gold'> = {
   'صحة': 'success',
   'بيئة': 'success',
@@ -19,35 +21,37 @@ const categoryColors: Record<string, 'success' | 'info' | 'warning' | 'neutral' 
 }
 
 export default function WorldDaysPage() {
+  const t = useTranslations('WorldDays')
+  const isRtl = useLocale() === 'ar'
   const isMobile = useIsMobile()
-  const [categoryFilter, setCategoryFilter] = useState('الكل')
+  const [categoryFilter, setCategoryFilter] = useState(ALL)
   const [nationalOnly, setNationalOnly] = useState(false)
 
   const categories = useMemo(() => {
     const cats = Array.from(new Set(worldDays.map((d) => d.category)))
-    return ['الكل', ...cats]
+    return [ALL, ...cats]
   }, [])
 
   const filtered = useMemo(() => {
     return worldDays
       .filter((d) => !nationalOnly || d.isNational)
-      .filter((d) => categoryFilter === 'الكل' || d.category === categoryFilter)
+      .filter((d) => categoryFilter === ALL || d.category === categoryFilter)
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }, [categoryFilter, nationalOnly])
 
   const grouped = useMemo(() => {
     const map = new Map<string, typeof filtered>()
     for (const day of filtered) {
-      const key = new Date(day.date).toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' })
+      const key = new Date(day.date).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', { month: 'long', year: 'numeric' })
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(day)
     }
     return map
-  }, [filtered])
+  }, [filtered, isRtl])
 
   return (
     <div>
-      <PageHeader title="الأيام العالمية" />
+      <PageHeader title={t('pageTitle')} />
 
       {/* Controls */}
       <div
@@ -59,6 +63,7 @@ export default function WorldDaysPage() {
           alignItems: 'center',
           gap: '12px',
           flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
         {categories.map((cat) => (
@@ -78,17 +83,17 @@ export default function WorldDaysPage() {
               transition: 'background-color 0.15s ease, color 0.15s ease',
             }}
           >
-            {cat}
+            {cat === ALL ? t('allOption') : cat}
           </button>
         ))}
 
-        
+
       </div>
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {grouped.size === 0 ? (
           <div style={{ textAlign: 'center', padding: '64px 24px', color: 'var(--text-muted)', fontSize: '14px' }}>
-            لا توجد أيام مطابقة
+            {t('noResultsMessage')}
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
@@ -151,7 +156,7 @@ export default function WorldDaysPage() {
                             {day.isNational && (
                               <span
                                 style={{ color: 'var(--gold)', fontSize: '14px' }}
-                                title="يوم وطني"
+                                title={t('nationalDayTitle')}
                               >
                                 ★
                               </span>
