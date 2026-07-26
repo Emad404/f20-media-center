@@ -102,7 +102,7 @@ function SectionCard({ title, subtitle, action, children }: { title: string; sub
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: subtitle ? 4 : 16 }}>
-        <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--navy)' }}>{title}</h2>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#000A46' }}>{title}</h2>
         {action}
       </div>
       {subtitle && <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '16px' }}>{subtitle}</p>}
@@ -351,7 +351,7 @@ export default function PredictionsPage() {
           ) : (
             <div>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', marginBottom: '12px' }}>
-                <span style={{ fontSize: '18px', fontWeight: 700, color: 'var(--gold)' }}>{t('hilalName')}</span>
+                <span style={{ fontSize: '18px', fontWeight: 700, color: '#0028F0' }}>{t('hilalName')}</span>
                 <span style={{ fontSize: '14px', color: 'var(--text-muted)', fontWeight: 500 }}>VS</span>
                 <span style={{ fontSize: '18px', fontWeight: 500, color: 'var(--text-primary)' }}>{displayOpponent(nextMatch)}</span>
               </div>
@@ -370,7 +370,7 @@ export default function PredictionsPage() {
                   </span>
                 )}
                 {displayGift(nextMatch) && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: 'var(--gold-dark)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: '#0101F9' }}>
                     <Gift size={13} />
                     {displayGift(nextMatch)}
                   </span>
@@ -409,7 +409,7 @@ export default function PredictionsPage() {
                       onClick={handleSubmitPrediction}
                       disabled={predSaving}
                       style={{
-                        background: 'var(--gold)',
+                        background: '#0028F0',
                         color: '#fff',
                         border: 'none',
                         borderRadius: '8px',
@@ -508,7 +508,7 @@ export default function PredictionsPage() {
                 {sortedLeaderboard.map((entry, idx) => {
                   const rank = idx + 1
                   return (
-                    <tr key={entry.employee_id || idx} style={{ background: rank === 1 ? 'var(--gold-light)' : 'transparent' }}>
+                    <tr key={entry.employee_id || idx} style={{ background: rank === 1 ? '#D2D2D2' : 'transparent' }}>
                       <td style={{ padding: '12px 16px', fontSize: '14px', borderBottom: '1px solid var(--border)', display: isMobile ? 'none' : undefined }}>
                         {rank === 1 ? '🥇' : rank}
                       </td>
@@ -536,7 +536,7 @@ export default function PredictionsPage() {
             action={
               <button
                 onClick={openAddMatchModal}
-                style={{ background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                style={{ background: '#0028F0', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 {t('addMatchButton')}
               </button>
@@ -646,7 +646,7 @@ export default function PredictionsPage() {
             <button
               onClick={handleSaveMatch}
               disabled={matchSaving}
-              style={{ background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: matchSaving ? 'not-allowed' : 'pointer', opacity: matchSaving ? 0.7 : 1 }}
+              style={{ background: '#0028F0', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: matchSaving ? 'not-allowed' : 'pointer', opacity: matchSaving ? 0.7 : 1 }}
             >
               {matchSaving ? t('saving') : editingMatch ? t('saveButtonEdit') : t('saveButton')}
             </button>
