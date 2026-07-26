@@ -211,7 +211,7 @@ export default function DashboardPage() {
         subtitle={t('welcomeSubtitle')}
       />
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
           <StatCard
