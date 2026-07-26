@@ -48,7 +48,7 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
         borderRadius: '8px',
         margin: '1px 8px',
         fontSize: '14px',
-        color: isActive ? 'var(--text-on-dark)' : 'var(--text-on-dark-muted)',
+        color: 'var(--text-on-dark)',
         background: isActive ? 'var(--sidebar-active)' : 'transparent',
         borderRight: isRtl ? activeBorder : undefined,
         borderLeft: isRtl ? undefined : activeBorder,
@@ -58,13 +58,11 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
       onMouseEnter={(e) => {
         if (!isActive) {
           e.currentTarget.style.background = 'var(--sidebar-hover)'
-          e.currentTarget.style.color = 'var(--text-on-dark)'
         }
       }}
       onMouseLeave={(e) => {
         if (!isActive) {
           e.currentTarget.style.background = 'transparent'
-          e.currentTarget.style.color = 'var(--text-on-dark-muted)'
         }
       }}
     >
@@ -283,7 +281,7 @@ export default function Sidebar() {
                 <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 600 }}>
                   {displayName || 'المستخدم'}
                 </div>
-                <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)', marginTop: '2px' }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-on-dark)', marginTop: '2px' }}>
                   {displayJobTitle || 'موظف'}
                 </div>
               </div>
@@ -294,7 +292,7 @@ export default function Sidebar() {
                   padding: '11px 16px',
                   background: 'transparent',
                   border: 'none',
-                  color: 'var(--text-on-dark-muted)',
+                  color: 'var(--text-on-dark)',
                   fontSize: '13px',
                   cursor: 'pointer',
                   display: 'flex',
@@ -359,7 +357,7 @@ export default function Sidebar() {
               <div style={{ fontSize: '13px', color: 'var(--text-on-dark)', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {displayName || 'المستخدم'}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-on-dark)' }}>
                 {displayJobTitle || 'موظف'}
               </div>
             </div>

@@ -33,7 +33,7 @@ export default function PageHeader({ title, subtitle, action }: PageHeaderProps)
         gap: isMobile ? '10px' : '0',
       }}
     >
-      <div>
+      <div style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
         <h1 style={{ fontSize: isMobile ? '17px' : '20px', fontWeight: 600, color: 'var(--navy)', lineHeight: 1.2, textAlign: isRtl ? 'right' : 'left' }}>
           {title}
         </h1>

@@ -492,27 +492,26 @@ export default function CalendarPage() {
                     {day}
                   </div>
 
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, overflow: 'hidden' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                     {dayTasks.map((task) => (
                       <span
                         key={task.id}
                         title={typeLabel(task.task_type)}
                         style={{
-                          width: isMobile ? 20 : 30,
-                          height: isMobile ? 20 : 30,
+                          width: isMobile ? 38 : 52,
+                          minHeight: isMobile ? 38 : 52,
                           flexShrink: 0,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           textAlign: 'center',
-                          fontSize: isMobile ? '6px' : '7px',
+                          fontSize: isMobile ? '9px' : '10px',
                           fontWeight: 700,
-                          lineHeight: 1.1,
-                          borderRadius: '5px',
+                          lineHeight: 1.2,
+                          borderRadius: '6px',
                           background: typeColor(task.task_type),
                           color: '#fff',
-                          padding: '2px',
-                          overflow: 'hidden',
+                          padding: '4px',
                           wordBreak: 'break-word',
                         }}
                       >
