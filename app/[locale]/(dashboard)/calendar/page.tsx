@@ -72,18 +72,18 @@ const emptyForm: TaskForm = {
   assigneeIds: [],
 }
 
-function typeVariant(type: string | null): 'info' | 'gold' | 'danger' | 'neutral' {
+function typeVariant(type: string | null): 'info' | 'gold' | 'danger' | 'success' {
   if (type === 'meeting') return 'info'
   if (type === 'event') return 'gold'
   if (type === 'deadline') return 'danger'
-  return 'neutral'
+  return 'success'
 }
 
-function dotColor(type: string | null): string {
+function typeColor(type: string | null): string {
   if (type === 'meeting') return 'var(--info-text)'
   if (type === 'event') return 'var(--gold)'
   if (type === 'deadline') return 'var(--danger-text)'
-  return 'var(--text-muted)'
+  return 'var(--success-text)'
 }
 
 function toDateStr(year: number, month: number, day: number): string {
@@ -492,16 +492,26 @@ export default function CalendarPage() {
                     {day}
                   </div>
 
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3 }}>
-                    {dayTasks.slice(0, 3).map((task) => (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
+                    {dayTasks.slice(0, isMobile ? 1 : 2).map((task) => (
                       <span key={task.id} style={{
-                        width: 7, height: 7, borderRadius: '50%',
-                        background: dotColor(task.task_type),
-                        display: 'inline-block',
-                      }} />
+                        fontSize: isMobile ? '8px' : '9px',
+                        fontWeight: 600,
+                        lineHeight: 1.4,
+                        padding: '1px 4px',
+                        borderRadius: '4px',
+                        background: typeColor(task.task_type),
+                        color: '#fff',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '100%',
+                      }}>
+                        {typeLabel(task.task_type)}
+                      </span>
                     ))}
-                    {dayTasks.length > 3 && (
-                      <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>+{dayTasks.length - 3}</span>
+                    {dayTasks.length > (isMobile ? 1 : 2) && (
+                      <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>+{dayTasks.length - (isMobile ? 1 : 2)}</span>
                     )}
                   </div>
                 </div>
@@ -556,7 +566,7 @@ export default function CalendarPage() {
                         display: 'flex',
                       }}
                     >
-                      <div style={{ width: '4px', background: dotColor(task.task_type), flexShrink: 0 }} />
+                      <div style={{ width: '4px', background: typeColor(task.task_type), flexShrink: 0 }} />
                       <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
