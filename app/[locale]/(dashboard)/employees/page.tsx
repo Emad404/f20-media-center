@@ -90,7 +90,7 @@ export default function EmployeesPage() {
   const { profile } = useUserProfile()
   const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
-  const [view, setView] = useState<'org' | 'list'>('org')
+  const [view, setView] = useState<'org' | 'list'>('list')
   const [employees, setEmployees] = useState<EmployeeProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeProfile | null>(null)
