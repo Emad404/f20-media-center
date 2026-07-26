@@ -35,7 +35,7 @@ const CONTACTS_ALLOWED_ROLES = ['developer', 'ceo', 'project_manager', 'media_ma
 function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean; onClick?: () => void }) {
   const Icon = item.icon
   const isRtl = useLocale() === 'ar'
-  const activeBorder = isActive ? '2px solid var(--gold)' : '2px solid transparent'
+  const activeBorder = isActive ? '2px solid var(--text-on-dark)' : '2px solid transparent'
   return (
     <Link
       href={item.href}

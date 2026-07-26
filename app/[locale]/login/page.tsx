@@ -88,9 +88,9 @@ export default function LoginPage() {
           <Image
             src="/f20-logo.png"
             alt="F20 Logo"
-            width={90}
-            height={90}
-            style={{ marginBottom: '16px' }}
+            width={785}
+            height={624}
+            style={{ height: '90px', width: 'auto', marginBottom: '16px' }}
           />
           <p style={{ color: '#FFFFFF', fontSize: '17px', fontWeight: 600, margin: 0, textAlign: 'center' }}>
             {mode === 'login' ? t('title') : mode === 'sent' ? tForgot('confirmationTitle') : tForgot('title')}

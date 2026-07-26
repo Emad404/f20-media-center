@@ -9,19 +9,19 @@
   --bg-card: #FFFFFF;
   --bg-card-hover: #F9FAFB;
   --bg-input: #F9FAFB;
-  --sidebar-bg: #0F1729;
-  --sidebar-hover: #1A2540;
-  --sidebar-active: #1E3A5F;
-  --gold: #C69B2E;
-  --gold-light: #FDF3DC;
-  --gold-dark: #8A6A18;
-  --navy: #0F1729;
-  --navy-mid: #1E3A5F;
+  --sidebar-bg: #545454;
+  --sidebar-hover: #646464;
+  --sidebar-active: #707070;
+  --gold: #646464;
+  --gold-light: #E8E8E8;
+  --gold-dark: #545454;
+  --navy: #545454;
+  --navy-mid: #646464;
   --text-primary: #111827;
   --text-secondary: #6B7280;
   --text-muted: #9CA3AF;
   --text-on-dark: #F1F5F9;
-  --text-on-dark-muted: #94A3B8;
+  --text-on-dark-muted: #CED3DA;
   --border: #E2E4E8;
   --border-strong: #CBD0D8;
   --success-bg: #DCFCE7;
@@ -60,7 +60,7 @@ html, body {
 ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 10px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-::selection { background: rgba(198, 155, 46, 0.15); }
+::selection { background: rgba(100, 100, 100, 0.15); }
 
 button { cursor: pointer; font-family: inherit; }
 input, select, textarea { font-family: inherit; }
