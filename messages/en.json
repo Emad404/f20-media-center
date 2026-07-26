@@ -297,6 +297,7 @@
     "noResultsMessage": "No days yet",
     "loading": "Loading...",
     "addButton": "Add Day",
+    "sortSoonestButton": "Soonest First",
     "editAria": "Edit",
     "deleteAria": "Delete",
     "optionsAria": "Options",

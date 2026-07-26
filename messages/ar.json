@@ -298,6 +298,7 @@
     "noResultsMessage": "لا توجد أيام بعد",
     "loading": "جارٍ التحميل...",
     "addButton": "إضافة يوم",
+    "sortSoonestButton": "الأقرب زمنياً",
     "editAria": "تعديل",
     "deleteAria": "حذف",
     "optionsAria": "خيارات",

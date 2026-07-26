@@ -6,8 +6,9 @@ import { FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
+import SortByDateButton from '@/components/SortByDateButton'
 import { createClient } from '@/lib/supabase/client'
-import { formatArabicDate } from '@/lib/dateUtils'
+import { formatArabicDate, sortSoonestFirst } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
@@ -67,6 +68,7 @@ export default function WorldDaysPage() {
 
   const [days, setDays] = useState<WorldDayRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [sortSoonest, setSortSoonest] = useState(true)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingDay, setEditingDay] = useState<WorldDayRow | null>(null)
@@ -94,14 +96,15 @@ export default function WorldDaysPage() {
   const displayTitle = (d: WorldDayRow) => (locale === 'en' && d.title_en ? d.title_en : d.title_ar)
 
   const grouped = useMemo(() => {
+    const orderedDays = sortSoonest ? sortSoonestFirst(days, (d) => d.day_date) : days
     const map = new Map<string, WorldDayRow[]>()
-    for (const day of days) {
+    for (const day of orderedDays) {
       const key = new Date(day.day_date).toLocaleDateString(isRtl ? 'ar-SA' : 'en-US', { month: 'long', year: 'numeric' })
       if (!map.has(key)) map.set(key, [])
       map.get(key)!.push(day)
     }
     return map
-  }, [days, isRtl])
+  }, [days, isRtl, sortSoonest])
 
   const openAddModal = () => {
     setEditingDay(null)
@@ -234,6 +237,22 @@ export default function WorldDaysPage() {
   return (
     <div>
       <PageHeader title={t('pageTitle')} action={<>{exportButton}{addButton}</>} />
+
+      {/* Controls */}
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border)',
+          padding: isMobile ? '12px 16px' : '16px 32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
+        }}
+      >
+        <SortByDateButton active={sortSoonest} onToggle={() => setSortSoonest((v) => !v)} label={t('sortSoonestButton')} />
+      </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {successMessage && (
