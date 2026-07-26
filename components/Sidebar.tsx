@@ -48,7 +48,7 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
         borderRadius: '8px',
         margin: '1px 8px',
         fontSize: '14px',
-        color: isActive ? 'var(--gold)' : 'var(--text-on-dark-muted)',
+        color: isActive ? 'var(--text-on-dark)' : 'var(--text-on-dark-muted)',
         background: isActive ? 'var(--sidebar-active)' : 'transparent',
         borderRight: isRtl ? activeBorder : undefined,
         borderLeft: isRtl ? undefined : activeBorder,

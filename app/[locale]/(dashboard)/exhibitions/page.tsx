@@ -286,8 +286,8 @@ export default function ExhibitionsPage() {
     <button
       onClick={openAddModal}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -305,8 +305,8 @@ export default function ExhibitionsPage() {
     <button
       onClick={handleExport}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -378,9 +378,9 @@ export default function ExhibitionsPage() {
                 fontSize: '13px',
                 fontWeight: 500,
                 cursor: 'pointer',
-                background: cityFilter === city ? 'var(--gold)' : 'transparent',
-                borderColor: cityFilter === city ? 'var(--gold)' : 'var(--border-strong)',
-                color: cityFilter === city ? '#fff' : 'var(--text-secondary)',
+                background: cityFilter === city ? 'var(--btn-bg)' : 'transparent',
+                borderColor: cityFilter === city ? 'var(--btn-bg)' : 'var(--border-strong)',
+                color: cityFilter === city ? 'var(--btn-text)' : 'var(--text-secondary)',
                 transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
               }}
             >
@@ -677,8 +677,8 @@ export default function ExhibitionsPage() {
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: 'var(--gold)',
-                color: '#fff',
+                background: 'var(--btn-bg)',
+                color: 'var(--btn-text)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '10px 20px',

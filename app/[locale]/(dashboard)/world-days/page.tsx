@@ -196,8 +196,8 @@ export default function WorldDaysPage() {
     <button
       onClick={openAddModal}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -215,8 +215,8 @@ export default function WorldDaysPage() {
     <button
       onClick={handleExport}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -405,8 +405,8 @@ export default function WorldDaysPage() {
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: 'var(--gold)',
-                color: '#fff',
+                background: 'var(--btn-bg)',
+                color: 'var(--btn-text)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '10px 20px',

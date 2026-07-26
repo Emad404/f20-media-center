@@ -229,9 +229,9 @@ export default function ProfilePage() {
                     width: 28,
                     height: 28,
                     borderRadius: '50%',
-                    background: 'var(--gold)',
+                    background: 'var(--btn-bg)',
                     border: '2px solid var(--bg-card)',
-                    color: '#fff',
+                    color: 'var(--btn-text)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -377,8 +377,8 @@ export default function ProfilePage() {
                   onClick={handleSave}
                   disabled={!hasChanges || saving}
                   style={{
-                    background: hasChanges && !saving ? 'var(--gold)' : 'var(--border-strong)',
-                    color: '#fff',
+                    background: hasChanges && !saving ? 'var(--btn-bg)' : 'var(--border-strong)',
+                    color: 'var(--btn-text)',
                     border: 'none',
                     borderRadius: '8px',
                     padding: '10px 20px',

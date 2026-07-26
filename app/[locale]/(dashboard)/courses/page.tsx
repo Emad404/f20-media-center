@@ -227,8 +227,8 @@ export default function CoursesPage() {
     <button
       onClick={openAddModal}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -270,9 +270,9 @@ export default function CoursesPage() {
               fontSize: '13px',
               fontWeight: 500,
               cursor: 'pointer',
-              background: typeFilter === type ? 'var(--gold)' : 'transparent',
-              borderColor: typeFilter === type ? 'var(--gold)' : 'var(--border-strong)',
-              color: typeFilter === type ? '#fff' : 'var(--text-secondary)',
+              background: typeFilter === type ? 'var(--btn-bg)' : 'transparent',
+              borderColor: typeFilter === type ? 'var(--btn-bg)' : 'var(--border-strong)',
+              color: typeFilter === type ? 'var(--btn-text)' : 'var(--text-secondary)',
               transition: 'background-color 0.15s ease, color 0.15s ease',
             }}
           >
@@ -373,8 +373,8 @@ export default function CoursesPage() {
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
-                        background: 'var(--gold)',
-                        color: '#fff',
+                        background: 'var(--btn-bg)',
+                        color: 'var(--btn-text)',
                         borderRadius: '8px',
                         padding: '6px 14px',
                         fontSize: '13px',
@@ -476,8 +476,8 @@ export default function CoursesPage() {
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: 'var(--gold)',
-                color: '#fff',
+                background: 'var(--btn-bg)',
+                color: 'var(--btn-text)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '10px 20px',

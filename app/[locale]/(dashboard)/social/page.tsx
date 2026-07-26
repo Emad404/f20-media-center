@@ -92,8 +92,8 @@ export default function SocialPage() {
                 rel="noopener noreferrer"
                 style={{
                   display: 'inline-block',
-                  background: 'var(--gold)',
-                  color: '#FFFFFF',
+                  background: 'var(--btn-bg)',
+                  color: 'var(--btn-text)',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '8px 16px',

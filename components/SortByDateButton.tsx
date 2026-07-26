@@ -24,9 +24,9 @@ export default function SortByDateButton({ active, onToggle, label }: SortByDate
         fontSize: '13px',
         fontWeight: 500,
         cursor: 'pointer',
-        background: active ? 'var(--gold)' : 'transparent',
-        borderColor: active ? 'var(--gold)' : 'var(--border-strong)',
-        color: active ? '#fff' : 'var(--text-secondary)',
+        background: active ? 'var(--btn-bg)' : 'transparent',
+        borderColor: active ? 'var(--btn-bg)' : 'var(--border-strong)',
+        color: active ? 'var(--btn-text)' : 'var(--text-secondary)',
         transition: 'background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease',
         whiteSpace: 'nowrap',
       }}

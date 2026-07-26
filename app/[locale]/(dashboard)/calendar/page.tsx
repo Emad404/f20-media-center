@@ -373,8 +373,8 @@ export default function CalendarPage() {
         <button
           onClick={openAddModal}
           style={{
-            background: 'var(--gold)',
-            color: '#fff',
+            background: 'var(--btn-bg)',
+            color: 'var(--btn-text)',
             border: 'none',
             borderRadius: '8px',
             padding: '8px 16px',
@@ -706,7 +706,7 @@ export default function CalendarPage() {
               type="button"
               onClick={handleSave}
               disabled={saving}
-              style={{ background: 'var(--gold)', color: '#fff', border: 'none', borderRadius: '8px', padding: '9px 20px', fontSize: '14px', fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
+              style={{ background: 'var(--btn-bg)', color: 'var(--btn-text)', border: 'none', borderRadius: '8px', padding: '9px 20px', fontSize: '14px', fontWeight: 500, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
             >
               {saving ? t('saving') : editingTask ? t('saveButtonEdit') : t('submitButton')}
             </button>

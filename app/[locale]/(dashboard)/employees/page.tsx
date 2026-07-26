@@ -314,9 +314,9 @@ export default function EmployeesPage() {
         fontSize: '13px',
         fontWeight: 500,
         cursor: 'pointer',
-        background: view === 'org' ? 'var(--gold)' : 'transparent',
-        borderColor: view === 'org' ? 'var(--gold)' : 'var(--border-strong)',
-        color: view === 'org' ? '#fff' : 'var(--text-secondary)',
+        background: view === 'org' ? 'var(--btn-bg)' : 'transparent',
+        borderColor: view === 'org' ? 'var(--btn-bg)' : 'var(--border-strong)',
+        color: view === 'org' ? 'var(--btn-text)' : 'var(--text-secondary)',
         transition: 'background-color 0.15s ease, color 0.15s ease',
       }}
     >
@@ -335,9 +335,9 @@ export default function EmployeesPage() {
         fontSize: '13px',
         fontWeight: 500,
         cursor: 'pointer',
-        background: view === 'list' ? 'var(--gold)' : 'transparent',
-        borderColor: view === 'list' ? 'var(--gold)' : 'var(--border-strong)',
-        color: view === 'list' ? '#fff' : 'var(--text-secondary)',
+        background: view === 'list' ? 'var(--btn-bg)' : 'transparent',
+        borderColor: view === 'list' ? 'var(--btn-bg)' : 'var(--border-strong)',
+        color: view === 'list' ? 'var(--btn-text)' : 'var(--text-secondary)',
         transition: 'background-color 0.15s ease, color 0.15s ease',
       }}
     >
@@ -350,8 +350,8 @@ export default function EmployeesPage() {
       key="add"
       onClick={openAddModal}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -686,8 +686,8 @@ export default function EmployeesPage() {
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: 'var(--gold)',
-                color: '#fff',
+                background: 'var(--btn-bg)',
+                color: 'var(--btn-text)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '10px 20px',

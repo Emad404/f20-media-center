@@ -60,8 +60,8 @@ export default function LanguageToggle() {
             fontSize: '12px',
             fontWeight: 600,
             cursor: 'pointer',
-            background: locale === loc ? 'var(--gold)' : 'transparent',
-            color: locale === loc ? '#fff' : 'var(--text-secondary)',
+            background: locale === loc ? 'var(--btn-bg)' : 'transparent',
+            color: locale === loc ? 'var(--btn-text)' : 'var(--text-secondary)',
             transition: 'background-color 0.15s ease',
           }}
         >

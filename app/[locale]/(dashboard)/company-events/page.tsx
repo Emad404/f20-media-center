@@ -261,8 +261,8 @@ export default function CompanyEventsPage() {
     <button
       onClick={openAddModal}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -280,8 +280,8 @@ export default function CompanyEventsPage() {
     <button
       onClick={handleExport}
       style={{
-        background: 'var(--gold)',
-        color: '#fff',
+        background: 'var(--btn-bg)',
+        color: 'var(--btn-text)',
         border: 'none',
         borderRadius: '8px',
         padding: '8px 16px',
@@ -327,9 +327,9 @@ export default function CompanyEventsPage() {
               fontSize: '13px',
               fontWeight: 500,
               cursor: 'pointer',
-              background: statusFilter === s ? 'var(--gold)' : 'transparent',
-              borderColor: statusFilter === s ? 'var(--gold)' : 'var(--border-strong)',
-              color: statusFilter === s ? '#fff' : 'var(--text-secondary)',
+              background: statusFilter === s ? 'var(--btn-bg)' : 'transparent',
+              borderColor: statusFilter === s ? 'var(--btn-bg)' : 'var(--border-strong)',
+              color: statusFilter === s ? 'var(--btn-text)' : 'var(--text-secondary)',
               transition: 'background-color 0.15s ease, color 0.15s ease',
             }}
           >
@@ -545,8 +545,8 @@ export default function CompanyEventsPage() {
               onClick={handleSave}
               disabled={saving}
               style={{
-                background: 'var(--gold)',
-                color: '#fff',
+                background: 'var(--btn-bg)',
+                color: 'var(--btn-text)',
                 border: 'none',
                 borderRadius: '8px',
                 padding: '10px 20px',
