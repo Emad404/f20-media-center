@@ -105,6 +105,7 @@ export default function Sidebar() {
   const { profile: userProfile } = useUserProfile()
   const locale = useLocale()
   const displayName = locale === 'en' && userProfile?.full_name_en ? userProfile.full_name_en : userProfile?.full_name_ar
+  const displayJobTitle = locale === 'en' && userProfile?.job_title_en ? userProfile.job_title_en : userProfile?.job_title_ar
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -283,7 +284,7 @@ export default function Sidebar() {
                   {displayName || 'المستخدم'}
                 </div>
                 <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)', marginTop: '2px' }}>
-                  {userProfile?.role || 'موظف'}
+                  {displayJobTitle || 'موظف'}
                 </div>
               </div>
               <button
@@ -359,7 +360,7 @@ export default function Sidebar() {
                 {displayName || 'المستخدم'}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--text-on-dark-muted)' }}>
-                {userProfile?.role || 'موظف'}
+                {displayJobTitle || 'موظف'}
               </div>
             </div>
           </div>
