@@ -251,7 +251,7 @@ export default function DashboardPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('kingdomEventsSectionTitle')}</h2>
-                <Link href="/events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
+                <Link href="/events" style={{ fontSize: '12px', fontWeight: 500, background: 'var(--btn-bg)', color: 'var(--btn-text)', padding: '4px 10px', borderRadius: '6px', textDecoration: 'none' }}>{t('viewAllLink')}</Link>
               </div>
               {upcomingEvents.length === 0 ? (
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('worldDaysSectionTitle')}</h2>
-                <Link href="/world-days" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
+                <Link href="/world-days" style={{ fontSize: '12px', fontWeight: 500, background: 'var(--btn-bg)', color: 'var(--btn-text)', padding: '4px 10px', borderRadius: '6px', textDecoration: 'none' }}>{t('viewAllLink')}</Link>
               </div>
               {upcomingWorldDays.length === 0 ? (
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
@@ -312,7 +312,7 @@ export default function DashboardPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('companyEventsSectionTitle')}</h2>
-                <Link href="/company-events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
+                <Link href="/company-events" style={{ fontSize: '12px', fontWeight: 500, background: 'var(--btn-bg)', color: 'var(--btn-text)', padding: '4px 10px', borderRadius: '6px', textDecoration: 'none' }}>{t('viewAllLink')}</Link>
               </div>
               {companyEvents.length === 0 ? (
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
@@ -352,7 +352,7 @@ export default function DashboardPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('reportsSectionTitle')}</h2>
-                <Link href="/reports" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
+                <Link href="/reports" style={{ fontSize: '12px', fontWeight: 500, background: 'var(--btn-bg)', color: 'var(--btn-text)', padding: '4px 10px', borderRadius: '6px', textDecoration: 'none' }}>{t('viewAllLink')}</Link>
               </div>
               {reports.length === 0 ? (
                 <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>

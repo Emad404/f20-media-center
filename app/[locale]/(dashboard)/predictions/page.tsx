@@ -342,6 +342,55 @@ export default function PredictionsPage() {
           </div>
         )}
 
+        {/* Developer match management */}
+        {isDeveloper && (
+          <SectionCard
+            title={t('manageMatchesTitle')}
+            action={
+              <button
+                onClick={openAddMatchModal}
+                style={{ background: 'var(--btn-bg)', color: 'var(--btn-text)', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
+              >
+                {t('addMatchButton')}
+              </button>
+            }
+          >
+            {adminLoading ? (
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('loading')}</p>
+            ) : allMatches.length === 0 ? (
+              <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noMatchesMessage')}</p>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {allMatches.map((m) => (
+                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '10px 14px', border: '1px solid var(--border)', borderRadius: '8px', flexWrap: 'wrap' }}>
+                    <div>
+                      <div style={{ fontSize: '14px', fontWeight: 500 }}>{t('hilalName')} {t('vsShort')} {displayOpponent(m)}</div>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                        {m.match_date ? formatArabicDate(m.match_date) : t('dateNotSet')}
+                        {m.match_time ? ` — ${m.match_time.slice(0, 5)}` : ''}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <Badge
+                        text={m.hilal_score != null && m.opponent_score != null ? `${m.hilal_score} : ${m.opponent_score}` : t('scoreNotEnteredText')}
+                        variant={m.hilal_score != null && m.opponent_score != null ? 'info' : 'neutral'}
+                      />
+                      <PersonCardMenu
+                        isRtl={isRtl}
+                        optionsAria={t('optionsAria')}
+                        editLabel={t('editAria')}
+                        deleteLabel={t('deleteAria')}
+                        onEdit={() => openEditMatchModal(m)}
+                        onDelete={() => handleDeleteMatch(m)}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        )}
+
         {/* Next match + prediction */}
         <SectionCard title={t('nextMatchTitle')}>
           {loading ? (
@@ -528,55 +577,6 @@ export default function PredictionsPage() {
             </table>
           )}
         </SectionCard>
-
-        {/* Developer match management */}
-        {isDeveloper && (
-          <SectionCard
-            title={t('manageMatchesTitle')}
-            action={
-              <button
-                onClick={openAddMatchModal}
-                style={{ background: 'var(--btn-bg)', color: 'var(--btn-text)', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
-              >
-                {t('addMatchButton')}
-              </button>
-            }
-          >
-            {adminLoading ? (
-              <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('loading')}</p>
-            ) : allMatches.length === 0 ? (
-              <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noMatchesMessage')}</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {allMatches.map((m) => (
-                  <div key={m.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '10px 14px', border: '1px solid var(--border)', borderRadius: '8px', flexWrap: 'wrap' }}>
-                    <div>
-                      <div style={{ fontSize: '14px', fontWeight: 500 }}>{t('hilalName')} {t('vsShort')} {displayOpponent(m)}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        {m.match_date ? formatArabicDate(m.match_date) : t('dateNotSet')}
-                        {m.match_time ? ` — ${m.match_time.slice(0, 5)}` : ''}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <Badge
-                        text={m.hilal_score != null && m.opponent_score != null ? `${m.hilal_score} : ${m.opponent_score}` : t('scoreNotEnteredText')}
-                        variant={m.hilal_score != null && m.opponent_score != null ? 'info' : 'neutral'}
-                      />
-                      <PersonCardMenu
-                        isRtl={isRtl}
-                        optionsAria={t('optionsAria')}
-                        editLabel={t('editAria')}
-                        deleteLabel={t('deleteAria')}
-                        onEdit={() => openEditMatchModal(m)}
-                        onDelete={() => handleDeleteMatch(m)}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </SectionCard>
-        )}
       </div>
 
       {/* Add / Edit Match Modal (developer only) */}

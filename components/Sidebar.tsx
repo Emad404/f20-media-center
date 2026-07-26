@@ -85,8 +85,8 @@ export default function Sidebar() {
 
   const contentNav: NavItem[] = [
     { href: '/events', icon: CalendarDays, label: t('events') },
-    { href: '/world-days', icon: Globe, label: t('worldDays') },
     { href: '/exhibitions', icon: Building2, label: t('exhibitions') },
+    { href: '/world-days', icon: Globe, label: t('worldDays') },
     { href: '/company-events', icon: Star, label: t('companyEvents') },
   ]
 

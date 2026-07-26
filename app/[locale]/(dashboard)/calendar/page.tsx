@@ -653,7 +653,7 @@ export default function CalendarPage() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <label style={labelStyle}>{t('assignedToLabel')}</label>
-              <button type="button" onClick={toggleSelectAll} style={{ background: 'none', border: 'none', color: 'var(--gold-dark)', fontSize: '12px', cursor: 'pointer' }}>
+              <button type="button" onClick={toggleSelectAll} style={{ background: 'var(--btn-bg)', color: 'var(--btn-text)', border: 'none', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', cursor: 'pointer' }}>
                 {form.assigneeIds.length === profiles.length ? t('deselectAllOption') : t('wholeTeamOption')}
               </button>
             </div>
