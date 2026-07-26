@@ -671,18 +671,20 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>{t('achievedGoalsLabel')}</label>
+            <label style={labelStyle}>{t('achievedGoalsFieldLabel')}</label>
             <textarea dir="rtl" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.achieved_goals_ar} onChange={(e) => setForm((f) => ({ ...f, achieved_goals_ar: e.target.value }))} />
           </div>
           <div>
+            <label style={labelStyle}>{t('achievedGoalsEnFieldLabel')}</label>
             <textarea dir="ltr" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.achieved_goals_en} onChange={(e) => setForm((f) => ({ ...f, achieved_goals_en: e.target.value }))} />
           </div>
 
           <div>
-            <label style={labelStyle}>{t('attendanceDataLabel')}</label>
+            <label style={labelStyle}>{t('attendanceDataFieldLabel')}</label>
             <input dir="rtl" style={inputStyle} value={form.attendance_data_ar} onChange={(e) => setForm((f) => ({ ...f, attendance_data_ar: e.target.value }))} />
           </div>
           <div>
+            <label style={labelStyle}>{t('attendanceDataEnFieldLabel')}</label>
             <input dir="ltr" style={inputStyle} value={form.attendance_data_en} onChange={(e) => setForm((f) => ({ ...f, attendance_data_en: e.target.value }))} />
           </div>
 
@@ -736,34 +738,38 @@ export default function ReportsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>{t('strengthsLabel')}</label>
+            <label style={labelStyle}>{t('strengthsFieldLabel')}</label>
             <textarea dir="rtl" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.strengths_ar} onChange={(e) => setForm((f) => ({ ...f, strengths_ar: e.target.value }))} />
           </div>
           <div>
+            <label style={labelStyle}>{t('strengthsEnFieldLabel')}</label>
             <textarea dir="ltr" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.strengths_en} onChange={(e) => setForm((f) => ({ ...f, strengths_en: e.target.value }))} />
           </div>
 
           <div>
-            <label style={labelStyle}>{t('challengesLabel')}</label>
+            <label style={labelStyle}>{t('challengesFieldLabel')}</label>
             <textarea dir="rtl" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.challenges_ar} onChange={(e) => setForm((f) => ({ ...f, challenges_ar: e.target.value }))} />
           </div>
           <div>
+            <label style={labelStyle}>{t('challengesEnFieldLabel')}</label>
             <textarea dir="ltr" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.challenges_en} onChange={(e) => setForm((f) => ({ ...f, challenges_en: e.target.value }))} />
           </div>
 
           <div>
-            <label style={labelStyle}>{t('recommendationsLabel')}</label>
+            <label style={labelStyle}>{t('recommendationsFieldLabel')}</label>
             <textarea dir="rtl" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.recommendations_ar} onChange={(e) => setForm((f) => ({ ...f, recommendations_ar: e.target.value }))} />
           </div>
           <div>
+            <label style={labelStyle}>{t('recommendationsEnFieldLabel')}</label>
             <textarea dir="ltr" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.recommendations_en} onChange={(e) => setForm((f) => ({ ...f, recommendations_en: e.target.value }))} />
           </div>
 
           <div>
-            <label style={labelStyle}>{t('notesLabel')}</label>
+            <label style={labelStyle}>{t('notesFieldLabel')}</label>
             <textarea dir="rtl" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.notes_ar} onChange={(e) => setForm((f) => ({ ...f, notes_ar: e.target.value }))} />
           </div>
           <div>
+            <label style={labelStyle}>{t('notesEnFieldLabel')}</label>
             <textarea dir="ltr" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.notes_en} onChange={(e) => setForm((f) => ({ ...f, notes_en: e.target.value }))} />
           </div>
 
