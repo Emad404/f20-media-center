@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { Search, SearchX, CalendarDays, Mail, Phone } from 'lucide-react'
+import { Search, SearchX, CalendarDays, Mail, Phone, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import Modal from '@/components/Modal'
@@ -10,6 +10,7 @@ import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
 import { formatDateRange } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { exportToExcel } from '@/lib/exportXlsx'
 
 const ALL = '__all__'
 const CITY_VALUES = ['الرياض', 'الشرقية', 'جدة'] as const
@@ -256,6 +257,26 @@ export default function ExhibitionsPage() {
     flashSuccess(t('deleteSuccess'))
   }
 
+  const handleExport = () => {
+    const rows = filtered.map((ex) => ({
+      'Title (Arabic)': ex.title_ar,
+      'Title (English)': ex.title_en || '',
+      'Description (Arabic)': ex.description_ar || '',
+      'Description (English)': ex.description_en || '',
+      'City': ex.city || '',
+      'Location (Arabic)': ex.location_ar || '',
+      'Location (English)': ex.location_en || '',
+      'Start Date': ex.start_date || '',
+      'End Date': ex.end_date || '',
+      'Status': ex.status || '',
+      'Image URL': ex.image_url || '',
+      'Contact Name': ex.contact_name || '',
+      'Contact Phone': ex.contact_phone || '',
+      'Contact Email': ex.contact_email || '',
+    }))
+    exportToExcel(rows, 'exhibitions')
+  }
+
   const addButton = (
     <button
       onClick={openAddModal}
@@ -272,6 +293,29 @@ export default function ExhibitionsPage() {
       }}
     >
       {t('addButton')}
+    </button>
+  )
+
+  const exportButton = (
+    <button
+      onClick={handleExport}
+      style={{
+        background: 'var(--gold)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: 500,
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+      }}
+    >
+      <FileSpreadsheet size={15} />
+      {t('exportButton')}
     </button>
   )
 
@@ -353,8 +397,18 @@ export default function ExhibitionsPage() {
           ))}
         </select>
 
-        {!isMobile && <div style={{ marginInlineStart: 'auto' }}>{addButton}</div>}
-        {isMobile && addButton}
+        {!isMobile && (
+          <div style={{ marginInlineStart: 'auto', display: 'flex', gap: '10px' }}>
+            {exportButton}
+            {addButton}
+          </div>
+        )}
+        {isMobile && (
+          <div style={{ display: 'flex', gap: '10px' }}>
+            {exportButton}
+            {addButton}
+          </div>
+        )}
       </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>

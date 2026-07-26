@@ -332,6 +332,7 @@
     "statusOngoing": "يعمل الآن",
     "statusTbd": "تاريخ غير محدد",
     "addButton": "إضافة",
+    "exportButton": "تصدير إلى إكسل",
     "editAria": "تعديل",
     "deleteAria": "حذف",
     "optionsAria": "خيارات",
