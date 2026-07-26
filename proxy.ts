@@ -6,13 +6,15 @@ import { routing } from '@/i18n/routing'
 // Only these routes have been migrated to app/[locale]/ so far.
 // Every other route stays untouched by next-intl until it's migrated.
 // Add a new entry here each time another page moves into app/[locale]/.
-const INTL_MIGRATED_PATHS = ['/', '/login', '/set-password', '/contacts', '/employees', '/calendar', '/courses', '/social', '/events', '/world-days', '/exhibitions', '/company-events', '/predictions', '/profile', '/reports']
+const INTL_MIGRATED_PATHS = ['/', '/login', '/set-password', '/set-password/start', '/contacts', '/employees', '/calendar', '/courses', '/social', '/events', '/world-days', '/exhibitions', '/company-events', '/predictions', '/profile', '/reports']
 
 // Reachable without an existing session - /set-password must be, since the
 // very first request after clicking an invite link lands here before the
 // browser client has had a chance to parse the session tokens out of the
-// URL and turn them into cookies.
-const PUBLIC_PATHS = ['/login', '/set-password']
+// URL and turn them into cookies. /set-password/start is the fragment-token
+// landing page that precedes it (see app/[locale]/set-password/start) and
+// never touches Supabase auth itself, so it's public for the same reason.
+const PUBLIC_PATHS = ['/login', '/set-password', '/set-password/start']
 
 const intlMiddleware = createIntlMiddleware(routing)
 

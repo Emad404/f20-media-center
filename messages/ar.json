@@ -7,7 +7,18 @@
     "loginButton": "تسجيل الدخول",
     "loggingIn": "جارٍ تسجيل الدخول...",
     "errorMessage": "البريد الإلكتروني أو كلمة المرور غير صحيحة",
-    "footerNote": "للوصول إلى النظام يجب أن يكون لديك حساب مفعّل"
+    "footerNote": "للوصول إلى النظام يجب أن يكون لديك حساب مفعّل",
+    "forgotPasswordLink": "هل نسيت كلمة المرور؟"
+  },
+  "ForgotPassword": {
+    "title": "إعادة تعيين كلمة المرور",
+    "subtitle": "أدخل بريدك الإلكتروني وسنرسل لك رابط إعادة التعيين",
+    "submitButton": "إرسال رابط إعادة التعيين",
+    "submitting": "جارٍ الإرسال...",
+    "genericError": "حدث خطأ ما. حاول مرة أخرى",
+    "confirmationTitle": "تحقق من بريدك الإلكتروني",
+    "confirmationMessage": "إذا كان هذا البريد الإلكتروني مسجلاً لدينا، فسيتم إرسال رابط إعادة التعيين إليه",
+    "backToLogin": "العودة لتسجيل الدخول"
   },
   "SetPassword": {
     "title": "تعيين كلمة المرور",
@@ -22,6 +33,15 @@
     "checkingMessage": "جارٍ التحقق من رابط الدعوة...",
     "invalidTitle": "الرابط منتهي الصلاحية أو غير صالح",
     "invalidMessage": "رابط الدعوة هذا لم يعد صالحاً. يرجى طلب دعوة جديدة من المسؤول.",
+    "backToLogin": "العودة لتسجيل الدخول"
+  },
+  "SetPasswordStart": {
+    "title": "تأكيد الدعوة",
+    "subtitle": "لحمايتك، يرجى تأكيد أن هذا الإجراء تم بواسطتك",
+    "checkingMessage": "جارٍ تجهيز رابط الدعوة...",
+    "continueButton": "المتابعة لتعيين كلمة المرور",
+    "invalidTitle": "الرابط غير صالح أو مفقود",
+    "invalidMessage": "رابط التأكيد هذا غير مكتمل أو غير صالح. يرجى طلب دعوة جديدة من المسؤول.",
     "backToLogin": "العودة لتسجيل الدخول"
   },
   "Dashboard": {
@@ -150,7 +170,9 @@
     "editTaskModalTitle": "تعديل المهمة",
     "taskTitleLabel": "عنوان المهمة (عربي) *",
     "taskTitleEnLabel": "عنوان المهمة (إنجليزي)",
-    "descriptionLabel": "الوصف",
+    "descriptionLabel": "الوصف (عربي)",
+    "descriptionEnLabel": "الوصف (إنجليزي)",
+
     "assignedToLabel": "المسؤولون",
     "wholeTeamOption": "تحديد الفريق بأكمله",
     "deselectAllOption": "إلغاء تحديد الكل",

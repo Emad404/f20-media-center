@@ -7,7 +7,18 @@
     "loginButton": "Log In",
     "loggingIn": "Logging in...",
     "errorMessage": "Incorrect email or password",
-    "footerNote": "You must have an active account to access the system"
+    "footerNote": "You must have an active account to access the system",
+    "forgotPasswordLink": "Forgot password?"
+  },
+  "ForgotPassword": {
+    "title": "Reset Your Password",
+    "subtitle": "Enter your email and we'll send you a reset link",
+    "submitButton": "Send Reset Link",
+    "submitting": "Sending...",
+    "genericError": "Something went wrong. Please try again",
+    "confirmationTitle": "Check Your Email",
+    "confirmationMessage": "If this email exists, a reset link has been sent",
+    "backToLogin": "Back to login"
   },
   "SetPassword": {
     "title": "Set Your Password",
@@ -22,6 +33,15 @@
     "checkingMessage": "Verifying your invite link...",
     "invalidTitle": "Link expired or invalid",
     "invalidMessage": "This invite link is no longer valid. Please ask an administrator to send a new invite.",
+    "backToLogin": "Back to login"
+  },
+  "SetPasswordStart": {
+    "title": "Confirm Your Invitation",
+    "subtitle": "For your security, please confirm this action was taken by you",
+    "checkingMessage": "Preparing your invite link...",
+    "continueButton": "Continue to Set Your Password",
+    "invalidTitle": "Invalid or Missing Link",
+    "invalidMessage": "This confirmation link is incomplete or invalid. Please ask an administrator to send a new invite.",
     "backToLogin": "Back to login"
   },
   "Dashboard": {
@@ -150,7 +170,8 @@
     "editTaskModalTitle": "Edit Task",
     "taskTitleLabel": "Task Title (Arabic) *",
     "taskTitleEnLabel": "Task Title (English)",
-    "descriptionLabel": "Description",
+    "descriptionLabel": "Description(Arabic)",
+    "descriptionEnLabel": "Description (English)",    
     "assignedToLabel": "Assigned To",
     "wholeTeamOption": "Select whole team",
     "deselectAllOption": "Deselect all",

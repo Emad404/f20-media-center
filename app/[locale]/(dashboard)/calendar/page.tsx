@@ -622,6 +622,7 @@ export default function CalendarPage() {
             <textarea dir="rtl" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.description_ar} onChange={(e) => setForm({ ...form, description_ar: e.target.value })} />
           </div>
           <div>
+            <label style={labelStyle}>{t('descriptionEnLabel')}</label>            
             <textarea dir="ltr" style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }} value={form.description_en} onChange={(e) => setForm({ ...form, description_en: e.target.value })} />
           </div>
 

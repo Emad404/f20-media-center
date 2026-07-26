@@ -31,18 +31,57 @@ export default function SetPasswordPage() {
     // whether a password still needs to be set, not the server.
     let cancelled = false
 
+    // createBrowserClient (@supabase/ssr) hardcodes flowType: 'pkce', which
+    // makes the client's own automatic detectSessionInUrl reject an
+    // implicit-grant verify redirect (access_token/refresh_token in the
+    // hash, not a PKCE ?code=) as "not a valid PKCE flow url". That error is
+    // swallowed internally and never reaches getSession(), which just
+    // resolves to a null session forever, so we parse the fragment and
+    // establish the session ourselves instead of relying on the built-in
+    // detection. This is the shape admin.inviteUserByEmail produces, since
+    // it's issued from a plain @supabase/supabase-js service-role client
+    // whose flowType defaults to 'implicit'.
+    const hashParams = new URLSearchParams(window.location.hash.slice(1))
+    const access_token = hashParams.get('access_token')
+    const refresh_token = hashParams.get('refresh_token')
+
+    // resetPasswordForEmail, by contrast, is called from THIS page's own
+    // browser client (flowType 'pkce'), so Supabase generates a PKCE link
+    // instead - it verifies to a ?code= QUERY param, not a hash fragment.
+    // That matches this client's own flowType, so detectSessionInUrl
+    // exchanges it automatically with no mismatch - getSession() below
+    // already picks up the resulting session correctly. The only gap is
+    // that arriving via ?code= wasn't being recognized as "fresh auth link"
+    // for the ready/redirect decision below, same as the hash-token case.
+    const hasPkceCode = new URLSearchParams(window.location.search).has('code')
+
+    // A fresh session established from a fragment token or a PKCE code only
+    // ever reaches this page via an invite link or a password-reset link
+    // (proxy.ts is the only other way here, and that's cookie-based, no
+    // token/code in the URL) - both cases mean "show the set-password form"
+    // regardless of the invite-only password_set flag, which a
+    // resetting-password employee already has set to true.
+    const isTokenSession = Boolean((access_token && refresh_token) || hasPkceCode)
+
     const evaluate = (session: Session | null) => {
       if (cancelled || !session) return
-      if (session.user.user_metadata?.password_set === false) {
+      if (isTokenSession || session.user.user_metadata?.password_set === false) {
         setStatus('ready')
       } else {
-        // Already has a password (or this session was never an invite to
-        // begin with) - nothing to do here.
+        // Already has a password and got here without a fresh token/code
+        // (e.g. proxy.ts's cookie-based redirect) - nothing to do here.
         router.push('/')
       }
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => evaluate(session))
+    if (access_token && refresh_token) {
+      supabase.auth.setSession({ access_token, refresh_token }).then(({ data: { session } }) => {
+        window.history.replaceState(window.history.state, '', window.location.pathname)
+        evaluate(session)
+      })
+    } else {
+      supabase.auth.getSession().then(({ data: { session } }) => evaluate(session))
+    }
 
     const { data: subscription } = supabase.auth.onAuthStateChange((_event, session) => {
       evaluate(session)
