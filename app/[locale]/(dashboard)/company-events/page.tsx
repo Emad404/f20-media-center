@@ -301,7 +301,7 @@ export default function CompanyEventsPage() {
 
   return (
     <div>
-      <PageHeader title={t('pageTitle')} action={<>{exportButton}{addButton}</>} />
+      <PageHeader title={t('pageTitle')} />
 
       {/* Status tabs */}
       <div
@@ -310,6 +310,7 @@ export default function CompanyEventsPage() {
           borderBottom: '1px solid var(--border)',
           padding: isMobile ? '12px 16px' : '14px 32px',
           display: 'flex',
+          alignItems: 'center',
           gap: '8px',
           flexWrap: 'wrap',
           direction: isRtl ? 'rtl' : 'ltr',
@@ -335,6 +336,10 @@ export default function CompanyEventsPage() {
             {s === ALL ? t('allOption') : statusLabel(s)}
           </button>
         ))}
+        <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
+          {exportButton}
+          {addButton}
+        </div>
       </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>

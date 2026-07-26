@@ -451,15 +451,26 @@ export default function EmployeesPage() {
 
   return (
     <div>
-      <PageHeader
-        title={t('pageTitle')}
-        action={
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {/* AR keeps Org Chart before Employee List; EN shows Employee List first. */}
-            {isRtl ? [orgButton, listButton] : [listButton, orgButton]}
-          </div>
-        }
-      />
+      <PageHeader title={t('pageTitle')} />
+
+      {/* Controls */}
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border)',
+          padding: isMobile ? '12px 16px' : '16px 32px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          flexWrap: 'wrap',
+          direction: isRtl ? 'rtl' : 'ltr',
+        }}
+      >
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {/* AR keeps Org Chart before Employee List; EN shows Employee List first. */}
+          {isRtl ? [orgButton, listButton] : [listButton, orgButton]}
+        </div>
+      </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {successMessage && (

@@ -244,7 +244,7 @@ export default function CoursesPage() {
 
   return (
     <div>
-      <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} action={addButton} />
+      <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} />
 
       {/* Controls */}
       <div
@@ -279,6 +279,11 @@ export default function CoursesPage() {
             {type === ALL ? t('allOption') : typeLabel(type)}
           </button>
         ))}
+        {addButton && (
+          <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
+            {addButton}
+          </div>
+        )}
       </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>

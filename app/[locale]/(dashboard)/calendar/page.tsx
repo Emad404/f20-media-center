@@ -357,27 +357,36 @@ export default function CalendarPage() {
 
   return (
     <div>
-      <PageHeader
-        title={t('pageTitle')}
-        action={
-          <button
-            onClick={openAddModal}
-            style={{
-              background: 'var(--gold)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              fontSize: '13px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              transition: 'background-color 0.15s ease',
-            }}
-          >
-            {t('addTaskButton')}
-          </button>
-        }
-      />
+      <PageHeader title={t('pageTitle')} />
+
+      {/* Controls */}
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border)',
+          padding: isMobile ? '12px 16px' : '16px 32px',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          direction: isRtl ? 'rtl' : 'ltr',
+        }}
+      >
+        <button
+          onClick={openAddModal}
+          style={{
+            background: 'var(--gold)',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px 16px',
+            fontSize: '13px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'background-color 0.15s ease',
+          }}
+        >
+          {t('addTaskButton')}
+        </button>
+      </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {successMessage && (

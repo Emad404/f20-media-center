@@ -427,10 +427,23 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <PageHeader
-        title={t('pageTitle')}
-        action={<>{exportButton}{addButton}</>}
-      />
+      <PageHeader title={t('pageTitle')} />
+
+      {/* Controls */}
+      <div
+        style={{
+          background: 'var(--bg-card)',
+          borderBottom: '1px solid var(--border)',
+          padding: isMobile ? '12px 16px' : '16px 32px',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          gap: '10px',
+          direction: isRtl ? 'rtl' : 'ltr',
+        }}
+      >
+        {exportButton}
+        {addButton}
+      </div>
 
       {successMessage && (
         <div style={{

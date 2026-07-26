@@ -236,7 +236,7 @@ export default function WorldDaysPage() {
 
   return (
     <div>
-      <PageHeader title={t('pageTitle')} action={<>{exportButton}{addButton}</>} />
+      <PageHeader title={t('pageTitle')} />
 
       {/* Controls */}
       <div
@@ -252,6 +252,10 @@ export default function WorldDaysPage() {
         }}
       >
         <SortByDateButton active={sortSoonest} onToggle={() => setSortSoonest((v) => !v)} label={t('sortSoonestButton')} />
+        <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
+          {exportButton}
+          {addButton}
+        </div>
       </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
