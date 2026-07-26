@@ -441,8 +441,8 @@ export default function ReportsPage() {
           direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
-        {exportButton}
         {addButton}
+        {exportButton}
       </div>
 
       {successMessage && (

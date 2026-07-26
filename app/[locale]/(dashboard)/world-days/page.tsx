@@ -253,8 +253,8 @@ export default function WorldDaysPage() {
       >
         <SortByDateButton active={sortSoonest} onToggle={() => setSortSoonest((v) => !v)} label={t('sortSoonestButton')} />
         <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
-          {exportButton}
           {addButton}
+          {exportButton}
         </div>
       </div>
 

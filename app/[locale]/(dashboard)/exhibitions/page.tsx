@@ -394,14 +394,14 @@ export default function ExhibitionsPage() {
 
         {!isMobile && (
           <div style={{ marginInlineStart: 'auto', display: 'flex', gap: '10px' }}>
-            {exportButton}
             {addButton}
+            {exportButton}
           </div>
         )}
         {isMobile && (
           <div style={{ display: 'flex', gap: '10px' }}>
-            {exportButton}
             {addButton}
+            {exportButton}
           </div>
         )}
       </div>

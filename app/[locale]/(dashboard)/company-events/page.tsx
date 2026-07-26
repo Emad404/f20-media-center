@@ -337,8 +337,8 @@ export default function CompanyEventsPage() {
           </button>
         ))}
         <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
-          {exportButton}
           {addButton}
+          {exportButton}
         </div>
       </div>
 
