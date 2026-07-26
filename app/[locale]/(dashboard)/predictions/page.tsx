@@ -332,10 +332,10 @@ export default function PredictionsPage() {
   }
 
   return (
-    <div>
+    <div style={{ minHeight: '100vh', background: '#0422BA', display: 'flex', flexDirection: 'column' }}>
       <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} />
 
-      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px', direction: isRtl ? 'rtl' : 'ltr' }}>
+      <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px', direction: isRtl ? 'rtl' : 'ltr', flex: 1 }}>
         {successMessage && (
           <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'var(--success-bg)', color: 'var(--success-text)', fontSize: '13px' }}>
             {successMessage}
@@ -358,19 +358,19 @@ export default function PredictionsPage() {
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
                 {nextMatch.match_date && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: 'var(--text-muted)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: '#000000' }}>
                     <CalendarDays size={13} />
                     {formatArabicDate(nextMatch.match_date)}{nextMatch.match_time ? ` — ${nextMatch.match_time.slice(0, 5)}` : ''}
                   </span>
                 )}
                 {displayStadium(nextMatch) && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: 'var(--text-muted)' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: '#000000' }}>
                     <MapPin size={13} />
                     {displayStadium(nextMatch)}{nextMatch.region ? ` · ${nextMatch.region}` : ''}
                   </span>
                 )}
                 {displayGift(nextMatch) && (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: '#0101F9' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: '#000000' }}>
                     <Gift size={13} />
                     {displayGift(nextMatch)}
                   </span>
@@ -378,9 +378,9 @@ export default function PredictionsPage() {
               </div>
 
               {myNextMatchPrediction ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: 'var(--success-bg)', borderRadius: '8px', padding: '10px 16px', flexWrap: 'wrap' }}>
-                  <span style={{ color: 'var(--success-text)', fontSize: '18px' }}>✓</span>
-                  <span style={{ fontSize: '14px', color: 'var(--success-text)', fontWeight: 500 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: 'var(--info-bg)', borderRadius: '8px', padding: '10px 16px', flexWrap: 'wrap' }}>
+                  <span style={{ color: 'var(--info-text)', fontSize: '18px' }}>✓</span>
+                  <span style={{ fontSize: '14px', color: 'var(--info-text)', fontWeight: 500 }}>
                     {t('yourPredictionLabel')} {myNextMatchPrediction.predicted_hilal_score} : {myNextMatchPrediction.predicted_opponent_score}
                   </span>
                 </div>
@@ -409,8 +409,8 @@ export default function PredictionsPage() {
                       onClick={handleSubmitPrediction}
                       disabled={predSaving}
                       style={{
-                        background: '#0028F0',
-                        color: '#fff',
+                        background: 'var(--btn-bg)',
+                        color: 'var(--btn-text)',
                         border: 'none',
                         borderRadius: '8px',
                         padding: '8px 18px',
@@ -459,7 +459,7 @@ export default function PredictionsPage() {
                           <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                             {t('actualResultLabel')} {match!.hilal_score} : {match!.opponent_score}
                           </span>
-                          <Badge text={isCorrect ? t('correctLabel') : t('incorrectLabel')} variant={isCorrect ? 'success' : 'neutral'} />
+                          <Badge text={isCorrect ? t('correctLabel') : t('incorrectLabel')} variant={isCorrect ? 'success' : 'danger'} />
                         </>
                       ) : (
                         <Badge text={t('resultPendingLabel')} variant="neutral" />
@@ -536,7 +536,7 @@ export default function PredictionsPage() {
             action={
               <button
                 onClick={openAddMatchModal}
-                style={{ background: '#0028F0', color: '#fff', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                style={{ background: 'var(--btn-bg)', color: 'var(--btn-text)', border: 'none', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 {t('addMatchButton')}
               </button>
@@ -560,7 +560,7 @@ export default function PredictionsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <Badge
                         text={m.hilal_score != null && m.opponent_score != null ? `${m.hilal_score} : ${m.opponent_score}` : t('scoreNotEnteredText')}
-                        variant={m.hilal_score != null && m.opponent_score != null ? 'success' : 'neutral'}
+                        variant={m.hilal_score != null && m.opponent_score != null ? 'info' : 'neutral'}
                       />
                       <PersonCardMenu
                         isRtl={isRtl}
@@ -646,7 +646,7 @@ export default function PredictionsPage() {
             <button
               onClick={handleSaveMatch}
               disabled={matchSaving}
-              style={{ background: '#0028F0', color: '#fff', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: matchSaving ? 'not-allowed' : 'pointer', opacity: matchSaving ? 0.7 : 1 }}
+              style={{ background: 'var(--btn-bg)', color: 'var(--btn-text)', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: matchSaving ? 'not-allowed' : 'pointer', opacity: matchSaving ? 0.7 : 1 }}
             >
               {matchSaving ? t('saving') : editingMatch ? t('saveButtonEdit') : t('saveButton')}
             </button>
