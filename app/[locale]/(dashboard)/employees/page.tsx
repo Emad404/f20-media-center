@@ -81,77 +81,6 @@ function roleLabel(t: (key: string) => string, role: string): string {
   }
 }
 
-function orgNodeStyle(tier: number): React.CSSProperties {
-  if (tier === 0) return { background: 'var(--gold-light)', border: '2px solid var(--gold)' }
-  if (tier === 1) return { background: '#EEF2FF', border: '2px solid var(--navy-mid)' }
-  return { background: 'var(--bg-card)', border: '1px solid var(--border)' }
-}
-
-function OrgNode({
-  emp,
-  name,
-  role,
-  dept,
-  tier,
-  onSelect,
-}: {
-  emp: EmployeeProfile
-  name: string
-  role: string
-  dept: string
-  tier: number
-  onSelect: (e: EmployeeProfile) => void
-}) {
-  const isCeo = tier === 0
-  return (
-    <div
-      onClick={() => onSelect(emp)}
-      style={{
-        padding: '12px 16px',
-        borderRadius: '12px',
-        textAlign: 'center',
-        minWidth: isCeo ? '160px' : '130px',
-        maxWidth: '160px',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '6px',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-        transition: 'border-color 0.15s ease',
-        ...orgNodeStyle(tier),
-      }}
-    >
-      <div style={{
-        width: isCeo ? 48 : 40,
-        height: isCeo ? 48 : 40,
-        borderRadius: '50%',
-        background: 'var(--neutral-bg)',
-        margin: '0 auto 4px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: isCeo ? '16px' : '14px',
-        fontWeight: 600,
-        color: tier === 0 ? 'var(--gold-dark)' : 'var(--text-secondary)',
-      }}>
-        {getInitials(name)}
-      </div>
-      <div style={{ fontSize: '13px', fontWeight: 600, color: tier === 0 ? 'var(--gold-dark)' : 'var(--text-primary)' }}>
-        {name}
-      </div>
-      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{role}</div>
-      {dept && <Badge text={dept} variant="neutral" />}
-    </div>
-  )
-}
-
-function VerticalLine() {
-  return (
-    <div style={{ width: '1px', height: '20px', background: 'var(--border-strong)', alignSelf: 'center' }} />
-  )
-}
-
 export default function EmployeesPage() {
   const t = useTranslations('Employees')
   const locale = useLocale()
@@ -222,19 +151,6 @@ export default function EmployeesPage() {
       })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employees, search, deptFilter, roleFilter, locale])
-
-  const orgSorted = useMemo(() => {
-    return [...employees].sort((a, b) => {
-      const rankDiff = roleRank(a.role) - roleRank(b.role)
-      if (rankDiff !== 0) return rankDiff
-      return displayName(a).localeCompare(displayName(b), locale)
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [employees, locale])
-
-  const ceoTier = orgSorted.filter((e) => e.role === 'ceo')
-  const pmTier = orgSorted.filter((e) => e.role === 'project_manager')
-  const restTier = orgSorted.filter((e) => e.role !== 'ceo' && e.role !== 'project_manager')
 
   const openAddModal = () => {
     setEditingEmployee(null)
@@ -467,8 +383,11 @@ export default function EmployeesPage() {
         }}
       >
         <div style={{ display: 'flex', gap: '8px' }}>
-          {/* AR keeps Org Chart before Employee List; EN shows Employee List first. */}
-          {isRtl ? [orgButton, listButton] : [listButton, orgButton]}
+          {/* Employee List comes before Org Chart in both locales - the parent
+              row already sets an explicit `direction` per locale, so this
+              code order is mirrored correctly without an isRtl branch. */}
+          {listButton}
+          {orgButton}
         </div>
       </div>
 
@@ -492,43 +411,9 @@ export default function EmployeesPage() {
             {t('emptyState')}
           </div>
         ) : view === 'org' ? (
-          /* ORG CHART */
-          <div style={{ overflowX: 'auto', paddingBottom: '16px' }}>
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center', minWidth: '900px',
-              transform: isMobile ? 'scale(0.7)' : undefined,
-              transformOrigin: isMobile ? 'top center' : undefined,
-            }}>
-              {ceoTier.length > 0 && (
-                <>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    {ceoTier.map((emp) => (
-                      <OrgNode key={emp.id} emp={emp} name={displayName(emp)} role={roleLabel(t, emp.role)} dept={displayDept(emp)} tier={0} onSelect={setSelectedEmployee} />
-                    ))}
-                  </div>
-                  {(pmTier.length > 0 || restTier.length > 0) && <VerticalLine />}
-                </>
-              )}
-
-              {pmTier.length > 0 && (
-                <>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    {pmTier.map((emp) => (
-                      <OrgNode key={emp.id} emp={emp} name={displayName(emp)} role={roleLabel(t, emp.role)} dept={displayDept(emp)} tier={1} onSelect={setSelectedEmployee} />
-                    ))}
-                  </div>
-                  {restTier.length > 0 && <VerticalLine />}
-                </>
-              )}
-
-              {restTier.length > 0 && (
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', paddingTop: '4px' }}>
-                  {restTier.map((emp) => (
-                    <OrgNode key={emp.id} emp={emp} name={displayName(emp)} role={roleLabel(t, emp.role)} dept={displayDept(emp)} tier={2} onSelect={setSelectedEmployee} />
-                  ))}
-                </div>
-              )}
-            </div>
+          /* ORG CHART - intentionally empty until the company decides the structure to show */
+          <div style={{ padding: '64px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
+            {t('orgChartEmptyState')}
           </div>
         ) : (
           /* LIST VIEW */
