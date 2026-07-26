@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Search, SearchX, CalendarDays, Mail, Phone, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
+import SortByDateButton from '@/components/SortByDateButton'
 import Badge from '@/components/Badge'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
-import { formatDateRange } from '@/lib/dateUtils'
+import { formatDateRange, sortSoonestFirst } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
@@ -109,7 +110,7 @@ export default function ExhibitionsPage() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [cityFilter, setCityFilter] = useState(ALL)
-  const [statusFilter, setStatusFilter] = useState(ALL)
+  const [sortSoonest, setSortSoonest] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingExhibition, setEditingExhibition] = useState<ExhibitionRow | null>(null)
@@ -149,23 +150,27 @@ export default function ExhibitionsPage() {
   const cities = [ALL, ...CITY_VALUES]
 
   const filtered = useMemo(() => {
-    return exhibitions
+    const result = exhibitions
       .filter((e) => cityFilter === ALL || e.city === cityFilter)
-      .filter((e) => statusFilter === ALL || e.status === statusFilter)
       .filter((e) => {
         if (search === '') return true
         return displayTitle(e).includes(search) || displayDescription(e).includes(search)
       })
-      .sort((a, b) => {
-        const cd = (cityOrder[a.city || ''] ?? 3) - (cityOrder[b.city || ''] ?? 3)
-        if (cd !== 0) return cd
-        if (!a.start_date && !b.start_date) return 0
-        if (!a.start_date) return 1
-        if (!b.start_date) return -1
-        return new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
-      })
+
+    if (sortSoonest) {
+      return sortSoonestFirst(result, (e) => e.start_date)
+    }
+
+    return result.sort((a, b) => {
+      const cd = (cityOrder[a.city || ''] ?? 3) - (cityOrder[b.city || ''] ?? 3)
+      if (cd !== 0) return cd
+      if (!a.start_date && !b.start_date) return 0
+      if (!a.start_date) return 1
+      if (!b.start_date) return -1
+      return new Date(a.start_date).getTime() - new Date(b.start_date).getTime()
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [exhibitions, search, cityFilter, statusFilter, locale])
+  }, [exhibitions, search, cityFilter, sortSoonest, locale])
 
   const openAddModal = () => {
     setEditingExhibition(null)
@@ -384,18 +389,8 @@ export default function ExhibitionsPage() {
           ))}
         </div>
 
-        {/* Status label + select */}
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('statusLabel')}</span>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          style={{ ...inputStyle, width: isMobile ? '100%' : 'auto', cursor: 'pointer' }}
-        >
-          <option value={ALL}>{t('allOption')}</option>
-          {STATUS_VALUES.map((s) => (
-            <option key={s} value={s}>{statusLabel(s)}</option>
-          ))}
-        </select>
+        {/* Sort by date */}
+        <SortByDateButton active={sortSoonest} onToggle={() => setSortSoonest((v) => !v)} label={t('sortSoonestButton')} />
 
         {!isMobile && (
           <div style={{ marginInlineStart: 'auto', display: 'flex', gap: '10px' }}>
