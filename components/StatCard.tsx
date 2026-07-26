@@ -1,15 +1,21 @@
 'use client'
 
-import { type LucideIcon } from 'lucide-react'
+import Link from 'next/link'
+import { type LucideIcon, ChevronLeft, ChevronRight } from 'lucide-react'
+import { useLocale } from 'next-intl'
 
 interface StatCardProps {
   value: string | number
   label: string
   icon?: LucideIcon
   trend?: string
+  footerLabel?: string
+  footerHref?: string
 }
 
-export default function StatCard({ value, label, icon: Icon, trend }: StatCardProps) {
+export default function StatCard({ value, label, icon: Icon, trend, footerLabel, footerHref }: StatCardProps) {
+  const isRtl = useLocale() === 'ar'
+  const ChevronIcon = isRtl ? ChevronLeft : ChevronRight
   return (
     <div
       style={{
@@ -58,6 +64,26 @@ export default function StatCard({ value, label, icon: Icon, trend }: StatCardPr
           </div>
         )}
       </div>
+      {footerLabel && footerHref && (
+        <Link
+          href={footerHref}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: '10px',
+            paddingTop: '10px',
+            borderTop: '1px solid var(--border)',
+            fontSize: '12px',
+            fontWeight: 500,
+            color: 'var(--gold-dark)',
+            textDecoration: 'none',
+          }}
+        >
+          <span>{footerLabel}</span>
+          <ChevronIcon size={14} />
+        </Link>
+      )}
     </div>
   )
 }

@@ -47,16 +47,18 @@
   "Dashboard": {
     "welcomeTitle": "Dashboard",
     "welcomeSubtitle": "Welcome to the Media Center — F20 Event",
-    "statUpcomingEventsLabel": "Upcoming Events in the Kingdom",
+    "statUpcomingEventsLabel": "Upcoming Events",
     "statWorldDaysLabel": "International Days This Month",
-    "statExhibitionsLabel": "Registered Exhibitions",
+    "statExhibitionsLabel": "Upcoming Exhibitions",
     "statEmployeesLabel": "Team Employees",
     "kingdomEventsSectionTitle": "Latest Kingdom Events",
     "companyEventsSectionTitle": "Company Events",
     "worldDaysSectionTitle": "Upcoming World Days",
     "reportsSectionTitle": "Latest Reports",
     "viewAllLink": "View All",
-    "socialAccountsSectionTitle": "Social Accounts"
+    "socialAccountsSectionTitle": "Social Accounts",
+    "loading": "Loading...",
+    "emptyState": "Nothing to show yet"
   },
   "Contacts": {
     "pageTitle": "Contacts",

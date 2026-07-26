@@ -47,16 +47,18 @@
   "Dashboard": {
     "welcomeTitle": "لوحة التحكم",
     "welcomeSubtitle": "مرحباً بك في المركز الإعلامي — F20 Event",
-    "statUpcomingEventsLabel": "فعالية قادمة في المملكة",
+    "statUpcomingEventsLabel": "فعاليات قادمة",
     "statWorldDaysLabel": "أيام دولية هذا الشهر",
-    "statExhibitionsLabel": "معارض مسجّلة",
+    "statExhibitionsLabel": "معارض قادمة",
     "statEmployeesLabel": "موظف في الفريق",
     "kingdomEventsSectionTitle": "أحدث فعاليات المملكة",
     "companyEventsSectionTitle": "فعاليات الشركة",
     "worldDaysSectionTitle": "الأيام العالمية القادمة",
     "reportsSectionTitle": "آخر التقارير",
     "viewAllLink": "عرض الكل",
-    "socialAccountsSectionTitle": "حسابات التواصل الاجتماعي"
+    "socialAccountsSectionTitle": "حسابات التواصل الاجتماعي",
+    "loading": "جارٍ التحميل...",
+    "emptyState": "لا يوجد شيء لعرضه بعد"
   },
   "Contacts": {
     "pageTitle": "جهات الاتصال",

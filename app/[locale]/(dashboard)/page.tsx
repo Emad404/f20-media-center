@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import PageHeader from '@/components/PageHeader'
@@ -7,47 +8,63 @@ import StatCard from '@/components/StatCard'
 import Badge from '@/components/Badge'
 import StarRating from '@/components/StarRating'
 import Avatar from '@/components/Avatar'
-import { kSAEvents } from '@/data/events'
-import { worldDays } from '@/data/worldDays'
-import { companyEvents } from '@/data/companyEvents'
-import { reports } from '@/data/reports'
+import { createClient } from '@/lib/supabase/client'
 import { socialAccounts } from '@/data/social'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { CalendarDays, Globe, Building2, Users, Mail, ExternalLink } from 'lucide-react'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
-const today = new Date('2026-06-19')
-
-const upcomingEvents = kSAEvents
-  .filter((e) => new Date(e.dateStart) >= today)
-  .sort((a, b) => {
-    const cityOrder: Record<string, number> = { 'الرياض': 0, 'الشرقية': 1, 'جدة': 2 }
-    const cityDiff = (cityOrder[a.city] ?? 3) - (cityOrder[b.city] ?? 3)
-    if (cityDiff !== 0) return cityDiff
-    return new Date(a.dateStart).getTime() - new Date(b.dateStart).getTime()
-  })
-  .slice(0, 5)
-
-const upcomingWorldDays = worldDays
-  .filter((d) => new Date(d.date) >= today)
-  .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  .slice(0, 4)
-
-function cityVariant(city: string): 'riyadh' | 'eastern' | 'jeddah' {
-  if (city === 'الرياض') return 'riyadh'
-  if (city === 'الشرقية') return 'eastern'
-  return 'jeddah'
+interface EventLite {
+  id: string
+  title_ar: string
+  title_en: string | null
+  city: string | null
+  start_date: string | null
+  end_date: string | null
 }
 
-const categoryColors: Record<string, 'success' | 'info' | 'warning' | 'neutral'> = {
-  'صحة': 'success',
-  'بيئة': 'success',
-  'مجتمع': 'info',
-  'وطني': 'warning',
-  'ثقافة': 'info',
-  'شباب': 'info',
-  'تعليم': 'info',
-  'سلامة': 'neutral',
+interface WorldDayLite {
+  id: string
+  title_ar: string
+  title_en: string | null
+  day_date: string
+}
+
+interface CompanyEventLite {
+  id: string
+  title_ar: string
+  title_en: string | null
+  client_name_ar: string | null
+  client_name_en: string | null
+  status: string | null
+  start_date: string | null
+}
+
+interface ReportLite {
+  id: string
+  company_event_id: string | null
+  submitted_by: string | null
+  program_rating: number | null
+  created_at: string
+}
+
+interface ProfileLite {
+  id: string
+  full_name_ar: string
+  full_name_en: string | null
+}
+
+function cityVariant(city: string | null): 'riyadh' | 'eastern' | 'jeddah' | 'neutral' {
+  if (city === 'الرياض') return 'riyadh'
+  if (city === 'الشرقية') return 'eastern'
+  if (city === 'جدة') return 'jeddah'
+  return 'neutral'
+}
+
+function companyEventStatusVariant(status: string | null): 'success' | 'info' | 'neutral' {
+  if (status === 'ongoing') return 'success'
+  if (status === 'upcoming') return 'info'
+  return 'neutral'
 }
 
 function SocialIcon({ type }: { type: string }) {
@@ -83,16 +100,110 @@ function SocialIcon({ type }: { type: string }) {
   return <ExternalLink size={20} />
 }
 
-function statusVariant(status: string): 'success' | 'info' | 'neutral' {
-  if (status === 'منتهي') return 'neutral'
-  if (status === 'قادم') return 'info'
-  return 'success'
-}
-
 export default function DashboardPage() {
   const t = useTranslations('Dashboard')
-  const isRtl = useLocale() === 'ar'
+  const tCompanyEvents = useTranslations('CompanyEvents')
+  const locale = useLocale()
+  const isRtl = locale === 'ar'
   const isMobile = useIsMobile()
+  const supabase = createClient()
+
+  const [loading, setLoading] = useState(true)
+  const [employeeCount, setEmployeeCount] = useState(0)
+  const [events, setEvents] = useState<EventLite[]>([])
+  const [exhibitions, setExhibitions] = useState<EventLite[]>([])
+  const [worldDays, setWorldDays] = useState<WorldDayLite[]>([])
+  const [companyEvents, setCompanyEvents] = useState<CompanyEventLite[]>([])
+  const [reports, setReports] = useState<ReportLite[]>([])
+  const [profiles, setProfiles] = useState<ProfileLite[]>([])
+  const [companyEventTitles, setCompanyEventTitles] = useState<Map<string, { title_ar: string; title_en: string | null }>>(new Map())
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      const [
+        employeeCountRes,
+        eventsRes,
+        exhibitionsRes,
+        worldDaysRes,
+        companyEventsRes,
+        reportsRes,
+        profilesRes,
+      ] = await Promise.all([
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('events').select('id,title_ar,title_en,city,start_date,end_date'),
+        supabase.from('exhibitions').select('id,title_ar,title_en,city,start_date,end_date'),
+        supabase.from('world_days').select('id,title_ar,title_en,day_date').order('day_date', { ascending: true }),
+        supabase.from('company_events').select('id,title_ar,title_en,client_name_ar,client_name_en,status,start_date').order('start_date', { ascending: true, nullsFirst: false }),
+        supabase.from('reports').select('id,company_event_id,submitted_by,program_rating,created_at').order('created_at', { ascending: false }).limit(3),
+        supabase.from('profiles').select('id,full_name_ar,full_name_en'),
+      ])
+
+      setEmployeeCount(employeeCountRes.count ?? 0)
+      setEvents(eventsRes.data || [])
+      setExhibitions(exhibitionsRes.data || [])
+      setWorldDays(worldDaysRes.data || [])
+      setCompanyEvents(companyEventsRes.data || [])
+      setReports(reportsRes.data || [])
+      setProfiles(profilesRes.data || [])
+
+      const ceIds = (reportsRes.data || []).map((r) => r.company_event_id).filter((id): id is string => !!id)
+      if (ceIds.length > 0) {
+        const { data: ceTitles } = await supabase.from('company_events').select('id,title_ar,title_en').in('id', ceIds)
+        setCompanyEventTitles(new Map((ceTitles || []).map((c) => [c.id, { title_ar: c.title_ar, title_en: c.title_en }])))
+      }
+
+      setLoading(false)
+    }
+    fetchData()
+  }, [])
+
+  const todayStr = useMemo(() => new Date().toISOString().slice(0, 10), [])
+
+  const isUpcoming = (row: { start_date: string | null; end_date: string | null }) => {
+    const relevantDate = row.end_date || row.start_date
+    return !!relevantDate && relevantDate >= todayStr
+  }
+
+  const upcomingEvents = useMemo(
+    () => events.filter(isUpcoming).sort((a, b) => (a.start_date || '').localeCompare(b.start_date || '')),
+    [events, todayStr]
+  )
+
+  const upcomingExhibitions = useMemo(
+    () => exhibitions.filter(isUpcoming),
+    [exhibitions, todayStr]
+  )
+
+  const upcomingWorldDays = useMemo(
+    () => worldDays.filter((d) => d.day_date >= todayStr).slice(0, 4),
+    [worldDays, todayStr]
+  )
+
+  const worldDaysThisMonth = useMemo(() => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = now.getMonth()
+    return worldDays.filter((d) => {
+      const date = new Date(d.day_date)
+      return date.getFullYear() === year && date.getMonth() === month
+    })
+  }, [worldDays])
+
+  const displayTitle = (row: { title_ar: string; title_en: string | null }) =>
+    locale === 'en' && row.title_en ? row.title_en : row.title_ar
+
+  const displayName = (p: ProfileLite | undefined) =>
+    p ? (locale === 'en' && p.full_name_en ? p.full_name_en : p.full_name_ar) : ''
+
+  const profilesById = useMemo(() => new Map(profiles.map((p) => [p.id, p])), [profiles])
+
+  const employeeNameFor = (r: ReportLite) => displayName(r.submitted_by ? profilesById.get(r.submitted_by) : undefined)
+  const eventTitleFor = (r: ReportLite) => {
+    const ce = r.company_event_id ? companyEventTitles.get(r.company_event_id) : undefined
+    return ce ? displayTitle(ce) : ''
+  }
+
   return (
     <div>
       <PageHeader
@@ -103,10 +214,34 @@ export default function DashboardPage() {
       <div style={{ padding: isMobile ? '16px' : '28px 32px' }}>
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-          <StatCard value={10} label={t('statUpcomingEventsLabel')} icon={CalendarDays} />
-          <StatCard value={3} label={t('statWorldDaysLabel')} icon={Globe} />
-          <StatCard value={3} label={t('statExhibitionsLabel')} icon={Building2} />
-          <StatCard value={12} label={t('statEmployeesLabel')} icon={Users} />
+          <StatCard
+            value={loading ? '—' : employeeCount}
+            label={t('statEmployeesLabel')}
+            icon={Users}
+            footerLabel={t('viewAllLink')}
+            footerHref="/employees"
+          />
+          <StatCard
+            value={loading ? '—' : upcomingExhibitions.length}
+            label={t('statExhibitionsLabel')}
+            icon={Building2}
+            footerLabel={t('viewAllLink')}
+            footerHref="/exhibitions"
+          />
+          <StatCard
+            value={loading ? '—' : upcomingEvents.length}
+            label={t('statUpcomingEventsLabel')}
+            icon={CalendarDays}
+            footerLabel={t('viewAllLink')}
+            footerHref="/events"
+          />
+          <StatCard
+            value={loading ? '—' : worldDaysThisMonth.length}
+            label={t('statWorldDaysLabel')}
+            icon={Globe}
+            footerLabel={t('viewAllLink')}
+            footerHref="/world-days"
+          />
         </div>
 
         {/* Two column grid */}
@@ -118,7 +253,9 @@ export default function DashboardPage() {
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('kingdomEventsSectionTitle')}</h2>
                 <Link href="/events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
-              {upcomingEvents.map((event, idx) => (
+              {upcomingEvents.length === 0 ? (
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
+              ) : upcomingEvents.slice(0, 5).map((event, idx, arr) => (
                 <div
                   key={event.id}
                   style={{
@@ -126,16 +263,18 @@ export default function DashboardPage() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '12px 0',
-                    borderBottom: idx < upcomingEvents.length - 1 ? '1px solid var(--border)' : 'none',
+                    borderBottom: idx < arr.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(event.dateStart)}</div>
+                    <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayTitle(event)}</div>
+                    {event.start_date && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(event.start_date)}</div>}
                   </div>
-                  <div style={{ marginRight: '12px' }}>
-                    <Badge text={event.city} variant={cityVariant(event.city)} />
-                  </div>
+                  {event.city && (
+                    <div style={{ marginRight: '12px' }}>
+                      <Badge text={event.city} variant={cityVariant(event.city)} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -146,7 +285,9 @@ export default function DashboardPage() {
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('worldDaysSectionTitle')}</h2>
                 <Link href="/world-days" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
-              {upcomingWorldDays.map((day, idx) => (
+              {upcomingWorldDays.length === 0 ? (
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
+              ) : upcomingWorldDays.map((day, idx, arr) => (
                 <div
                   key={day.id}
                   style={{
@@ -154,15 +295,12 @@ export default function DashboardPage() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     padding: '12px 0',
-                    borderBottom: idx < upcomingWorldDays.length - 1 ? '1px solid var(--border)' : 'none',
+                    borderBottom: idx < arr.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '3px' }}>{day.title}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(day.date)}</div>
-                  </div>
-                  <div style={{ marginRight: '12px' }}>
-                    <Badge text={day.category} variant={categoryColors[day.category] ?? 'neutral'} />
+                    <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '3px' }}>{displayTitle(day)}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(day.day_date)}</div>
                   </div>
                 </div>
               ))}
@@ -176,20 +314,35 @@ export default function DashboardPage() {
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('companyEventsSectionTitle')}</h2>
                 <Link href="/company-events" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
-              {companyEvents.slice(0, 3).map((event, idx) => (
+              {companyEvents.length === 0 ? (
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
+              ) : companyEvents.slice(0, 3).map((event, idx, arr) => (
                 <div
                   key={event.id}
                   style={{
                     padding: '12px 0',
-                    borderBottom: idx < 2 ? '1px solid var(--border)' : 'none',
+                    borderBottom: idx < arr.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{event.title}</div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>{event.client}</div>
+                      <div style={{ fontSize: '13px', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayTitle(event)}</div>
+                      {(event.client_name_ar || event.client_name_en) && (
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                          {locale === 'en' && event.client_name_en ? event.client_name_en : event.client_name_ar}
+                        </div>
+                      )}
                     </div>
-                    <Badge text={event.status} variant={statusVariant(event.status)} />
+                    {event.status && (
+                      <Badge
+                        text={
+                          event.status === 'upcoming' ? tCompanyEvents('statusUpcoming')
+                          : event.status === 'ongoing' ? tCompanyEvents('statusOngoing')
+                          : tCompanyEvents('statusFinished')
+                        }
+                        variant={companyEventStatusVariant(event.status)}
+                      />
+                    )}
                   </div>
                 </div>
               ))}
@@ -201,7 +354,9 @@ export default function DashboardPage() {
                 <h2 style={{ fontSize: '16px', fontWeight: 600 }}>{t('reportsSectionTitle')}</h2>
                 <Link href="/reports" style={{ fontSize: '13px', color: 'var(--gold-dark)', fontWeight: 500 }}>{t('viewAllLink')}</Link>
               </div>
-              {reports.slice(0, 3).map((report, idx) => (
+              {reports.length === 0 ? (
+                <div style={{ fontSize: '13px', color: 'var(--text-muted)', padding: '12px 0' }}>{loading ? t('loading') : t('emptyState')}</div>
+              ) : reports.map((report, idx, arr) => (
                 <div
                   key={report.id}
                   style={{
@@ -209,15 +364,15 @@ export default function DashboardPage() {
                     alignItems: 'center',
                     gap: '10px',
                     padding: '12px 0',
-                    borderBottom: idx < 2 ? '1px solid var(--border)' : 'none',
+                    borderBottom: idx < arr.length - 1 ? '1px solid var(--border)' : 'none',
                   }}
                 >
-                  <Avatar name={report.employeeName} size="sm" />
+                  <Avatar name={employeeNameFor(report) || '?'} size="sm" />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{report.employeeName}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{report.eventName}</div>
+                    <div style={{ fontSize: '13px', fontWeight: 500 }}>{employeeNameFor(report) || '—'}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{eventTitleFor(report) || '—'}</div>
                   </div>
-                  <StarRating value={report.programRating} />
+                  <StarRating value={report.program_rating ?? 0} />
                 </div>
               ))}
             </div>
@@ -227,9 +382,9 @@ export default function DashboardPage() {
         {/* Social accounts */}
         <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 600, marginBottom: '16px' }}>{t('socialAccountsSectionTitle')}</h2>
-          <div style={{ display: 'flex', gap: isMobile ? '8px' : '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: isMobile ? '8px' : '12px', flexWrap: 'wrap', direction: isRtl ? 'rtl' : 'ltr' }}>
             {socialAccounts.map((account) => {
-              const displayName = !isRtl && account.name_en ? account.name_en : account.name_ar
+              const accountDisplayName = !isRtl && account.name_en ? account.name_en : account.name_ar
               return (
               <a
                 key={account.id}
@@ -253,7 +408,7 @@ export default function DashboardPage() {
               >
                 <SocialIcon type={account.type} />
                 <span style={{ fontSize: '11px', color: 'var(--text-muted)', textAlign: 'center', whiteSpace: 'nowrap' }}>
-                  {displayName}
+                  {accountDisplayName}
                 </span>
               </a>
               )
