@@ -312,6 +312,7 @@
     "cancelButton": "Cancel",
     "titleArRequiredError": "Arabic title is required",
     "dateRequiredError": "Date is required",
+    "exportButton": "Export as Excel",
     "deleteConfirm": "Delete \"{title}\"?",
     "addSuccess": "Day added successfully",
     "saveSuccess": "Day updated successfully",

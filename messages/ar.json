@@ -313,6 +313,7 @@
     "cancelButton": "إلغاء",
     "titleArRequiredError": "العنوان بالعربية مطلوب",
     "dateRequiredError": "التاريخ مطلوب",
+    "exportButton": "تصدير إلى إكسل",
     "deleteConfirm": "حذف \"{title}\"؟",
     "addSuccess": "تمت إضافة اليوم بنجاح",
     "saveSuccess": "تم تحديث اليوم بنجاح",

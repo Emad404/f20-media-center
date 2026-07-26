@@ -2,12 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { exportToExcel } from '@/lib/exportXlsx'
 
 interface WorldDayRow {
   id: string
@@ -175,6 +177,18 @@ export default function WorldDaysPage() {
     flashSuccess(t('deleteSuccess'))
   }
 
+  const handleExport = () => {
+    const rows = days.map((day) => ({
+      'Title (Arabic)': day.title_ar,
+      'Title (English)': day.title_en || '',
+      'Description (Arabic)': day.description_ar || '',
+      'Description (English)': day.description_en || '',
+      'Date': day.day_date || '',
+      'Image URL': day.image_url || '',
+    }))
+    exportToExcel(rows, 'world-days')
+  }
+
   const addButton = (
     <button
       onClick={openAddModal}
@@ -194,9 +208,32 @@ export default function WorldDaysPage() {
     </button>
   )
 
+  const exportButton = (
+    <button
+      onClick={handleExport}
+      style={{
+        background: 'var(--gold)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: 500,
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+      }}
+    >
+      <FileSpreadsheet size={15} />
+      {t('exportButton')}
+    </button>
+  )
+
   return (
     <div>
-      <PageHeader title={t('pageTitle')} action={addButton} />
+      <PageHeader title={t('pageTitle')} action={<>{exportButton}{addButton}</>} />
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
         {successMessage && (
