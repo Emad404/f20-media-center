@@ -492,27 +492,33 @@ export default function CalendarPage() {
                     {day}
                   </div>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2, overflow: 'hidden' }}>
-                    {dayTasks.slice(0, isMobile ? 1 : 2).map((task) => (
-                      <span key={task.id} style={{
-                        fontSize: isMobile ? '8px' : '9px',
-                        fontWeight: 600,
-                        lineHeight: 1.4,
-                        padding: '1px 4px',
-                        borderRadius: '4px',
-                        background: typeColor(task.task_type),
-                        color: '#fff',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        maxWidth: '100%',
-                      }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 3, overflow: 'hidden' }}>
+                    {dayTasks.map((task) => (
+                      <span
+                        key={task.id}
+                        title={typeLabel(task.task_type)}
+                        style={{
+                          width: isMobile ? 20 : 30,
+                          height: isMobile ? 20 : 30,
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          textAlign: 'center',
+                          fontSize: isMobile ? '6px' : '7px',
+                          fontWeight: 700,
+                          lineHeight: 1.1,
+                          borderRadius: '5px',
+                          background: typeColor(task.task_type),
+                          color: '#fff',
+                          padding: '2px',
+                          overflow: 'hidden',
+                          wordBreak: 'break-word',
+                        }}
+                      >
                         {typeLabel(task.task_type)}
                       </span>
                     ))}
-                    {dayTasks.length > (isMobile ? 1 : 2) && (
-                      <span style={{ fontSize: '9px', color: 'var(--text-muted)' }}>+{dayTasks.length - (isMobile ? 1 : 2)}</span>
-                    )}
                   </div>
                 </div>
               )
