@@ -257,6 +257,7 @@
     "statusOngoing": "Live now",
     "statusTbd": "Date TBD",
     "addButton": "Add Event",
+    "exportButton": "Export as Excel",
     "editAria": "Edit",
     "deleteAria": "Delete",
     "optionsAria": "Options",
