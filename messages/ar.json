@@ -377,6 +377,7 @@
     "statusOngoing": "جارٍ",
     "statusFinished": "منتهٍ",
     "addButton": "إضافة فعالية",
+    "exportButton": "تصدير إلى إكسل",
     "editAria": "تعديل",
     "deleteAria": "حذف",
     "optionsAria": "خيارات",

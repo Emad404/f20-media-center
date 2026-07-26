@@ -2,13 +2,14 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { ChevronDown, ChevronUp, MapPin, CalendarDays } from 'lucide-react'
+import { ChevronDown, ChevronUp, MapPin, CalendarDays, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
 import { formatDateRange } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { exportToExcel } from '@/lib/exportXlsx'
 
 const ALL = '__all__'
 const STATUS_VALUES = ['upcoming', 'ongoing', 'finished'] as const
@@ -238,6 +239,24 @@ export default function CompanyEventsPage() {
     flashSuccess(t('deleteSuccess'))
   }
 
+  const handleExport = () => {
+    const rows = filtered.map((e) => ({
+      'Title (Arabic)': e.title_ar,
+      'Title (English)': e.title_en || '',
+      'Client Name (Arabic)': e.client_name_ar || '',
+      'Client Name (English)': e.client_name_en || '',
+      'Location (Arabic)': e.location_ar || '',
+      'Location (English)': e.location_en || '',
+      'City': e.city || '',
+      'Start Date': e.start_date || '',
+      'End Date': e.end_date || '',
+      'Status': e.status || '',
+      'Notes (Arabic)': e.notes_ar || '',
+      'Notes (English)': e.notes_en || '',
+    }))
+    exportToExcel(rows, 'company-events')
+  }
+
   const addButton = (
     <button
       onClick={openAddModal}
@@ -257,9 +276,32 @@ export default function CompanyEventsPage() {
     </button>
   )
 
+  const exportButton = (
+    <button
+      onClick={handleExport}
+      style={{
+        background: 'var(--gold)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: 500,
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+      }}
+    >
+      <FileSpreadsheet size={15} />
+      {t('exportButton')}
+    </button>
+  )
+
   return (
     <div>
-      <PageHeader title={t('pageTitle')} action={addButton} />
+      <PageHeader title={t('pageTitle')} action={<>{exportButton}{addButton}</>} />
 
       {/* Status tabs */}
       <div

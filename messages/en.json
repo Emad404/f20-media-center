@@ -376,6 +376,7 @@
     "statusOngoing": "Ongoing",
     "statusFinished": "Finished",
     "addButton": "Add Event",
+    "exportButton": "Export as Excel",
     "editAria": "Edit",
     "deleteAria": "Delete",
     "optionsAria": "Options",
