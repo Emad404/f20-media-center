@@ -414,6 +414,7 @@
     "emptyState": "لا توجد تقارير بعد",
     "loading": "جارٍ التحميل...",
     "untitledReport": "تقرير بدون عنوان",
+    "exportButton": "تصدير إلى إكسل",
     "selectReportMessage": "اختر تقريراً من القائمة",
     "employeeNameLabel": "مُقدّم التقرير",
     "eventNameLabel": "اسم الفعالية",

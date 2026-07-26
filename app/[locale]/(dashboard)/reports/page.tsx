@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { Search } from 'lucide-react'
+import { Search, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import Avatar from '@/components/Avatar'
@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
+import { exportToExcel } from '@/lib/exportXlsx'
 
 const ALL = '__all__'
 
@@ -346,28 +347,89 @@ export default function ReportsPage() {
     flashSuccess(t('deleteSuccess'))
   }
 
+  const handleExport = () => {
+    const rows = filtered.map((r) => {
+      const ce = r.company_event_id ? companyEventsById.get(r.company_event_id) : undefined
+      const emp = r.submitted_by ? profilesById.get(r.submitted_by) : undefined
+      return {
+        'Submitted By (Arabic)': emp?.full_name_ar || '',
+        'Submitted By (English)': emp?.full_name_en || '',
+        'Event Name (Arabic)': ce?.title_ar || '',
+        'Event Name (English)': ce?.title_en || '',
+        'Location (Arabic)': ce?.location_ar || '',
+        'Location (English)': ce?.location_en || '',
+        'Date': ce?.start_date || '',
+        'General Goal (Arabic)': r.general_goal_ar || '',
+        'General Goal (English)': r.general_goal_en || '',
+        'Achieved Goals (Arabic)': r.achieved_goals_ar || '',
+        'Achieved Goals (English)': r.achieved_goals_en || '',
+        'Attendance Data (Arabic)': r.attendance_data_ar || '',
+        'Attendance Data (English)': r.attendance_data_en || '',
+        'Program Rating': r.program_rating ?? '',
+        'Program Quality': r.quality_score ?? '',
+        'Plan Adherence (Arabic)': r.commitment_level_ar || '',
+        'Plan Adherence (English)': r.commitment_level_en || '',
+        'Strengths (Arabic)': r.strengths_ar || '',
+        'Strengths (English)': r.strengths_en || '',
+        'Challenges (Arabic)': r.challenges_ar || '',
+        'Challenges (English)': r.challenges_en || '',
+        'Recommendations (Arabic)': r.recommendations_ar || '',
+        'Recommendations (English)': r.recommendations_en || '',
+        'Notes (Arabic)': r.notes_ar || '',
+        'Notes (English)': r.notes_en || '',
+      }
+    })
+    exportToExcel(rows, 'performance-reports')
+  }
+
+  const exportButton = (
+    <button
+      onClick={handleExport}
+      style={{
+        background: 'var(--gold)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: 500,
+        cursor: 'pointer',
+        whiteSpace: 'nowrap',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        transition: 'background-color 0.15s ease',
+      }}
+    >
+      <FileSpreadsheet size={15} />
+      {t('exportButton')}
+    </button>
+  )
+
+  const addButton = (
+    <button
+      onClick={openAddModal}
+      style={{
+        background: 'var(--gold)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '13px',
+        fontWeight: 500,
+        cursor: 'pointer',
+        transition: 'background-color 0.15s ease',
+      }}
+    >
+      {t('addButton')}
+    </button>
+  )
+
   return (
     <div>
       <PageHeader
         title={t('pageTitle')}
-        action={
-          <button
-            onClick={openAddModal}
-            style={{
-              background: 'var(--gold)',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              fontSize: '13px',
-              fontWeight: 500,
-              cursor: 'pointer',
-              transition: 'background-color 0.15s ease',
-            }}
-          >
-            {t('addButton')}
-          </button>
-        }
+        action={<>{exportButton}{addButton}</>}
       />
 
       {successMessage && (

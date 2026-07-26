@@ -413,6 +413,7 @@
     "emptyState": "No reports yet",
     "loading": "Loading...",
     "untitledReport": "Untitled report",
+    "exportButton": "Export as Excel",
     "selectReportMessage": "Select a report from the list",
     "employeeNameLabel": "Submitted By",
     "eventNameLabel": "Event Name",
