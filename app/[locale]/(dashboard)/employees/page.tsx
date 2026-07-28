@@ -14,7 +14,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 
 const ALL = '__all__'
 const MANAGE_ROLES = ['developer', 'ceo']
-const ROLE_VALUES = ['ceo', 'project_manager', 'developer', 'media_manager', 'employee'] as const
+const ROLE_VALUES = ['ceo', 'project_manager', 'developer', 'media_manager', 'Trainee'] as const
 
 interface EmployeeProfile {
   id: string
@@ -49,7 +49,7 @@ const emptyForm: EmployeeForm = {
   full_name_en: '',
   email: '',
   phone: '',
-  role: 'employee',
+  role: 'Trainee',
   customRole: '',
   job_title_ar: '',
   job_title_en: '',
@@ -76,7 +76,7 @@ function roleLabel(t: (key: string) => string, role: string): string {
     case 'project_manager': return t('roleProjectManager')
     case 'developer': return t('roleDeveloper')
     case 'media_manager': return t('roleMediaManager')
-    case 'employee': return t('roleEmployee')
+    case 'Trainee': return t('roleTrainee')
     default: return role
   }
 }
