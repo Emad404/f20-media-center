@@ -22,6 +22,7 @@ import {
   LogOut,
   User,
   BookUser,
+  ClipboardList,
 } from 'lucide-react'
 
 interface NavItem {
@@ -92,6 +93,7 @@ export default function Sidebar() {
 
   const toolsNav: NavItem[] = [
     { href: '/reports', icon: BarChart3, label: t('reports') },
+    { href: '/weekly-reports', icon: ClipboardList, label: t('weeklyReports') },
     { href: '/predictions', icon: Trophy, label: t('predictions') },
     { href: '/courses', icon: BookOpen, label: t('courses') },
     { href: '/employees', icon: Users, label: t('employees') },
