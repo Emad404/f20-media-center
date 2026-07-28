@@ -141,6 +141,7 @@
     "roleProjectManager": "Project Manager",
     "roleDeveloper": "Developer",
     "roleMediaManager": "Media Manager",
+    "rolePrManager": "PR Manager",
     "roleTrainee": "Trainee",
     "roleCustomOption": "Custom role...",
     "saveButton": "Send Invite",
