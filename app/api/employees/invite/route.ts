@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
   )
 
   const { data: inviteData, error: inviteError } = await serviceClient.auth.admin.inviteUserByEmail(email, {
-    redirectTo: `${request.nextUrl.origin}/set-password`,
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin}/set-password`,
     data: { password_set: false },
   })
 
