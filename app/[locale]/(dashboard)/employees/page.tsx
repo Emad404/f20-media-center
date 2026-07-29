@@ -15,7 +15,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 
 const ALL = '__all__'
 const MANAGE_ROLES = ['developer', 'ceo']
-const ROLE_VALUES = ['ceo', 'project_manager', 'developer', 'media_manager', 'PR_manager', 'Trainee'] as const
+const ROLE_VALUES = ['ceo', 'project_manager', 'developer', 'media_manager', 'PR_manager', 'Trainee', 'volunteer'] as const
 
 interface EmployeeProfile {
   id: string
@@ -82,6 +82,7 @@ function roleLabel(t: (key: string) => string, role: string): string {
     case 'media_manager': return t('roleMediaManager')
     case 'PR_manager': return t('rolePrManager')
     case 'Trainee': return t('roleTrainee')
+    case 'volunteer': return t('roleVolunteer')
     default: return role
   }
 }
