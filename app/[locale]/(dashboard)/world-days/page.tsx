@@ -343,7 +343,7 @@ export default function WorldDaysPage() {
 
                         {/* Full date */}
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                          {formatArabicDate(day.day_date)}
+                          {formatArabicDate(day.day_date, locale)}
                         </div>
 
                         {canManage && (

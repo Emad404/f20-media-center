@@ -296,7 +296,7 @@ export default function WeeklyReportsPage() {
                       </div>
                       {report.week_start_date && (
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                          {t('weekOfLabel', { date: formatArabicDate(report.week_start_date) })}
+                          {t('weekOfLabel', { date: formatArabicDate(report.week_start_date, locale) })}
                         </div>
                       )}
                     </div>

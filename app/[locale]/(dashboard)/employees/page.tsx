@@ -481,7 +481,7 @@ export default function EmployeesPage() {
                     isRtl={isRtl}
                     extra={emp.birthday ? (
                       <span style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Cake size={14} style={{ color: 'var(--gold)', flexShrink: 0 }} /> {formatArabicDate(emp.birthday)}
+                        <Cake size={14} style={{ color: 'var(--gold)', flexShrink: 0 }} /> {formatArabicDate(emp.birthday, locale)}
                       </span>
                     ) : undefined}
                     menu={canManage ? (

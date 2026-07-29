@@ -541,7 +541,7 @@ export default function ExhibitionsPage() {
                   {ex.status === 'upcoming' && ex.start_date && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', color: 'var(--text-muted)' }}>
                       <CalendarDays size={13} />
-                      <span>{formatDateRange(ex.start_date, ex.end_date || ex.start_date)}</span>
+                      <span>{formatDateRange(ex.start_date, ex.end_date || ex.start_date, locale)}</span>
                     </div>
                   )}
 

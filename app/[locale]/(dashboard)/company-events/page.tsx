@@ -402,7 +402,7 @@ export default function CompanyEventsPage() {
                         {event.start_date && (
                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '13px', color: 'var(--text-secondary)' }}>
                             <CalendarDays size={13} />
-                            <span>{formatDateRange(event.start_date, event.end_date || event.start_date)}</span>
+                            <span>{formatDateRange(event.start_date, event.end_date || event.start_date, locale)}</span>
                           </div>
                         )}
                       </div>

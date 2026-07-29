@@ -540,7 +540,7 @@ export default function EventsPage() {
                   {event.status === 'upcoming' && event.start_date && (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '13px', color: 'var(--text-muted)' }}>
                       <CalendarDays size={13} />
-                      <span>{formatDateRange(event.start_date, event.end_date || event.start_date)}</span>
+                      <span>{formatDateRange(event.start_date, event.end_date || event.start_date, locale)}</span>
                     </div>
                   )}
 

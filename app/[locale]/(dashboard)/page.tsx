@@ -268,7 +268,7 @@ export default function DashboardPage() {
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{displayTitle(event)}</div>
-                    {event.start_date && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(event.start_date)}</div>}
+                    {event.start_date && <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(event.start_date, locale)}</div>}
                   </div>
                   {event.city && (
                     <div style={{ marginRight: '12px' }}>
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                 >
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '3px' }}>{displayTitle(day)}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(day.day_date)}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(day.day_date, locale)}</div>
                   </div>
                 </div>
               ))}

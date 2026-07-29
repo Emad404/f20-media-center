@@ -1,6 +1,6 @@
-export function formatArabicDate(dateStr: string): string {
+export function formatArabicDate(dateStr: string, locale: string): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ar-SA', {
+  return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'ar-SA', {
     calendar: 'gregory',
     year: 'numeric',
     month: 'long',
@@ -8,14 +8,14 @@ export function formatArabicDate(dateStr: string): string {
   })
 }
 
-export function getMonthName(dateStr: string): string {
+export function getMonthName(dateStr: string, locale: string): string {
   const date = new Date(dateStr)
-  return date.toLocaleDateString('ar-SA', { calendar: 'gregory', month: 'long', year: 'numeric' })
+  return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'ar-SA', { calendar: 'gregory', month: 'long', year: 'numeric' })
 }
 
-export function formatDateRange(start: string, end: string): string {
-  if (start === end) return formatArabicDate(start)
-  return `${formatArabicDate(start)} — ${formatArabicDate(end)}`
+export function formatDateRange(start: string, end: string, locale: string): string {
+  if (start === end) return formatArabicDate(start, locale)
+  return `${formatArabicDate(start, locale)} — ${formatArabicDate(end, locale)}`
 }
 
 // Days from `from` until the next occurrence of dateStr's month/day, wrapping

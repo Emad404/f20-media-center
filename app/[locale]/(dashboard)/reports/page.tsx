@@ -543,7 +543,7 @@ export default function ReportsPage() {
                     </div>
                     {dateFor(report) && (
                       <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
-                        {formatArabicDate(dateFor(report))}
+                        {formatArabicDate(dateFor(report), locale)}
                       </div>
                     )}
                   </div>
@@ -580,7 +580,7 @@ export default function ReportsPage() {
                 <DetailRow label={t('employeeNameLabel')} value={employeeNameFor(selected)} />
                 <DetailRow label={t('eventNameLabel')} value={eventTitleFor(selected)} />
                 <DetailRow label={t('locationLabel')} value={locationFor(selected)} />
-                <DetailRow label={t('dateLabel')} value={dateFor(selected) ? formatArabicDate(dateFor(selected)) : ''} />
+                <DetailRow label={t('dateLabel')} value={dateFor(selected) ? formatArabicDate(dateFor(selected), locale) : ''} />
               </div>
 
               <div style={{ height: '1px', background: 'var(--border)' }} />
@@ -656,7 +656,7 @@ export default function ReportsPage() {
               <option value="">{t('companyEventPlaceholder')}</option>
               {companyEvents.map((ce) => (
                 <option key={ce.id} value={ce.id}>
-                  {displayCeTitle(ce)}{ce.start_date ? ` — ${formatArabicDate(ce.start_date)}` : ''}
+                  {displayCeTitle(ce)}{ce.start_date ? ` — ${formatArabicDate(ce.start_date, locale)}` : ''}
                 </option>
               ))}
             </select>

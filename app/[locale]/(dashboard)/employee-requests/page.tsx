@@ -287,7 +287,7 @@ export default function EmployeeRequestsPage() {
                         <Avatar name={employeeNameFor(r) || '?'} size="sm" />
                         <div>
                           <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{employeeNameFor(r) || '—'}</div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at)}</div>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at, locale)}</div>
                         </div>
                       </div>
                       <Badge text={typeLabel(r.type)} variant="info" />
@@ -359,7 +359,7 @@ export default function EmployeeRequestsPage() {
                       <Badge text={typeLabel(r.type)} variant="info" />
                       <Badge text={statusLabel(r.status)} variant={statusVariant(r.status)} />
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at)}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at, locale)}</div>
                   </div>
                   <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{descriptionFor(r)}</div>
                   {r.amount != null && (

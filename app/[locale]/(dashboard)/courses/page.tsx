@@ -360,7 +360,7 @@ export default function CoursesPage() {
                   )}
                   {course.start_date && (
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-                      {formatDateRange(course.start_date, course.end_date || course.start_date)}
+                      {formatDateRange(course.start_date, course.end_date || course.start_date, locale)}
                     </div>
                   )}
                 </div>

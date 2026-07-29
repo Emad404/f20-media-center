@@ -366,7 +366,7 @@ export default function PredictionsPage() {
                     <div>
                       <div style={{ fontSize: '14px', fontWeight: 500 }}>{t('hilalName')} {t('vsShort')} {displayOpponent(m)}</div>
                       <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        {m.match_date ? formatArabicDate(m.match_date) : t('dateNotSet')}
+                        {m.match_date ? formatArabicDate(m.match_date, locale) : t('dateNotSet')}
                         {m.match_time ? ` — ${m.match_time.slice(0, 5)}` : ''}
                       </div>
                     </div>
@@ -409,7 +409,7 @@ export default function PredictionsPage() {
                 {nextMatch.match_date && (
                   <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: '13px', color: '#000000' }}>
                     <CalendarDays size={13} />
-                    {formatArabicDate(nextMatch.match_date)}{nextMatch.match_time ? ` — ${nextMatch.match_time.slice(0, 5)}` : ''}
+                    {formatArabicDate(nextMatch.match_date, locale)}{nextMatch.match_time ? ` — ${nextMatch.match_time.slice(0, 5)}` : ''}
                   </span>
                 )}
                 {displayStadium(nextMatch) && (
@@ -496,7 +496,7 @@ export default function PredictionsPage() {
                         {t('hilalName')} {match ? `${t('vsShort')} ${displayOpponent(match)}` : ''}
                       </div>
                       {match?.match_date && (
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(match.match_date)}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(match.match_date, locale)}</div>
                       )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
