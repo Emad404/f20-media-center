@@ -17,7 +17,8 @@ const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'medi
 interface WeeklyReportRow {
   id: string
   employee_id: string | null
-  tasks_performed: string | null
+  tasks_performed_ar: string | null
+  tasks_performed_en: string | null
   week_start_date: string | null
   created_at: string
 }
@@ -29,12 +30,14 @@ interface ProfileLite {
 }
 
 type WeeklyReportForm = {
-  tasks_performed: string
+  tasks_performed_ar: string
+  tasks_performed_en: string
   week_start_date: string
 }
 
 const emptyForm: WeeklyReportForm = {
-  tasks_performed: '',
+  tasks_performed_ar: '',
+  tasks_performed_en: '',
   week_start_date: '',
 }
 
@@ -111,6 +114,8 @@ export default function WeeklyReportsPage() {
 
   const employeeNameFor = (r: WeeklyReportRow) => displayProfileName(r.employee_id ? profilesById.get(r.employee_id) : undefined)
 
+  const tasksFor = (r: WeeklyReportRow) => ((locale === 'en' && r.tasks_performed_en ? r.tasks_performed_en : r.tasks_performed_ar) || '')
+
   const employeeOptions = useMemo(() => {
     const ids = Array.from(new Set(reports.map((r) => r.employee_id).filter((id): id is string => !!id)))
     return [ALL, ...ids]
@@ -130,7 +135,8 @@ export default function WeeklyReportsPage() {
   const openEditModal = (r: WeeklyReportRow) => {
     setEditingReport(r)
     setForm({
-      tasks_performed: r.tasks_performed || '',
+      tasks_performed_ar: r.tasks_performed_ar || '',
+      tasks_performed_en: r.tasks_performed_en || '',
       week_start_date: r.week_start_date || '',
     })
     setSaveError('')
@@ -144,14 +150,15 @@ export default function WeeklyReportsPage() {
   }
 
   const handleSave = async () => {
-    if (!form.tasks_performed.trim() || !form.week_start_date) {
+    if (!form.tasks_performed_ar.trim() || !form.week_start_date) {
       setSaveError(t('formErrorMessage'))
       return
     }
 
     const payload = {
       employee_id: editingReport ? editingReport.employee_id : profile?.id || null,
-      tasks_performed: form.tasks_performed.trim(),
+      tasks_performed_ar: form.tasks_performed_ar.trim(),
+      tasks_performed_en: form.tasks_performed_en.trim() || null,
       week_start_date: form.week_start_date,
     }
 
@@ -296,7 +303,7 @@ export default function WeeklyReportsPage() {
                 </div>
 
                 <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                  {report.tasks_performed}
+                  {tasksFor(report)}
                 </div>
               </div>
             ))}
@@ -325,12 +332,23 @@ export default function WeeklyReportsPage() {
           </div>
 
           <div>
-            <label style={labelStyle}>{t('tasksPerformedLabel')}</label>
+            <label style={labelStyle}>{t('tasksPerformedArLabel')}</label>
             <textarea
-              value={form.tasks_performed}
-              onChange={(e) => setForm((f) => ({ ...f, tasks_performed: e.target.value }))}
+              dir="rtl"
+              value={form.tasks_performed_ar}
+              onChange={(e) => setForm((f) => ({ ...f, tasks_performed_ar: e.target.value }))}
               style={{ ...inputStyle, minHeight: '140px', resize: 'vertical' }}
               required
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('tasksPerformedEnLabel')}</label>
+            <textarea
+              dir="ltr"
+              value={form.tasks_performed_en}
+              onChange={(e) => setForm((f) => ({ ...f, tasks_performed_en: e.target.value }))}
+              style={{ ...inputStyle, minHeight: '140px', resize: 'vertical' }}
             />
           </div>
 

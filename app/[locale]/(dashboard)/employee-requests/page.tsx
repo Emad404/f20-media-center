@@ -19,7 +19,8 @@ interface RequestRow {
   id: string
   employee_id: string | null
   type: string | null
-  description: string | null
+  description_ar: string | null
+  description_en: string | null
   amount: number | null
   status: string
   reviewed_by: string | null
@@ -36,14 +37,16 @@ interface ProfileLite {
 type RequestForm = {
   type: string
   customType: string
-  description: string
+  description_ar: string
+  description_en: string
   amount: string
 }
 
 const emptyForm: RequestForm = {
   type: 'invoice',
   customType: '',
-  description: '',
+  description_ar: '',
+  description_en: '',
   amount: '',
 }
 
@@ -126,6 +129,8 @@ export default function EmployeeRequestsPage() {
 
   const employeeNameFor = (r: RequestRow) => displayProfileName(r.employee_id ? profilesById.get(r.employee_id) : undefined)
 
+  const descriptionFor = (r: RequestRow) => ((locale === 'en' && r.description_en ? r.description_en : r.description_ar) || '')
+
   const typeLabel = (type: string | null) => {
     if (type === 'invoice') return t('typeInvoice')
     if (type === 'subscription') return t('typeSubscription')
@@ -161,7 +166,7 @@ export default function EmployeeRequestsPage() {
 
   const handleSubmit = async () => {
     const resolvedType = form.type === 'other' ? form.customType.trim() : form.type
-    if (!resolvedType || !form.description.trim()) {
+    if (!resolvedType || !form.description_ar.trim()) {
       setSaveError(t('formErrorMessage'))
       return
     }
@@ -170,7 +175,8 @@ export default function EmployeeRequestsPage() {
     const payload = {
       employee_id: profile.id,
       type: resolvedType,
-      description: form.description.trim(),
+      description_ar: form.description_ar.trim(),
+      description_en: form.description_en.trim() || null,
       amount: form.amount.trim() ? Number(form.amount) : null,
     }
 
@@ -286,7 +292,7 @@ export default function EmployeeRequestsPage() {
                       </div>
                       <Badge text={typeLabel(r.type)} variant="info" />
                     </div>
-                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{r.description}</div>
+                    <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{descriptionFor(r)}</div>
                     {r.amount != null && (
                       <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{t('amountLabel')}: {r.amount}</div>
                     )}
@@ -355,7 +361,7 @@ export default function EmployeeRequestsPage() {
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at)}</div>
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{r.description}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{descriptionFor(r)}</div>
                   {r.amount != null && (
                     <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{t('amountLabel')}: {r.amount}</div>
                   )}
@@ -394,12 +400,23 @@ export default function EmployeeRequestsPage() {
           )}
 
           <div>
-            <label style={labelStyle}>{t('descriptionLabel')}</label>
+            <label style={labelStyle}>{t('descriptionArLabel')}</label>
             <textarea
-              value={form.description}
-              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+              dir="rtl"
+              value={form.description_ar}
+              onChange={(e) => setForm((f) => ({ ...f, description_ar: e.target.value }))}
               style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
               required
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('descriptionEnLabel')}</label>
+            <textarea
+              dir="ltr"
+              value={form.description_en}
+              onChange={(e) => setForm((f) => ({ ...f, description_en: e.target.value }))}
+              style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
             />
           </div>
 
