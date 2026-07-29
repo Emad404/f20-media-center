@@ -4,23 +4,31 @@ import { useLocale } from 'next-intl'
 import Avatar from '@/components/Avatar'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
+interface Member {
+  nameAr: string
+  nameEn: string
+}
+
 interface DepartmentNode {
   titleAr: string
   titleEn: string
-  members: string[]
+  members: Member[]
 }
 
 const CHAIRMAN = { titleAr: 'رئيس مجلس الإدارة', titleEn: 'Chairman of the Board' }
 const CEO = { titleAr: 'الرئيس التنفيذي', titleEn: 'Chief Executive Officer' }
 
+// Order is the target left-to-right sequence in both locales - the desktop
+// row below forces `direction: ltr` so this DOM order always maps directly
+// to screen position, regardless of the active locale's reading direction.
 const DEPARTMENTS: DepartmentNode[] = [
-  { titleAr: 'اعلام واتصال', titleEn: 'Media & Communication', members: ['تركي النصار'] },
-  { titleAr: 'خدمة العملاء', titleEn: 'Customer Service', members: ['روان الجعيد'] },
-  { titleAr: 'تقنية المعلومات والدعم الفني', titleEn: 'IT & Technical Support', members: ['عماد العسكر'] },
-  { titleAr: 'فعاليات رياضية', titleEn: 'Sports Events', members: ['خلود النصار'] },
-  { titleAr: 'الموارد البشرية', titleEn: 'Human Resources', members: ['الهنوف القرناس', 'شادن العيد'] },
-  { titleAr: 'العلاقات العامة', titleEn: 'Public Relations', members: ['روان الجعيد'] },
-  { titleAr: 'مدير إدارة المشاريع', titleEn: 'Project Management Director', members: ['رانيا الجعيد'] },
+  { titleAr: 'مدير إدارة المشاريع', titleEn: 'Project Management Director', members: [{ nameAr: 'رانيا الجعيد', nameEn: 'Ranya Aljuaid' }] },
+  { titleAr: 'العلاقات العامة', titleEn: 'Public Relations', members: [{ nameAr: 'روان الجعيد', nameEn: 'Rawan Aljuaid' }] },
+  { titleAr: 'الموارد البشرية', titleEn: 'Human Resources', members: [{ nameAr: 'الهنوف القرناس', nameEn: 'AlHanouf Alqarnas' }, { nameAr: 'شادن العيد', nameEn: 'Shaden Aleid' }] },
+  { titleAr: 'فعاليات رياضية', titleEn: 'Sports Events', members: [{ nameAr: 'خلود النصار', nameEn: 'Kholoud Alnassar' }] },
+  { titleAr: 'تقنية المعلومات والدعم الفني', titleEn: 'IT & Technical Support', members: [{ nameAr: 'عماد العسكر', nameEn: 'Emad Alaskar' }] },
+  { titleAr: 'خدمة العملاء', titleEn: 'Customer Service', members: [{ nameAr: 'روان الجعيد', nameEn: 'Rawan Aljuaid' }] },
+  { titleAr: 'اعلام واتصال', titleEn: 'Media & Communication', members: [{ nameAr: 'تركي النصار', nameEn: 'Turki Alnassar' }] },
 ]
 
 function VLine({ height }: { height: number }) {
@@ -55,7 +63,8 @@ function TitleCard({ title, tier }: { title: string; tier: 'top' | 'department' 
   )
 }
 
-function MemberCard({ name }: { name: string }) {
+function MemberCard({ name, locale }: { name: Member; locale: string }) {
+  const displayName = locale === 'en' ? name.nameEn : name.nameAr
   return (
     <div
       style={{
@@ -71,9 +80,9 @@ function MemberCard({ name }: { name: string }) {
         minWidth: '130px',
       }}
     >
-      <Avatar name={name} size="sm" />
+      <Avatar name={displayName} size="sm" />
       <div style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-primary)', textAlign: 'center', lineHeight: 1.3 }}>
-        {name}
+        {displayName}
       </div>
     </div>
   )
@@ -108,7 +117,7 @@ export default function OrgChart() {
               <TitleCard title={deptTitle(dept)} tier="department" />
               {dept.members.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '10px' }}>
-                  {dept.members.map((m) => <MemberCard key={m} name={m} />)}
+                  {dept.members.map((m) => <MemberCard key={m.nameAr} name={m} locale={locale} />)}
                 </div>
               )}
             </div>
@@ -125,7 +134,11 @@ export default function OrgChart() {
       <TitleCard title={locale === 'en' ? CEO.titleEn : CEO.titleAr} tier="top" />
       <VLine height={24} />
 
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '18px', minWidth: 'fit-content', padding: '0 8px' }}>
+      {/* direction is forced to ltr regardless of locale so the department
+          order below always maps directly to left-to-right screen position -
+          without this, the same DOM order would visually mirror between
+          locales since flex row direction follows document direction. */}
+      <div style={{ display: 'flex', direction: 'ltr', justifyContent: 'center', gap: '18px', minWidth: 'fit-content', padding: '0 8px' }}>
         {DEPARTMENTS.map((dept) => (
           <div
             key={dept.titleAr}
@@ -144,7 +157,7 @@ export default function OrgChart() {
               <>
                 <VLine height={16} />
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
-                  {dept.members.map((m) => <MemberCard key={m} name={m} />)}
+                  {dept.members.map((m) => <MemberCard key={m.nameAr} name={m} locale={locale} />)}
                 </div>
               </>
             )}
