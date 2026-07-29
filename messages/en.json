@@ -479,6 +479,7 @@
     "subtitle": "Track weekly tasks performed by the team",
     "addButton": "+ Add Report",
     "allOption": "All",
+    "sortOldestButton": "Oldest first",
     "noResultsMessage": "No results",
     "emptyState": "No weekly reports yet",
     "loading": "Loading...",

@@ -480,6 +480,7 @@
     "subtitle": "تتبّع المهام الأسبوعية المنجزة من الفريق",
     "addButton": "+ إضافة تقرير",
     "allOption": "الكل",
+    "sortOldestButton": "الأقدم أولاً",
     "noResultsMessage": "لا توجد نتائج",
     "emptyState": "لا توجد تقارير أسبوعية بعد",
     "loading": "جارٍ التحميل...",

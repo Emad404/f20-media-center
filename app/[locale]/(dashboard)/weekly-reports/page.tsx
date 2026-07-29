@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader'
 import Avatar from '@/components/Avatar'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
+import SortByDateButton from '@/components/SortByDateButton'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatArabicDate } from '@/lib/dateUtils'
@@ -73,6 +74,7 @@ export default function WeeklyReportsPage() {
   const [profiles, setProfiles] = useState<ProfileLite[]>([])
   const [loading, setLoading] = useState(true)
   const [employeeFilter, setEmployeeFilter] = useState(ALL)
+  const [sortOldest, setSortOldest] = useState(false)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingReport, setEditingReport] = useState<WeeklyReportRow | null>(null)
@@ -122,8 +124,16 @@ export default function WeeklyReportsPage() {
   }, [reports])
 
   const filtered = useMemo(() => {
-    return reports.filter((r) => employeeFilter === ALL || r.employee_id === employeeFilter)
-  }, [reports, employeeFilter])
+    return reports
+      .filter((r) => employeeFilter === ALL || r.employee_id === employeeFilter)
+      .sort((a, b) => {
+        if (!a.week_start_date && !b.week_start_date) return 0
+        if (!a.week_start_date) return 1
+        if (!b.week_start_date) return -1
+        const diff = new Date(a.week_start_date).getTime() - new Date(b.week_start_date).getTime()
+        return sortOldest ? diff : -diff
+      })
+  }, [reports, employeeFilter, sortOldest])
 
   const openAddModal = () => {
     setEditingReport(null)
@@ -237,6 +247,7 @@ export default function WeeklyReportsPage() {
             </option>
           ))}
         </select>
+        <SortByDateButton active={sortOldest} onToggle={() => setSortOldest((v) => !v)} label={t('sortOldestButton')} />
         {addButton && (
           <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
             {addButton}
