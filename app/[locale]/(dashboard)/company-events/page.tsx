@@ -7,11 +7,13 @@ import PageHeader from '@/components/PageHeader'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
+import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatDateRange } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
 const ALL = '__all__'
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
 const STATUS_VALUES = ['upcoming', 'ongoing', 'finished'] as const
 
 interface CompanyEventRow {
@@ -109,6 +111,8 @@ export default function CompanyEventsPage() {
   const isRtl = locale === 'ar'
   const isMobile = useIsMobile()
   const supabase = createClient()
+  const { profile } = useUserProfile()
+  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
   const [events, setEvents] = useState<CompanyEventRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -257,7 +261,7 @@ export default function CompanyEventsPage() {
     exportToExcel(rows, 'company-events')
   }
 
-  const addButton = (
+  const addButton = canManage ? (
     <button
       onClick={openAddModal}
       style={{
@@ -274,7 +278,7 @@ export default function CompanyEventsPage() {
     >
       {t('addButton')}
     </button>
-  )
+  ) : null
 
   const exportButton = (
     <button
@@ -405,14 +409,16 @@ export default function CompanyEventsPage() {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
-                      <PersonCardMenu
-                        isRtl={isRtl}
-                        optionsAria={t('optionsAria')}
-                        editLabel={t('editAria')}
-                        deleteLabel={t('deleteAria')}
-                        onEdit={() => openEditModal(event)}
-                        onDelete={() => handleDelete(event)}
-                      />
+                      {canManage && (
+                        <PersonCardMenu
+                          isRtl={isRtl}
+                          optionsAria={t('optionsAria')}
+                          editLabel={t('editAria')}
+                          deleteLabel={t('deleteAria')}
+                          onEdit={() => openEditModal(event)}
+                          onDelete={() => handleDelete(event)}
+                        />
+                      )}
                       {notes && (
                         <button
                           onClick={() => setExpandedId(isExpanded ? null : event.id)}

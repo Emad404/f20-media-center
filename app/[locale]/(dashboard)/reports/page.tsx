@@ -16,6 +16,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
 const ALL = '__all__'
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager', 'Trainee']
 
 const COMMITMENT_LEVELS = [
   { key: 'matched', ar: 'مطابق للخطة', en: 'Matched Plan' },
@@ -149,6 +150,7 @@ export default function ReportsPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
+  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
   const [reports, setReports] = useState<ReportRow[]>([])
   const [companyEvents, setCompanyEvents] = useState<CompanyEventLite[]>([])
@@ -406,7 +408,7 @@ export default function ReportsPage() {
     </button>
   )
 
-  const addButton = (
+  const addButton = canManage ? (
     <button
       onClick={openAddModal}
       style={{
@@ -423,7 +425,7 @@ export default function ReportsPage() {
     >
       {t('addButton')}
     </button>
-  )
+  ) : null
 
   return (
     <div>
@@ -562,14 +564,16 @@ export default function ReportsPage() {
             <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                 <h2 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--navy)' }}>{eventTitleFor(selected) || t('untitledReport')}</h2>
-                <PersonCardMenu
-                  isRtl={isRtl}
-                  optionsAria={t('optionsAria')}
-                  editLabel={t('editAria')}
-                  deleteLabel={t('deleteAria')}
-                  onEdit={() => openEditModal(selected)}
-                  onDelete={() => handleDelete(selected)}
-                />
+                {canManage && (
+                  <PersonCardMenu
+                    isRtl={isRtl}
+                    optionsAria={t('optionsAria')}
+                    editLabel={t('editAria')}
+                    deleteLabel={t('deleteAria')}
+                    onEdit={() => openEditModal(selected)}
+                    onDelete={() => handleDelete(selected)}
+                  />
+                )}
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

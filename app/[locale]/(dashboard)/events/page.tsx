@@ -9,11 +9,13 @@ import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import SortByDateButton from '@/components/SortByDateButton'
 import { createClient } from '@/lib/supabase/client'
+import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatDateRange, sortSoonestFirst } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
 const ALL = '__all__'
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
 const CITY_VALUES = ['الرياض', 'الشرقية', 'جدة'] as const
 const STATUS_VALUES = ['upcoming', 'ongoing', 'tbd'] as const
 const cityOrder: Record<string, number> = { 'الرياض': 0, 'الشرقية': 1, 'جدة': 2 }
@@ -105,6 +107,8 @@ export default function EventsPage() {
   const isRtl = locale === 'ar'
   const isMobile = useIsMobile()
   const supabase = createClient()
+  const { profile } = useUserProfile()
+  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
   const [events, setEvents] = useState<EventRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -282,7 +286,7 @@ export default function EventsPage() {
     exportToExcel(rows, 'kingdom-events')
   }
 
-  const addButton = (
+  const addButton = canManage ? (
     <button
       onClick={openAddModal}
       style={{
@@ -299,7 +303,7 @@ export default function EventsPage() {
     >
       {t('addButton')}
     </button>
-  )
+  ) : null
 
   const exportButton = (
     <button
@@ -513,14 +517,16 @@ export default function EventsPage() {
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                       {event.city && <Badge text={event.city} variant={cityVariant(event.city)} />}
                     </div>
-                    <PersonCardMenu
-                      isRtl={isRtl}
-                      optionsAria={t('optionsAria')}
-                      editLabel={t('editAria')}
-                      deleteLabel={t('deleteAria')}
-                      onEdit={() => openEditModal(event)}
-                      onDelete={() => handleDelete(event)}
-                    />
+                    {canManage && (
+                      <PersonCardMenu
+                        isRtl={isRtl}
+                        optionsAria={t('optionsAria')}
+                        editLabel={t('editAria')}
+                        deleteLabel={t('deleteAria')}
+                        onEdit={() => openEditModal(event)}
+                        onDelete={() => handleDelete(event)}
+                      />
+                    )}
                   </div>
 
                   <h3 style={{

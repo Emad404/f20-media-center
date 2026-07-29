@@ -8,9 +8,12 @@ import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import SortByDateButton from '@/components/SortByDateButton'
 import { createClient } from '@/lib/supabase/client'
+import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatArabicDate, sortSoonestFirst } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
+
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
 
 interface WorldDayRow {
   id: string
@@ -65,6 +68,8 @@ export default function WorldDaysPage() {
   const isRtl = locale === 'ar'
   const isMobile = useIsMobile()
   const supabase = createClient()
+  const { profile } = useUserProfile()
+  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
   const [days, setDays] = useState<WorldDayRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -192,7 +197,7 @@ export default function WorldDaysPage() {
     exportToExcel(rows, 'world-days')
   }
 
-  const addButton = (
+  const addButton = canManage ? (
     <button
       onClick={openAddModal}
       style={{
@@ -209,7 +214,7 @@ export default function WorldDaysPage() {
     >
       {t('addButton')}
     </button>
-  )
+  ) : null
 
   const exportButton = (
     <button
@@ -341,14 +346,16 @@ export default function WorldDaysPage() {
                           {formatArabicDate(day.day_date)}
                         </div>
 
-                        <PersonCardMenu
-                          isRtl={isRtl}
-                          optionsAria={t('optionsAria')}
-                          editLabel={t('editAria')}
-                          deleteLabel={t('deleteAria')}
-                          onEdit={() => openEditModal(day)}
-                          onDelete={() => handleDelete(day)}
-                        />
+                        {canManage && (
+                          <PersonCardMenu
+                            isRtl={isRtl}
+                            optionsAria={t('optionsAria')}
+                            editLabel={t('editAria')}
+                            deleteLabel={t('deleteAria')}
+                            onEdit={() => openEditModal(day)}
+                            onDelete={() => handleDelete(day)}
+                          />
+                        )}
                       </div>
                     )
                   })}

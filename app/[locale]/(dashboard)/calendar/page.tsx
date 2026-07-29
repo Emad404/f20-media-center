@@ -12,6 +12,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
 const TASK_TYPES = ['task', 'meeting', 'event', 'deadline'] as const
 
 const todayDate = new Date()
@@ -129,6 +130,7 @@ export default function CalendarPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
+  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 6, 1))
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
@@ -370,22 +372,24 @@ export default function CalendarPage() {
           direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
-        <button
-          onClick={openAddModal}
-          style={{
-            background: 'var(--btn-bg)',
-            color: 'var(--btn-text)',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '8px 16px',
-            fontSize: '13px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'background-color 0.15s ease',
-          }}
-        >
-          {t('addTaskButton')}
-        </button>
+        {canManage && (
+          <button
+            onClick={openAddModal}
+            style={{
+              background: 'var(--btn-bg)',
+              color: 'var(--btn-text)',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              fontSize: '13px',
+              fontWeight: 500,
+              cursor: 'pointer',
+              transition: 'background-color 0.15s ease',
+            }}
+          >
+            {t('addTaskButton')}
+          </button>
+        )}
       </div>
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', direction: isRtl ? 'rtl' : 'ltr' }}>
@@ -578,14 +582,16 @@ export default function CalendarPage() {
                             <Badge text={typeLabel(task.task_type)} variant={typeVariant(task.task_type)} />
                             <span style={{ fontSize: '14px', fontWeight: 600 }}>{displayTitle(task)}</span>
                           </div>
-                          <PersonCardMenu
-                            isRtl={isRtl}
-                            optionsAria={t('optionsAria')}
-                            editLabel={t('editAria')}
-                            deleteLabel={t('deleteAria')}
-                            onEdit={() => openEditModal(task)}
-                            onDelete={() => handleDelete(task)}
-                          />
+                          {canManage && (
+                            <PersonCardMenu
+                              isRtl={isRtl}
+                              optionsAria={t('optionsAria')}
+                              editLabel={t('editAria')}
+                              deleteLabel={t('deleteAria')}
+                              onEdit={() => openEditModal(task)}
+                              onDelete={() => handleDelete(task)}
+                            />
+                          )}
                         </div>
                         {(task.start_time || task.end_time) && (
                           <div style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
