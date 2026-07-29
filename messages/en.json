@@ -120,7 +120,6 @@
     "addButton": "+ Add Employee",
     "loading": "Loading...",
     "emptyState": "No employees yet",
-    "orgChartEmptyState": "Org chart coming soon",
     "editAria": "Edit",
     "deleteAria": "Delete",
     "optionsAria": "More options",

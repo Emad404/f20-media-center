@@ -8,6 +8,7 @@ import Badge from '@/components/Badge'
 import Modal from '@/components/Modal'
 import PersonCard from '@/components/PersonCard'
 import PersonCardMenu from '@/components/PersonCardMenu'
+import OrgChart from '@/components/OrgChart'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatArabicDate } from '@/lib/dateUtils'
@@ -420,10 +421,7 @@ export default function EmployeesPage() {
             {t('emptyState')}
           </div>
         ) : view === 'org' ? (
-          /* ORG CHART - intentionally empty until the company decides the structure to show */
-          <div style={{ padding: '64px 16px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '14px' }}>
-            {t('orgChartEmptyState')}
-          </div>
+          <OrgChart />
         ) : (
           /* LIST VIEW */
           <div>
