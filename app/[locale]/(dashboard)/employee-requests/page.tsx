@@ -13,6 +13,7 @@ import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 const REVIEW_ROLES = ['developer', 'ceo', 'project_manager']
+const TYPE_VALUES = ['invoice', 'subscription', 'other'] as const
 
 interface RequestRow {
   id: string
@@ -34,12 +35,14 @@ interface ProfileLite {
 
 type RequestForm = {
   type: string
+  customType: string
   description: string
   amount: string
 }
 
 const emptyForm: RequestForm = {
-  type: '',
+  type: 'invoice',
+  customType: '',
   description: '',
   amount: '',
 }
@@ -123,6 +126,12 @@ export default function EmployeeRequestsPage() {
 
   const employeeNameFor = (r: RequestRow) => displayProfileName(r.employee_id ? profilesById.get(r.employee_id) : undefined)
 
+  const typeLabel = (type: string | null) => {
+    if (type === 'invoice') return t('typeInvoice')
+    if (type === 'subscription') return t('typeSubscription')
+    return type || ''
+  }
+
   const statusLabel = (status: string) => {
     if (status === 'pending') return t('statusPending')
     if (status === 'approved') return t('statusApproved')
@@ -151,7 +160,8 @@ export default function EmployeeRequestsPage() {
   }
 
   const handleSubmit = async () => {
-    if (!form.type.trim() || !form.description.trim()) {
+    const resolvedType = form.type === 'other' ? form.customType.trim() : form.type
+    if (!resolvedType || !form.description.trim()) {
       setSaveError(t('formErrorMessage'))
       return
     }
@@ -159,7 +169,7 @@ export default function EmployeeRequestsPage() {
 
     const payload = {
       employee_id: profile.id,
-      type: form.type.trim(),
+      type: resolvedType,
       description: form.description.trim(),
       amount: form.amount.trim() ? Number(form.amount) : null,
     }
@@ -274,7 +284,7 @@ export default function EmployeeRequestsPage() {
                           <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at)}</div>
                         </div>
                       </div>
-                      <Badge text={r.type || ''} variant="info" />
+                      <Badge text={typeLabel(r.type)} variant="info" />
                     </div>
                     <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{r.description}</div>
                     {r.amount != null && (
@@ -340,7 +350,7 @@ export default function EmployeeRequestsPage() {
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                      <Badge text={r.type || ''} variant="info" />
+                      <Badge text={typeLabel(r.type)} variant="info" />
                       <Badge text={statusLabel(r.status)} variant={statusVariant(r.status)} />
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at)}</div>
@@ -360,8 +370,28 @@ export default function EmployeeRequestsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={labelStyle}>{t('typeLabel')}</label>
-            <input value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} style={inputStyle} required />
+            <select
+              value={form.type}
+              onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}
+              style={{ ...inputStyle, cursor: 'pointer' }}
+            >
+              {TYPE_VALUES.map((tv) => (
+                <option key={tv} value={tv}>{tv === 'other' ? t('typeOther') : typeLabel(tv)}</option>
+              ))}
+            </select>
           </div>
+
+          {form.type === 'other' && (
+            <div>
+              <label style={labelStyle}>{t('customTypeLabel')}</label>
+              <input
+                dir={isRtl ? 'rtl' : 'ltr'}
+                value={form.customType}
+                onChange={(e) => setForm((f) => ({ ...f, customType: e.target.value }))}
+                style={inputStyle}
+              />
+            </div>
+          )}
 
           <div>
             <label style={labelStyle}>{t('descriptionLabel')}</label>
