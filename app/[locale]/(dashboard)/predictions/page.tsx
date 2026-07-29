@@ -333,7 +333,7 @@ export default function PredictionsPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#0422BA', display: 'flex', flexDirection: 'column' }}>
-      <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} />
+      <PageHeader title={t('pageTitle')} subtitle={t('subtitle')} centerLogo={{ src: '/hilal-logo.png', alt: t('hilalName') }} />
 
       <div style={{ padding: isMobile ? '16px' : '28px 32px', display: 'flex', flexDirection: 'column', gap: '16px', direction: isRtl ? 'rtl' : 'ltr', flex: 1 }}>
         {successMessage && (

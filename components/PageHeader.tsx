@@ -8,9 +8,10 @@ interface PageHeaderProps {
   title: string
   subtitle?: string
   action?: React.ReactNode
+  centerLogo?: { src: string; alt: string }
 }
 
-export default function PageHeader({ title, subtitle, action }: PageHeaderProps) {
+export default function PageHeader({ title, subtitle, action, centerLogo }: PageHeaderProps) {
   const isMobile = useIsMobile()
   const isRtl = useLocale() === 'ar'
   // html/body force `direction: rtl` globally (see globals.css), so a plain
@@ -27,6 +28,8 @@ export default function PageHeader({ title, subtitle, action }: PageHeaderProps)
         paddingLeft: isMobile ? (isRtl ? '16px' : '64px') : '32px',
         paddingRight: isMobile ? (isRtl ? '64px' : '16px') : '32px',
         display: 'flex',
+        position: centerLogo ? 'relative' : undefined,
+        minHeight: centerLogo ? (isMobile ? '96px' : '112px') : undefined,
         alignItems: isMobile ? (isRtl ? 'flex-start' : 'flex-end') : 'center',
         flexDirection: isMobile ? 'column' : rowDir,
         justifyContent: 'space-between',
@@ -41,6 +44,21 @@ export default function PageHeader({ title, subtitle, action }: PageHeaderProps)
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px', textAlign: isRtl ? 'right' : 'left' }}>{subtitle}</p>
         )}
       </div>
+      {centerLogo && (
+        <img
+          src={centerLogo.src}
+          alt={centerLogo.alt}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            transform: 'translate(-50%, -50%)',
+            height: isMobile ? '56px' : '72px',
+            width: 'auto',
+            objectFit: 'contain',
+          }}
+        />
+      )}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexDirection: rowDir }}>
         {action}
         <LanguageToggle />
