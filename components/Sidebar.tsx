@@ -213,14 +213,15 @@ export default function Sidebar() {
           justifyContent: 'center',
         }}>
           <img
-            src="/f20-logo.png"
-            alt="F20 Event"
+            src="/f20-logo-full.jpeg"
+            alt="F-Twenty Event Management"
             style={{
-              height: '90px',
-              width: 'auto',
-              maxWidth: '180px',
+              width: '150px',
+              height: 'auto',
+              maxWidth: '100%',
               objectFit: 'contain',
               display: 'block',
+              borderRadius: '10px',
             }}
           />
         </div>
