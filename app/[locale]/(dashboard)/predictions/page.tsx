@@ -118,7 +118,7 @@ export default function PredictionsPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
-  const isDeveloper = profile?.role === 'developer'
+  const canManageMatches = profile?.role === 'developer' || profile?.role === 'media_manager'
 
   const [loading, setLoading] = useState(true)
   const [nextMatch, setNextMatch] = useState<MatchRow | null>(null)
@@ -207,9 +207,9 @@ export default function PredictionsPage() {
   }, [profile?.id])
 
   useEffect(() => {
-    if (isDeveloper) fetchAdminMatches()
+    if (canManageMatches) fetchAdminMatches()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isDeveloper])
+  }, [canManageMatches])
 
   const matchesById = useMemo(() => {
     const map = new Map<string, MatchRow>()
@@ -342,8 +342,8 @@ export default function PredictionsPage() {
           </div>
         )}
 
-        {/* Developer match management */}
-        {isDeveloper && (
+        {/* Developer / media_manager match management */}
+        {canManageMatches && (
           <SectionCard
             title={t('manageMatchesTitle')}
             action={
