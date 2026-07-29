@@ -131,6 +131,7 @@
     "emailLabel": "البريد الإلكتروني",
     "emailReadOnlyNote": "لا يمكن تغيير البريد الإلكتروني بعد إرسال الدعوة",
     "phoneLabel": "رقم الهاتف",
+    "birthdayLabel": "تاريخ الميلاد",
     "roleFieldLabel": "الدور الوظيفي",
     "jobTitleArLabel": "المسمى الوظيفي (عربي)",
     "jobTitleEnLabel": "المسمى الوظيفي (إنجليزي)",

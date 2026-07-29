@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { X, Mail, Phone, Search } from 'lucide-react'
+import { X, Mail, Phone, Search, Cake } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import Modal from '@/components/Modal'
@@ -10,6 +10,7 @@ import PersonCard from '@/components/PersonCard'
 import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
+import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 const ALL = '__all__'
@@ -28,6 +29,7 @@ interface EmployeeProfile {
   department_en: string | null
   phone: string | null
   profile_image_url: string | null
+  birthday: string | null
   created_at: string
 }
 
@@ -42,6 +44,7 @@ type EmployeeForm = {
   job_title_en: string
   department_ar: string
   department_en: string
+  birthday: string
 }
 
 const emptyForm: EmployeeForm = {
@@ -55,6 +58,7 @@ const emptyForm: EmployeeForm = {
   job_title_en: '',
   department_ar: '',
   department_en: '',
+  birthday: '',
 }
 
 // Standing sort: CEO first, Project Manager second, everyone else after.
@@ -174,6 +178,7 @@ export default function EmployeesPage() {
       job_title_en: emp.job_title_en || '',
       department_ar: emp.department_ar || '',
       department_en: emp.department_en || '',
+      birthday: emp.birthday || '',
     })
     setSaveError('')
     setIsModalOpen(true)
@@ -211,6 +216,7 @@ export default function EmployeesPage() {
           job_title_en: form.job_title_en || null,
           department_ar: form.department_ar || null,
           department_en: form.department_en || null,
+          birthday: form.birthday || null,
         })
         .eq('id', editingEmployee.id)
 
@@ -247,6 +253,7 @@ export default function EmployeesPage() {
           department_ar: form.department_ar || null,
           department_en: form.department_en || null,
           phone: form.phone || null,
+          birthday: form.birthday || null,
         }),
       })
       const json = await res.json()
@@ -471,6 +478,11 @@ export default function EmployeesPage() {
                     phone={emp.phone}
                     imageUrl={emp.profile_image_url}
                     isRtl={isRtl}
+                    extra={emp.birthday ? (
+                      <span style={{ fontSize: '13px', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Cake size={14} style={{ color: 'var(--gold)', flexShrink: 0 }} /> {formatArabicDate(emp.birthday)}
+                      </span>
+                    ) : undefined}
                     menu={canManage ? (
                       <PersonCardMenu
                         isRtl={isRtl}
@@ -608,6 +620,16 @@ export default function EmployeesPage() {
               dir="ltr"
               value={form.phone}
               onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              style={inputStyle}
+            />
+          </div>
+
+          <div>
+            <label style={labelStyle}>{t('birthdayLabel')}</label>
+            <input
+              type="date"
+              value={form.birthday}
+              onChange={(e) => setForm((f) => ({ ...f, birthday: e.target.value }))}
               style={inputStyle}
             />
           </div>

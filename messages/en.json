@@ -131,6 +131,7 @@
     "emailLabel": "Email",
     "emailReadOnlyNote": "Email cannot be changed after the invite is sent",
     "phoneLabel": "Phone Number",
+    "birthdayLabel": "Birthday",
     "roleFieldLabel": "Role",
     "jobTitleArLabel": "Job Title (Arabic)",
     "jobTitleEnLabel": "Job Title (English)",

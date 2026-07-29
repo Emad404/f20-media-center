@@ -16,6 +16,7 @@ export async function POST(request: NextRequest) {
     department_ar,
     department_en,
     phone,
+    birthday,
   } = body
 
   const supabase = await createServerClient()
@@ -66,6 +67,7 @@ export async function POST(request: NextRequest) {
     department_ar: department_ar || null,
     department_en: department_en || null,
     phone: phone || null,
+    birthday: birthday || null,
   })
 
   if (profileError) {
