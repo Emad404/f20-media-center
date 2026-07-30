@@ -18,17 +18,20 @@ interface DepartmentNode {
 const CHAIRMAN = { titleAr: 'رئيس مجلس الإدارة', titleEn: 'Chairman of the Board' }
 const CEO = { titleAr: 'الرئيس التنفيذي', titleEn: 'Chief Executive Officer' }
 
-// Order is the target left-to-right sequence in both locales - the desktop
-// row below forces `direction: ltr` so this DOM order always maps directly
-// to screen position, regardless of the active locale's reading direction.
+// Physical left-to-right screen order in BOTH locales (desktop row below
+// forces `direction: ltr` so this DOM order always maps directly to screen
+// position, never mirrored by locale). Rightmost -> leftmost reading (i.e.
+// RTL reading order, right to left) is: Project Management Director first,
+// Media & Communication last - so the array itself runs the opposite way,
+// leftmost first: Media & Communication ... Project Management Director.
 const DEPARTMENTS: DepartmentNode[] = [
-  { titleAr: 'مدير إدارة المشاريع', titleEn: 'Project Management Director', members: [{ nameAr: 'رانيا الجعيد', nameEn: 'Ranya Aljuaid' }] },
-  { titleAr: 'العلاقات العامة', titleEn: 'Public Relations', members: [{ nameAr: 'روان الجعيد', nameEn: 'Rawan Aljuaid' }] },
-  { titleAr: 'الموارد البشرية', titleEn: 'Human Resources', members: [{ nameAr: 'الهنوف القرناس', nameEn: 'AlHanouf Alqarnas' }, { nameAr: 'شادن العيد', nameEn: 'Shaden Aleid' }] },
-  { titleAr: 'فعاليات رياضية', titleEn: 'Sports Events', members: [{ nameAr: 'خلود النصار', nameEn: 'Kholoud Alnassar' }] },
-  { titleAr: 'تقنية المعلومات والدعم الفني', titleEn: 'IT & Technical Support', members: [{ nameAr: 'عماد العسكر', nameEn: 'Emad Alaskar' }] },
-  { titleAr: 'خدمة العملاء', titleEn: 'Customer Service', members: [{ nameAr: 'روان الجعيد', nameEn: 'Rawan Aljuaid' }] },
   { titleAr: 'اعلام واتصال', titleEn: 'Media & Communication', members: [{ nameAr: 'تركي النصار', nameEn: 'Turki Alnassar' }] },
+  { titleAr: 'خدمة العملاء', titleEn: 'Customer Service', members: [{ nameAr: 'روان الجعيد', nameEn: 'Rawan Aljuaid' }] },
+  { titleAr: 'تقنية المعلومات والدعم الفني', titleEn: 'IT & Technical Support', members: [{ nameAr: 'عماد العسكر', nameEn: 'Emad Alaskar' }] },
+  { titleAr: 'فعاليات رياضية', titleEn: 'Sports Events', members: [{ nameAr: 'خلود النصار', nameEn: 'Kholoud Alnassar' }] },
+  { titleAr: 'الموارد البشرية', titleEn: 'Human Resources', members: [{ nameAr: 'الهنوف القرناس', nameEn: 'AlHanouf Alqarnas' }, { nameAr: 'شادن العيد', nameEn: 'Shaden Aleid' }] },
+  { titleAr: 'العلاقات العامة', titleEn: 'Public Relations', members: [{ nameAr: 'روان الجعيد', nameEn: 'Rawan Aljuaid' }] },
+  { titleAr: 'مدير إدارة المشاريع', titleEn: 'Project Management Director', members: [{ nameAr: 'رانيا الجعيد', nameEn: 'Ranya Aljuaid' }] },
 ]
 
 function VLine({ height }: { height: number }) {
@@ -137,7 +140,10 @@ export default function OrgChart() {
       {/* direction is forced to ltr regardless of locale so the department
           order below always maps directly to left-to-right screen position -
           without this, the same DOM order would visually mirror between
-          locales since flex row direction follows document direction. */}
+          locales since flex row direction follows document direction.
+          Array order is reversed (Media...Project Mgmt) so that Project
+          Management Director lands rightmost and Media & Communication
+          lands leftmost - the required fixed physical arrangement. */}
       <div style={{ display: 'flex', direction: 'ltr', justifyContent: 'center', gap: '18px', minWidth: 'fit-content', padding: '0 8px' }}>
         {DEPARTMENTS.map((dept) => (
           <div
