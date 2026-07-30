@@ -7,6 +7,7 @@ import PageHeader from '@/components/PageHeader'
 import Badge from '@/components/Badge'
 import Avatar from '@/components/Avatar'
 import Modal from '@/components/Modal'
+import PersonCardMenu from '@/components/PersonCardMenu'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatArabicDate } from '@/lib/dateUtils'
@@ -90,6 +91,7 @@ export default function EmployeeRequestsPage() {
   const [loading, setLoading] = useState(true)
 
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingRequest, setEditingRequest] = useState<RequestRow | null>(null)
   const [form, setForm] = useState<RequestForm>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
@@ -154,13 +156,29 @@ export default function EmployeeRequestsPage() {
   }, [requests])
 
   const openAddModal = () => {
+    setEditingRequest(null)
     setForm(emptyForm)
+    setSaveError('')
+    setIsModalOpen(true)
+  }
+
+  const openEditModal = (r: RequestRow) => {
+    setEditingRequest(r)
+    const isFixedType = (TYPE_VALUES as readonly string[]).includes(r.type || '')
+    setForm({
+      type: isFixedType ? (r.type as string) : 'other',
+      customType: isFixedType ? '' : (r.type || ''),
+      description_ar: r.description_ar || '',
+      description_en: r.description_en || '',
+      amount: r.amount != null ? String(r.amount) : '',
+    })
     setSaveError('')
     setIsModalOpen(true)
   }
 
   const closeModal = () => {
     setIsModalOpen(false)
+    setEditingRequest(null)
     setSaveError('')
   }
 
@@ -173,7 +191,6 @@ export default function EmployeeRequestsPage() {
     if (!profile) return
 
     const payload = {
-      employee_id: profile.id,
       type: resolvedType,
       description_ar: form.description_ar.trim(),
       description_en: form.description_en.trim() || null,
@@ -182,7 +199,9 @@ export default function EmployeeRequestsPage() {
 
     setSaving(true)
     setSaveError('')
-    const { error } = await supabase.from('employee_requests').insert(payload)
+    const { error } = editingRequest
+      ? await supabase.from('employee_requests').update(payload).eq('id', editingRequest.id)
+      : await supabase.from('employee_requests').insert({ ...payload, employee_id: profile.id })
     setSaving(false)
     if (error) {
       setSaveError(error.message)
@@ -190,7 +209,18 @@ export default function EmployeeRequestsPage() {
     }
     closeModal()
     await fetchAll()
-    flashSuccess(t('submitSuccess'))
+    flashSuccess(editingRequest ? t('editSuccess') : t('submitSuccess'))
+  }
+
+  const handleDelete = async (r: RequestRow) => {
+    if (!window.confirm(t('deleteConfirm'))) return
+    const { error } = await supabase.from('employee_requests').delete().eq('id', r.id)
+    if (error) {
+      window.alert(error.message)
+      return
+    }
+    await fetchAll()
+    flashSuccess(t('deleteSuccess'))
   }
 
   const handleReview = async (request: RequestRow, newStatus: 'approved' | 'rejected') => {
@@ -359,7 +389,19 @@ export default function EmployeeRequestsPage() {
                       <Badge text={typeLabel(r.type)} variant="info" />
                       <Badge text={statusLabel(r.status)} variant={statusVariant(r.status)} />
                     </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at, locale)}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{formatArabicDate(r.requested_at, locale)}</div>
+                      {r.status === 'pending' && (
+                        <PersonCardMenu
+                          isRtl={isRtl}
+                          optionsAria={t('optionsAria')}
+                          editLabel={t('editAria')}
+                          deleteLabel={t('deleteAria')}
+                          onEdit={() => openEditModal(r)}
+                          onDelete={() => handleDelete(r)}
+                        />
+                      )}
+                    </div>
                   </div>
                   <div style={{ fontSize: '13px', color: 'var(--text-primary)', lineHeight: 1.5 }}>{descriptionFor(r)}</div>
                   {r.amount != null && (
@@ -372,7 +414,7 @@ export default function EmployeeRequestsPage() {
         </div>
       </div>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={t('addModalTitle')}>
+      <Modal isOpen={isModalOpen} onClose={closeModal} title={editingRequest ? t('editModalTitle') : t('addModalTitle')}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
             <label style={labelStyle}>{t('typeLabel')}</label>
@@ -452,7 +494,7 @@ export default function EmployeeRequestsPage() {
                 opacity: saving ? 0.7 : 1,
               }}
             >
-              {saving ? t('saving') : t('saveButton')}
+              {saving ? t('saving') : editingRequest ? t('saveButtonEdit') : t('saveButton')}
             </button>
             <button
               onClick={closeModal}
