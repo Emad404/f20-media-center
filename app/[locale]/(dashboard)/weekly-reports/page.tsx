@@ -241,7 +241,7 @@ export default function WeeklyReportsPage() {
             </option>
           ))}
         </select>
-        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('weekFilterLabel')}</span>
+        <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{t('weekFilterLabel')}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <input
             type="date"
