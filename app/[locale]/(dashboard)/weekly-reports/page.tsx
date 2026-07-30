@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
+import { X } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Avatar from '@/components/Avatar'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
-import SortByDateButton from '@/components/SortByDateButton'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/context/UserProfileContext'
 import { formatArabicDate } from '@/lib/dateUtils'
@@ -74,7 +74,7 @@ export default function WeeklyReportsPage() {
   const [profiles, setProfiles] = useState<ProfileLite[]>([])
   const [loading, setLoading] = useState(true)
   const [employeeFilter, setEmployeeFilter] = useState(ALL)
-  const [sortOldest, setSortOldest] = useState(false)
+  const [weekFilter, setWeekFilter] = useState('')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingReport, setEditingReport] = useState<WeeklyReportRow | null>(null)
@@ -126,14 +126,8 @@ export default function WeeklyReportsPage() {
   const filtered = useMemo(() => {
     return reports
       .filter((r) => employeeFilter === ALL || r.employee_id === employeeFilter)
-      .sort((a, b) => {
-        if (!a.week_start_date && !b.week_start_date) return 0
-        if (!a.week_start_date) return 1
-        if (!b.week_start_date) return -1
-        const diff = new Date(a.week_start_date).getTime() - new Date(b.week_start_date).getTime()
-        return sortOldest ? diff : -diff
-      })
-  }, [reports, employeeFilter, sortOldest])
+      .filter((r) => !weekFilter || r.week_start_date === weekFilter)
+  }, [reports, employeeFilter, weekFilter])
 
   const openAddModal = () => {
     setEditingReport(null)
@@ -247,7 +241,34 @@ export default function WeeklyReportsPage() {
             </option>
           ))}
         </select>
-        <SortByDateButton active={sortOldest} onToggle={() => setSortOldest((v) => !v)} label={t('sortOldestButton')} />
+        <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{t('weekFilterLabel')}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <input
+            type="date"
+            value={weekFilter}
+            onChange={(e) => setWeekFilter(e.target.value)}
+            style={{ ...inputStyle, cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}
+          />
+          {weekFilter && (
+            <button
+              type="button"
+              onClick={() => setWeekFilter('')}
+              aria-label={t('clearDateFilterAria')}
+              style={{
+                background: 'transparent',
+                border: '1px solid var(--border-strong)',
+                borderRadius: '8px',
+                padding: '8px',
+                cursor: 'pointer',
+                color: 'var(--text-secondary)',
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
         {addButton && (
           <div style={{ marginInlineStart: isMobile ? 0 : 'auto', display: 'flex', gap: '10px' }}>
             {addButton}
