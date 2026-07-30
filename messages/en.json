@@ -589,7 +589,10 @@
     "deleteConfirm": "Delete the match against \"{opponent}\"?",
     "addMatchSuccess": "Match added successfully",
     "saveMatchSuccess": "Match updated successfully",
-    "deleteMatchSuccess": "Match deleted successfully"
+    "deleteMatchSuccess": "Match deleted successfully",
+    "deleteMatchWarningTitle": "Delete Match With Predictions",
+    "deleteMatchWarningMessage": "This match has {count, plural, one {# prediction} other {# predictions}} submitted — deleting it will also permanently remove {count, plural, one {that prediction} other {those predictions}}. This cannot be undone.",
+    "confirmDeleteButton": "Delete"
   },
   "LanguageToggle": {
     "groupLabel": "Language"

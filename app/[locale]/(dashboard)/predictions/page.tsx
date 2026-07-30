@@ -138,6 +138,8 @@ export default function PredictionsPage() {
   const [matchForm, setMatchForm] = useState<MatchForm>(emptyMatchForm)
   const [matchSaving, setMatchSaving] = useState(false)
   const [matchSaveError, setMatchSaveError] = useState('')
+  const [deleteWarning, setDeleteWarning] = useState<{ match: MatchRow; count: number } | null>(null)
+  const [deletingMatch, setDeletingMatch] = useState(false)
 
   const flashSuccess = (message: string) => {
     setSuccessMessage(message)
@@ -320,15 +322,45 @@ export default function PredictionsPage() {
     flashSuccess(editingMatch ? t('saveMatchSuccess') : t('addMatchSuccess'))
   }
 
-  const handleDeleteMatch = async (m: MatchRow) => {
-    if (!window.confirm(t('deleteConfirm', { opponent: displayOpponent(m) }))) return
+  const performDeleteMatch = async (m: MatchRow) => {
+    const { error: predError } = await supabase.from('match_predictions').delete().eq('match_id', m.id)
+    if (predError) {
+      window.alert(predError.message)
+      return false
+    }
     const { error } = await supabase.from('hilal_matches').delete().eq('id', m.id)
     if (error) {
       window.alert(error.message)
-      return
+      return false
     }
     await Promise.all([fetchAdminMatches(), fetchPredictionsData()])
     flashSuccess(t('deleteMatchSuccess'))
+    return true
+  }
+
+  const handleDeleteMatch = async (m: MatchRow) => {
+    const { count, error: countError } = await supabase
+      .from('match_predictions')
+      .select('id', { count: 'exact', head: true })
+      .eq('match_id', m.id)
+    if (countError) {
+      window.alert(countError.message)
+      return
+    }
+    if (!count) {
+      if (!window.confirm(t('deleteConfirm', { opponent: displayOpponent(m) }))) return
+      await performDeleteMatch(m)
+      return
+    }
+    setDeleteWarning({ match: m, count })
+  }
+
+  const handleConfirmDeleteWithPredictions = async () => {
+    if (!deleteWarning) return
+    setDeletingMatch(true)
+    const ok = await performDeleteMatch(deleteWarning.match)
+    setDeletingMatch(false)
+    if (ok) setDeleteWarning(null)
   }
 
   return (
@@ -653,6 +685,31 @@ export default function PredictionsPage() {
             <button
               onClick={closeMatchModal}
               style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-strong)', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }}
+            >
+              {t('cancelButton')}
+            </button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Delete match with existing predictions - distinct warning, explicit Delete button */}
+      <Modal isOpen={!!deleteWarning} onClose={() => setDeleteWarning(null)} title={t('deleteMatchWarningTitle')}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', direction: isRtl ? 'rtl' : 'ltr' }}>
+          <div style={{ fontSize: '14px', color: 'var(--text-primary)', lineHeight: 1.6, textAlign: isRtl ? 'right' : 'left' }}>
+            {deleteWarning && t('deleteMatchWarningMessage', { count: deleteWarning.count })}
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={handleConfirmDeleteWithPredictions}
+              disabled={deletingMatch}
+              style={{ background: 'var(--danger-bg)', color: 'var(--danger-text)', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: deletingMatch ? 'not-allowed' : 'pointer', opacity: deletingMatch ? 0.7 : 1 }}
+            >
+              {deletingMatch ? t('saving') : t('confirmDeleteButton')}
+            </button>
+            <button
+              onClick={() => setDeleteWarning(null)}
+              disabled={deletingMatch}
+              style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-strong)', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 500, cursor: deletingMatch ? 'not-allowed' : 'pointer' }}
             >
               {t('cancelButton')}
             </button>

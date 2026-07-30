@@ -590,7 +590,10 @@
     "deleteConfirm": "حذف المباراة أمام \"{opponent}\"؟",
     "addMatchSuccess": "تمت إضافة المباراة بنجاح",
     "saveMatchSuccess": "تم تحديث المباراة بنجاح",
-    "deleteMatchSuccess": "تم حذف المباراة بنجاح"
+    "deleteMatchSuccess": "تم حذف المباراة بنجاح",
+    "deleteMatchWarningTitle": "حذف مباراة تحتوي على توقعات",
+    "deleteMatchWarningMessage": "تحتوي هذه المباراة على {count, plural, one {توقع واحد} two {توقعين} few {# توقعات} many {# توقعًا} other {# توقع}} — حذفها سيؤدي أيضًا إلى حذف {count, plural, one {هذا التوقع} other {هذه التوقعات}} نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
+    "confirmDeleteButton": "حذف"
   },
   "LanguageToggle": {
     "groupLabel": "اللغة"
