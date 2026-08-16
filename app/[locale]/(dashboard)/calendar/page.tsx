@@ -132,7 +132,10 @@ export default function CalendarPage() {
   const { profile } = useUserProfile()
   const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
 
-  const [currentMonth, setCurrentMonth] = useState(new Date(2026, 6, 1))
+  const [currentMonth, setCurrentMonth] = useState(() => {
+    const now = new Date()
+    return new Date(now.getFullYear(), now.getMonth(), 1)
+  })
   const [selectedDay, setSelectedDay] = useState<string | null>(null)
 
   const [tasks, setTasks] = useState<TaskRow[]>([])
@@ -192,6 +195,7 @@ export default function CalendarPage() {
 
   const displayTitle = (task: TaskRow) => (locale === 'en' && task.title_en ? task.title_en : task.title_ar)
   const displayLocation = (task: TaskRow) => ((locale === 'en' && task.location_en ? task.location_en : task.location_ar) || '')
+  const displayDescription = (task: TaskRow) => ((locale === 'en' && task.description_en ? task.description_en : task.description_ar) || '')
 
   const typeLabel = (type: string | null) => {
     if (type === 'meeting') return t('meetingType')
@@ -598,6 +602,11 @@ export default function CalendarPage() {
                             {task.start_time ? task.start_time.slice(0, 5) : ''}
                             {task.start_time && task.end_time ? ' – ' : ''}
                             {task.end_time ? task.end_time.slice(0, 5) : ''}
+                          </div>
+                        )}
+                        {displayDescription(task) && (
+                          <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                            {displayDescription(task)}
                           </div>
                         )}
                         {taskAssigneeIds.length > 0 ? (
