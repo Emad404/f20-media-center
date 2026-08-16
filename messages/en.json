@@ -602,7 +602,14 @@
     "deleteMatchSuccess": "Match deleted successfully",
     "deleteMatchWarningTitle": "Delete Match With Predictions",
     "deleteMatchWarningMessage": "This match has {count, plural, one {# prediction} other {# predictions}} submitted — deleting it will also permanently remove {count, plural, one {that prediction} other {those predictions}}. This cannot be undone.",
-    "confirmDeleteButton": "Delete"
+    "confirmDeleteButton": "Delete",
+    "employeePredictionsTitle": "Employee Predictions",
+    "noEmployeePredictionsMessage": "No predictions yet",
+    "pointsHeader": "Points",
+    "hilalLossRejectionMessage": "We don't do that here... change your pick! 💙",
+    "deletePredictionConfirm": "Delete your prediction?",
+    "savePredictionSuccess": "Prediction updated successfully",
+    "deletePredictionSuccess": "Prediction deleted successfully"
   },
   "LanguageToggle": {
     "groupLabel": "Language"

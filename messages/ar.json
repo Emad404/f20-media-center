@@ -603,7 +603,14 @@
     "deleteMatchSuccess": "تم حذف المباراة بنجاح",
     "deleteMatchWarningTitle": "حذف مباراة تحتوي على توقعات",
     "deleteMatchWarningMessage": "تحتوي هذه المباراة على {count, plural, one {توقع واحد} two {توقعين} few {# توقعات} many {# توقعًا} other {# توقع}} — حذفها سيؤدي أيضًا إلى حذف {count, plural, one {هذا التوقع} other {هذه التوقعات}} نهائيًا. لا يمكن التراجع عن هذا الإجراء.",
-    "confirmDeleteButton": "حذف"
+    "confirmDeleteButton": "حذف",
+    "employeePredictionsTitle": "توقعات الموظفين",
+    "noEmployeePredictionsMessage": "لا توجد توقعات بعد",
+    "pointsHeader": "النقاط",
+    "hilalLossRejectionMessage": "ما تمشي عندنا.. عدّل توقعك 💙",
+    "deletePredictionConfirm": "حذف توقعك؟",
+    "savePredictionSuccess": "تم تحديث توقعك بنجاح",
+    "deletePredictionSuccess": "تم حذف توقعك بنجاح"
   },
   "LanguageToggle": {
     "groupLabel": "اللغة"

@@ -34,6 +34,7 @@ interface PredictionRow {
   predicted_hilal_score: number
   predicted_opponent_score: number
   submitted_at: string | null
+  points: number | null
 }
 
 interface LeaderboardEntry {
@@ -42,6 +43,13 @@ interface LeaderboardEntry {
   full_name_en: string | null
   correct_predictions: number | null
   total_predictions: number | null
+  total_points: number | null
+}
+
+interface ProfileLite {
+  id: string
+  full_name_ar: string
+  full_name_en: string | null
 }
 
 type MatchForm = {
@@ -122,7 +130,8 @@ export default function PredictionsPage() {
 
   const [loading, setLoading] = useState(true)
   const [nextMatch, setNextMatch] = useState<MatchRow | null>(null)
-  const [myPredictions, setMyPredictions] = useState<PredictionRow[]>([])
+  const [allPredictions, setAllPredictions] = useState<PredictionRow[]>([])
+  const [profiles, setProfiles] = useState<ProfileLite[]>([])
   const [historyMatches, setHistoryMatches] = useState<MatchRow[]>([])
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([])
   const [successMessage, setSuccessMessage] = useState('')
@@ -130,6 +139,8 @@ export default function PredictionsPage() {
   const [predForm, setPredForm] = useState({ hilal: '0', opponent: '0' })
   const [predSaving, setPredSaving] = useState(false)
   const [predError, setPredError] = useState('')
+  const [editingPredictionId, setEditingPredictionId] = useState<string | null>(null)
+  const [dataAsOf, setDataAsOf] = useState(0)
 
   const [allMatches, setAllMatches] = useState<MatchRow[]>([])
   const [adminLoading, setAdminLoading] = useState(true)
@@ -155,7 +166,7 @@ export default function PredictionsPage() {
     setLoading(true)
     const todayStr = new Date().toISOString().slice(0, 10)
 
-    const [candidatesRes, myPredsRes, leaderboardRes] = await Promise.all([
+    const [candidatesRes, predictionsRes, profilesRes, leaderboardRes] = await Promise.all([
       supabase
         .from('hilal_matches')
         .select('*')
@@ -164,14 +175,14 @@ export default function PredictionsPage() {
         .order('match_date', { ascending: true })
         .order('match_time', { ascending: true })
         .limit(10),
-      profile
-        ? supabase.from('match_predictions').select('*').eq('employee_id', profile.id).order('submitted_at', { ascending: false })
-        : Promise.resolve({ data: [] as PredictionRow[] }),
+      supabase.from('match_predictions').select('*').order('submitted_at', { ascending: false }),
+      supabase.from('profiles').select('id,full_name_ar,full_name_en'),
       supabase.from('leaderboard').select('*'),
     ])
 
     const candidates = (candidatesRes.data || []) as MatchRow[]
     const now = Date.now()
+    setDataAsOf(now)
     const future = candidates
       .filter((m) => {
         const dt = matchDateTime(m)
@@ -181,9 +192,11 @@ export default function PredictionsPage() {
     const next = future[0] || null
     setNextMatch(next)
 
-    const myPreds = (myPredsRes.data || []) as PredictionRow[]
-    setMyPredictions(myPreds)
+    const allPreds = (predictionsRes.data || []) as PredictionRow[]
+    setAllPredictions(allPreds)
+    setProfiles((profilesRes.data || []) as ProfileLite[])
 
+    const myPreds = profile ? allPreds.filter((p) => p.employee_id === profile.id) : []
     const historyIds = Array.from(new Set(myPreds.map((p) => p.match_id))).filter((id) => id !== next?.id)
     if (historyIds.length > 0) {
       const { data: historyData } = await supabase.from('hilal_matches').select('*').in('id', historyIds)
@@ -221,18 +234,57 @@ export default function PredictionsPage() {
     return map
   }, [nextMatch, historyMatches, allMatches])
 
-  const myNextMatchPrediction = nextMatch ? myPredictions.find((p) => p.match_id === nextMatch.id) : null
+  const profilesById = useMemo(() => {
+    const map = new Map<string, ProfileLite>()
+    for (const p of profiles) map.set(p.id, p)
+    return map
+  }, [profiles])
+
+  const displayPredictorName = (employeeId: string) => {
+    const p = profilesById.get(employeeId)
+    if (!p) return ''
+    return locale === 'en' && p.full_name_en ? p.full_name_en : p.full_name_ar
+  }
+
+  const myPredictions = useMemo(
+    () => (profile ? allPredictions.filter((p) => p.employee_id === profile.id) : []),
+    [allPredictions, profile]
+  )
+
+  const nextMatchPredictions = useMemo(
+    () => (nextMatch ? allPredictions.filter((p) => p.match_id === nextMatch.id) : []),
+    [allPredictions, nextMatch]
+  )
+
+  const myNextMatchPrediction = nextMatch ? nextMatchPredictions.find((p) => p.employee_id === profile?.id) || null : null
+  const nextMatchStartTime = nextMatch ? matchDateTime(nextMatch) : null
+  const nextMatchStarted = nextMatchStartTime !== null && dataAsOf !== 0 && nextMatchStartTime <= dataAsOf
 
   const sortedLeaderboard = useMemo(() => {
-    return [...leaderboard].sort((a, b) => (b.correct_predictions || 0) - (a.correct_predictions || 0))
+    return [...leaderboard].sort((a, b) => {
+      const pointsDiff = (b.total_points || 0) - (a.total_points || 0)
+      if (pointsDiff !== 0) return pointsDiff
+      return (b.correct_predictions || 0) - (a.correct_predictions || 0)
+    })
   }, [leaderboard])
+
+  const validatePrediction = (hilal: number, opponent: number): string | null => {
+    if (!Number.isInteger(hilal) || hilal < 0 || !Number.isInteger(opponent) || opponent < 0) {
+      return t('predictionErrorMessage')
+    }
+    if (opponent > hilal) {
+      return t('hilalLossRejectionMessage')
+    }
+    return null
+  }
 
   const handleSubmitPrediction = async () => {
     if (!nextMatch || !profile) return
     const hilal = Number(predForm.hilal)
     const opponent = Number(predForm.opponent)
-    if (!Number.isInteger(hilal) || hilal < 0 || !Number.isInteger(opponent) || opponent < 0) {
-      setPredError(t('predictionErrorMessage'))
+    const validationError = validatePrediction(hilal, opponent)
+    if (validationError) {
+      setPredError(validationError)
       return
     }
     setPredSaving(true)
@@ -251,6 +303,55 @@ export default function PredictionsPage() {
     setPredForm({ hilal: '0', opponent: '0' })
     await fetchPredictionsData()
     flashSuccess(t('predictionSuccess'))
+  }
+
+  const startEditPrediction = (pred: PredictionRow) => {
+    setEditingPredictionId(pred.id)
+    setPredForm({ hilal: String(pred.predicted_hilal_score), opponent: String(pred.predicted_opponent_score) })
+    setPredError('')
+  }
+
+  const cancelEditPrediction = () => {
+    setEditingPredictionId(null)
+    setPredForm({ hilal: '0', opponent: '0' })
+    setPredError('')
+  }
+
+  const handleSaveEditedPrediction = async () => {
+    if (!editingPredictionId) return
+    const hilal = Number(predForm.hilal)
+    const opponent = Number(predForm.opponent)
+    const validationError = validatePrediction(hilal, opponent)
+    if (validationError) {
+      setPredError(validationError)
+      return
+    }
+    setPredSaving(true)
+    setPredError('')
+    const { error } = await supabase
+      .from('match_predictions')
+      .update({ predicted_hilal_score: hilal, predicted_opponent_score: opponent })
+      .eq('id', editingPredictionId)
+    setPredSaving(false)
+    if (error) {
+      setPredError(error.message)
+      return
+    }
+    setEditingPredictionId(null)
+    setPredForm({ hilal: '0', opponent: '0' })
+    await fetchPredictionsData()
+    flashSuccess(t('savePredictionSuccess'))
+  }
+
+  const handleDeletePrediction = async (pred: PredictionRow) => {
+    if (!window.confirm(t('deletePredictionConfirm'))) return
+    const { error } = await supabase.from('match_predictions').delete().eq('id', pred.id)
+    if (error) {
+      window.alert(error.message)
+      return
+    }
+    await fetchPredictionsData()
+    flashSuccess(t('deletePredictionSuccess'))
   }
 
   const openAddMatchModal = () => {
@@ -458,12 +559,22 @@ export default function PredictionsPage() {
                 )}
               </div>
 
-              {myNextMatchPrediction ? (
+              {myNextMatchPrediction && editingPredictionId !== myNextMatchPrediction.id ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', background: 'var(--info-bg)', borderRadius: '8px', padding: '10px 16px', flexWrap: 'wrap' }}>
                   <span style={{ color: 'var(--info-text)', fontSize: '18px' }}>✓</span>
                   <span style={{ fontSize: '14px', color: 'var(--info-text)', fontWeight: 500 }}>
                     {t('yourPredictionLabel')} {myNextMatchPrediction.predicted_hilal_score} : {myNextMatchPrediction.predicted_opponent_score}
                   </span>
+                  {!nextMatchStarted && (
+                    <PersonCardMenu
+                      isRtl={isRtl}
+                      optionsAria={t('optionsAria')}
+                      editLabel={t('editAria')}
+                      deleteLabel={t('deleteAria')}
+                      onEdit={() => startEditPrediction(myNextMatchPrediction)}
+                      onDelete={() => handleDeletePrediction(myNextMatchPrediction)}
+                    />
+                  )}
                 </div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
@@ -487,7 +598,7 @@ export default function PredictionsPage() {
                     />
                     <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{displayOpponent(nextMatch)}</span>
                     <button
-                      onClick={handleSubmitPrediction}
+                      onClick={editingPredictionId ? handleSaveEditedPrediction : handleSubmitPrediction}
                       disabled={predSaving}
                       style={{
                         background: 'var(--btn-bg)',
@@ -502,11 +613,42 @@ export default function PredictionsPage() {
                         whiteSpace: 'nowrap',
                       }}
                     >
-                      {predSaving ? t('submitting') : t('submitPredictionButton')}
+                      {predSaving ? t('submitting') : editingPredictionId ? t('saveButtonEdit') : t('submitPredictionButton')}
                     </button>
+                    {editingPredictionId && (
+                      <button
+                        onClick={cancelEditPrediction}
+                        disabled={predSaving}
+                        style={{ background: 'transparent', color: 'var(--text-secondary)', border: '1px solid var(--border-strong)', borderRadius: '8px', padding: '8px 18px', fontSize: '13px', fontWeight: 500, cursor: predSaving ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}
+                      >
+                        {t('cancelButton')}
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
+            </div>
+          )}
+        </SectionCard>
+
+        {/* All employees' predictions for the current match */}
+        <SectionCard title={t('employeePredictionsTitle')}>
+          {loading ? (
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('loading')}</p>
+          ) : !nextMatch ? (
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noUpcomingMatchMessage')}</p>
+          ) : nextMatchPredictions.length === 0 ? (
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noEmployeePredictionsMessage')}</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {nextMatchPredictions.map((pred) => (
+                <div key={pred.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '13px', fontWeight: 500 }}>{displayPredictorName(pred.employee_id)}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+                    {pred.predicted_hilal_score} : {pred.predicted_opponent_score}
+                  </span>
+                </div>
+              ))}
             </div>
           )}
         </SectionCard>
@@ -564,6 +706,7 @@ export default function PredictionsPage() {
                   {[
                     { id: 'rank', label: t('rankHeader') },
                     { id: 'employee', label: t('employeeHeader') },
+                    { id: 'points', label: t('pointsHeader') },
                     { id: 'correct', label: t('correctPredictionsHeader') },
                     { id: 'total', label: t('totalPredictionsHeader') },
                   ].map((h) => (
@@ -595,6 +738,9 @@ export default function PredictionsPage() {
                       </td>
                       <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontWeight: rank === 1 ? 600 : 400, borderBottom: '1px solid var(--border)' }}>
                         {isMobile && rank === 1 ? '🥇 ' : ''}{displayEmployeeName(entry)}
+                      </td>
+                      <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontWeight: 600, fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
+                        {entry.total_points ?? 0}
                       </td>
                       <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
                         {entry.correct_predictions ?? 0}
