@@ -107,7 +107,7 @@ function matchDateTime(m: MatchRow): number | null {
   return isNaN(dt.getTime()) ? null : dt.getTime()
 }
 
-function SectionCard({ title, subtitle, action, children }: { title: string; subtitle?: string; action?: React.ReactNode; children: React.ReactNode }) {
+function SectionCard({ title, subtitle, action, children }: { title: string; subtitle?: React.ReactNode; action?: React.ReactNode; children: React.ReactNode }) {
   return (
     <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px 24px', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: subtitle ? 4 : 16 }}>
@@ -271,12 +271,16 @@ export default function PredictionsPage() {
   const nextMatchStarted = nextMatchStartTime !== null && dataAsOf !== 0 && nextMatchStartTime <= dataAsOf
 
   const sortedLeaderboard = useMemo(() => {
+    const ratio = (e: LeaderboardEntry) => ((e.total_predictions || 0) > 0 ? (e.correct_predictions || 0) / (e.total_predictions || 0) : 0)
+    const nameOf = (e: LeaderboardEntry) => (locale === 'en' && e.full_name_en ? e.full_name_en : e.full_name_ar) || ''
     return [...leaderboard].sort((a, b) => {
       const pointsDiff = (b.total_points || 0) - (a.total_points || 0)
       if (pointsDiff !== 0) return pointsDiff
-      return (b.correct_predictions || 0) - (a.correct_predictions || 0)
+      const ratioDiff = ratio(b) - ratio(a)
+      if (ratioDiff !== 0) return ratioDiff
+      return nameOf(a).localeCompare(nameOf(b), locale)
     })
-  }, [leaderboard])
+  }, [leaderboard, locale])
 
   const validatePrediction = (hilal: number, opponent: number): string | null => {
     if (!Number.isInteger(hilal) || hilal < 0 || !Number.isInteger(opponent) || opponent < 0) {
@@ -644,7 +648,11 @@ export default function PredictionsPage() {
         {/* All employees' predictions for the most recently added match */}
         <SectionCard
           title={t('employeePredictionsTitle')}
-          subtitle={featuredMatch ? `${t('hilalName')} ${t('vsShort')} ${displayOpponent(featuredMatch)}${featuredMatch.match_date ? ` — ${formatArabicDate(featuredMatch.match_date, locale)}` : ''}` : undefined}
+          subtitle={featuredMatch ? (
+            <span style={{ fontWeight: 700 }}>
+              {t('hilalName')} {t('vsShort')} {displayOpponent(featuredMatch)}{featuredMatch.match_date ? ` — ${formatArabicDate(featuredMatch.match_date, locale)}` : ''}
+            </span>
+          ) : undefined}
         >
           {loading ? (
             <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('loading')}</p>
@@ -719,9 +727,9 @@ export default function PredictionsPage() {
                   {[
                     { id: 'rank', label: t('rankHeader') },
                     { id: 'employee', label: t('employeeHeader') },
-                    { id: 'points', label: t('pointsHeader') },
                     { id: 'correct', label: t('correctPredictionsHeader') },
                     { id: 'total', label: t('totalPredictionsHeader') },
+                    { id: 'points', label: t('pointsHeader') },
                   ].map((h) => (
                     <th
                       key={h.id}
@@ -752,14 +760,14 @@ export default function PredictionsPage() {
                       <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontWeight: rank === 1 ? 600 : 400, borderBottom: '1px solid var(--border)' }}>
                         {isMobile && rank === 1 ? '🥇 ' : ''}{displayEmployeeName(entry)}
                       </td>
-                      <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontWeight: 600, fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
-                        {entry.total_points ?? 0}
-                      </td>
                       <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
                         {entry.correct_predictions ?? 0}
                       </td>
                       <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
                         {entry.total_predictions ?? 0}
+                      </td>
+                      <td style={{ padding: '12px 16px', fontSize: isMobile ? '13px' : '14px', fontWeight: 600, fontVariantNumeric: 'tabular-nums', borderBottom: '1px solid var(--border)' }}>
+                        {entry.total_points ?? 0}
                       </td>
                     </tr>
                   )
