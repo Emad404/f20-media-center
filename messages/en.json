@@ -93,6 +93,7 @@
     "fullNameArLabel": "Full Name (Arabic)",
     "fullNameEnLabel": "Full Name (English)",
     "phoneLabel": "Phone Number",
+    "birthdayLabel": "Birthday",
     "emailLabel": "Email",
     "jobTitleLabel": "Job Title",
     "departmentLabel": "Department",

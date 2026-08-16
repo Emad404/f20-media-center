@@ -24,7 +24,7 @@ export default function ProfilePage() {
   const supabase = createClient()
   const { profile, loading, refreshProfile } = useUserProfile()
 
-  const [form, setForm] = useState({ full_name_ar: '', full_name_en: '', phone: '' })
+  const [form, setForm] = useState({ full_name_ar: '', full_name_en: '', phone: '', birthday: '' })
   const formInitialized = useRef(false)
   const [saving, setSaving] = useState(false)
   const [status, setStatus] = useState<'idle' | 'success' | 'error'>('idle')
@@ -40,6 +40,7 @@ export default function ProfilePage() {
         full_name_ar: profile.full_name_ar || '',
         full_name_en: profile.full_name_en || '',
         phone: profile.phone || '',
+        birthday: profile.birthday || '',
       })
       formInitialized.current = true
     }
@@ -49,7 +50,8 @@ export default function ProfilePage() {
     !!profile &&
     (form.full_name_ar !== (profile.full_name_ar || '') ||
       form.full_name_en !== (profile.full_name_en || '') ||
-      form.phone !== (profile.phone || ''))
+      form.phone !== (profile.phone || '') ||
+      form.birthday !== (profile.birthday || ''))
 
   const handleSave = async () => {
     if (!profile) return
@@ -61,6 +63,7 @@ export default function ProfilePage() {
         full_name_ar: form.full_name_ar,
         full_name_en: form.full_name_en,
         phone: form.phone,
+        birthday: form.birthday || null,
       })
       .eq('id', profile.id)
 
@@ -335,6 +338,16 @@ export default function ProfilePage() {
                   <input
                     value={form.phone}
                     onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                    style={inputStyle}
+                  />
+                </div>
+
+                <div>
+                  <div style={labelStyle}>{t('birthdayLabel')}</div>
+                  <input
+                    type="date"
+                    value={form.birthday}
+                    onChange={(e) => setForm((f) => ({ ...f, birthday: e.target.value }))}
                     style={inputStyle}
                   />
                 </div>

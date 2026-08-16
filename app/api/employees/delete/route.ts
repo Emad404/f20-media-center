@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient as createServerClient } from '@/lib/supabase/server'
 import { createClient as createServiceClient } from '@supabase/supabase-js'
 
-const AUTHORIZED_ROLES = ['developer', 'ceo']
+const AUTHORIZED_ROLES = ['developer', 'ceo', 'project_manager']
 
 export async function POST(request: NextRequest) {
   const { id } = await request.json()

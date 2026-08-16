@@ -15,6 +15,7 @@ export interface UserProfile {
   department_en: string
   phone: string
   profile_image_url: string | null
+  birthday: string | null
   created_at: string
 }
 

@@ -15,7 +15,7 @@ import { formatArabicDate } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 
 const ALL = '__all__'
-const MANAGE_ROLES = ['developer', 'ceo']
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager']
 const ROLE_VALUES = ['ceo', 'project_manager', 'developer', 'media_manager', 'PR_manager', 'Trainee', 'volunteer'] as const
 
 interface EmployeeProfile {

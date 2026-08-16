@@ -93,6 +93,7 @@
     "fullNameArLabel": "الاسم الكامل (عربي)",
     "fullNameEnLabel": "الاسم الكامل (إنجليزي)",
     "phoneLabel": "رقم الهاتف",
+    "birthdayLabel": "تاريخ الميلاد",
     "emailLabel": "البريد الإلكتروني",
     "jobTitleLabel": "المسمى الوظيفي",
     "departmentLabel": "القسم",
