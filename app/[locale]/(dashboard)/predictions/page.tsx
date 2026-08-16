@@ -25,6 +25,7 @@ interface MatchRow {
   opponent_score: number | null
   gift_description_ar: string | null
   gift_description_en: string | null
+  created_at: string
 }
 
 interface PredictionRow {
@@ -130,6 +131,7 @@ export default function PredictionsPage() {
 
   const [loading, setLoading] = useState(true)
   const [nextMatch, setNextMatch] = useState<MatchRow | null>(null)
+  const [featuredMatch, setFeaturedMatch] = useState<MatchRow | null>(null)
   const [allPredictions, setAllPredictions] = useState<PredictionRow[]>([])
   const [profiles, setProfiles] = useState<ProfileLite[]>([])
   const [historyMatches, setHistoryMatches] = useState<MatchRow[]>([])
@@ -166,7 +168,7 @@ export default function PredictionsPage() {
     setLoading(true)
     const todayStr = new Date().toISOString().slice(0, 10)
 
-    const [candidatesRes, predictionsRes, profilesRes, leaderboardRes] = await Promise.all([
+    const [candidatesRes, featuredRes, predictionsRes, profilesRes, leaderboardRes] = await Promise.all([
       supabase
         .from('hilal_matches')
         .select('*')
@@ -175,6 +177,7 @@ export default function PredictionsPage() {
         .order('match_date', { ascending: true })
         .order('match_time', { ascending: true })
         .limit(10),
+      supabase.from('hilal_matches').select('*').order('created_at', { ascending: false }).limit(1).maybeSingle(),
       supabase.from('match_predictions').select('*').order('submitted_at', { ascending: false }),
       supabase.from('profiles').select('id,full_name_ar,full_name_en'),
       supabase.from('leaderboard').select('*'),
@@ -191,6 +194,7 @@ export default function PredictionsPage() {
       .sort((a, b) => matchDateTime(a)! - matchDateTime(b)!)
     const next = future[0] || null
     setNextMatch(next)
+    setFeaturedMatch((featuredRes.data as MatchRow | null) || null)
 
     const allPreds = (predictionsRes.data || []) as PredictionRow[]
     setAllPredictions(allPreds)
@@ -229,10 +233,11 @@ export default function PredictionsPage() {
   const matchesById = useMemo(() => {
     const map = new Map<string, MatchRow>()
     if (nextMatch) map.set(nextMatch.id, nextMatch)
+    if (featuredMatch) map.set(featuredMatch.id, featuredMatch)
     for (const m of historyMatches) map.set(m.id, m)
     for (const m of allMatches) map.set(m.id, m)
     return map
-  }, [nextMatch, historyMatches, allMatches])
+  }, [nextMatch, featuredMatch, historyMatches, allMatches])
 
   const profilesById = useMemo(() => {
     const map = new Map<string, ProfileLite>()
@@ -254,6 +259,11 @@ export default function PredictionsPage() {
   const nextMatchPredictions = useMemo(
     () => (nextMatch ? allPredictions.filter((p) => p.match_id === nextMatch.id) : []),
     [allPredictions, nextMatch]
+  )
+
+  const featuredMatchPredictions = useMemo(
+    () => (featuredMatch ? allPredictions.filter((p) => p.match_id === featuredMatch.id) : []),
+    [allPredictions, featuredMatch]
   )
 
   const myNextMatchPrediction = nextMatch ? nextMatchPredictions.find((p) => p.employee_id === profile?.id) || null : null
@@ -631,17 +641,20 @@ export default function PredictionsPage() {
           )}
         </SectionCard>
 
-        {/* All employees' predictions for the current match */}
-        <SectionCard title={t('employeePredictionsTitle')}>
+        {/* All employees' predictions for the most recently added match */}
+        <SectionCard
+          title={t('employeePredictionsTitle')}
+          subtitle={featuredMatch ? `${t('hilalName')} ${t('vsShort')} ${displayOpponent(featuredMatch)}${featuredMatch.match_date ? ` — ${formatArabicDate(featuredMatch.match_date, locale)}` : ''}` : undefined}
+        >
           {loading ? (
             <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('loading')}</p>
-          ) : !nextMatch ? (
-            <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noUpcomingMatchMessage')}</p>
-          ) : nextMatchPredictions.length === 0 ? (
+          ) : !featuredMatch ? (
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noMatchesMessage')}</p>
+          ) : featuredMatchPredictions.length === 0 ? (
             <p style={{ fontSize: '14px', color: 'var(--text-muted)', textAlign: 'center', padding: '16px' }}>{t('noEmployeePredictionsMessage')}</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {nextMatchPredictions.map((pred) => (
+              {featuredMatchPredictions.map((pred) => (
                 <div key={pred.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '9px 14px', border: '1px solid var(--border)', borderRadius: '8px' }}>
                   <span style={{ fontSize: '13px', fontWeight: 500 }}>{displayPredictorName(pred.employee_id)}</span>
                   <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
