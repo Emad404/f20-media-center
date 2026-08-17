@@ -8,6 +8,18 @@ export function formatArabicDate(dateStr: string, locale: string): string {
   })
 }
 
+export function formatDateTime(dateStr: string, locale: string): string {
+  const date = new Date(dateStr)
+  return date.toLocaleString(locale === 'en' ? 'en-US' : 'ar-SA', {
+    calendar: 'gregory',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 export function getMonthName(dateStr: string, locale: string): string {
   const date = new Date(dateStr)
   return date.toLocaleDateString(locale === 'en' ? 'en-US' : 'ar-SA', { calendar: 'gregory', month: 'long', year: 'numeric' })

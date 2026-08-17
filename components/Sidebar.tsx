@@ -24,6 +24,7 @@ import {
   BookUser,
   ClipboardList,
   FileText,
+  Folder,
 } from 'lucide-react'
 
 interface NavItem {
@@ -48,7 +49,7 @@ function NavLink({ item, isActive, onClick }: { item: NavItem; isActive: boolean
         gap: '10px',
         padding: '10px 14px',
         borderRadius: '8px',
-        margin: '1px 8px',
+        margin: '0 8px',
         fontSize: '14px',
         color: 'var(--text-on-dark)',
         background: isActive ? 'var(--sidebar-active)' : 'transparent',
@@ -100,6 +101,7 @@ export default function Sidebar() {
     { href: '/courses', icon: BookOpen, label: t('courses') },
     { href: '/employees', icon: Users, label: t('employees') },
     { href: '/calendar', icon: Calendar, label: t('calendar') },
+    { href: '/files', icon: Folder, label: t('files') },
   ]
 
   const supabase = createClient()
@@ -227,7 +229,7 @@ export default function Sidebar() {
         </div>
 
         {/* Navigation */}
-        <nav style={{ flex: 1, padding: '12px 0' }}>
+        <nav style={{ flex: 1, padding: '12px 0', display: 'flex', flexDirection: 'column', gap: '2px' }}>
           {mainNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
@@ -235,8 +237,6 @@ export default function Sidebar() {
           {contentNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
-
-          <div style={{ height: '1px', background: 'rgba(255,255,255,0.06)', margin: '8px 16px' }} />
 
           {toolsNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
