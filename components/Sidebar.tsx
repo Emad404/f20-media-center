@@ -23,6 +23,7 @@ import {
   User,
   BookUser,
   ClipboardList,
+  ClipboardCheck,
   FileText,
   Folder,
 } from 'lucide-react'
@@ -249,6 +250,12 @@ export default function Sidebar() {
               onClick={isMobile ? closeSidebar : undefined}
             />
           )}
+          <NavLink
+            key="/attendance"
+            item={{ href: '/attendance', icon: ClipboardCheck, label: t('attendance') }}
+            isActive={isActive('/attendance')}
+            onClick={isMobile ? closeSidebar : undefined}
+          />
           <NavLink
             key="/social"
             item={{ href: '/social', icon: Share2, label: t('social') }}
