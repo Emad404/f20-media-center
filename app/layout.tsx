@@ -10,7 +10,7 @@ const geistSans = Geist({
 })
 
 export const metadata: Metadata = {
-  title: 'F20 Event – المركز الإعلامي',
+  title: 'ادارة F-Twenty Event',
   description: 'نظام إدارة المركز الإعلامي الداخلي لشركة F20 Event',
 }
 
