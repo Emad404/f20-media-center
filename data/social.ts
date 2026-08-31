@@ -4,7 +4,7 @@ export interface SocialAccount {
   name_en: string
   handle: string
   url: string
-  type: 'twitter' | 'instagram' | 'tiktok' | 'snapchat' | 'whatsapp' | 'email' | 'website'
+  type: 'twitter' | 'instagram' | 'tiktok' | 'snapchat' | 'whatsapp' | 'linkedin' | 'email' | 'website'
   description: string
 }
 
@@ -14,6 +14,7 @@ export const socialAccounts: SocialAccount[] = [
   { id: 3, name_ar: 'تيك توك', name_en: 'TikTok', handle: '@f20_event', url: 'https://www.tiktok.com/@f20_event', type: 'tiktok', description: 'محتوى مرئي قصير وأبرز لحظات فعالياتنا' },
   { id: 4, name_ar: 'سناب شات', name_en: 'Snapchat', handle: '@f20_event', url: 'https://www.snapchat.com/@f20_event', type: 'snapchat', description: 'تغطيات حية وقصص من خلف الكواليس' },
   { id: 5, name_ar: 'واتساب', name_en: 'WhatsApp', handle: '+966 550 461 669', url: 'https://api.whatsapp.com/send/?phone=966550461669', type: 'whatsapp', description: 'تواصل معنا مباشرة لاستفساراتكم وطلباتكم' },
-  { id: 6, name_ar: 'البريد الإلكتروني', name_en: 'Email', handle: 'info@f20event.com', url: 'mailto:info@f20event.com', type: 'email', description: 'راسلونا لأي استفسار أو طلب خدمة' },
-  { id: 7, name_ar: 'الموقع الرسمي', name_en: 'Official Website', handle: 'f20event.com', url: 'https://f20event.com', type: 'website', description: 'تصفح موقعنا الرسمي واستعرض خدماتنا' },
+  { id: 6, name_ar: 'لينكد إن', name_en: 'LinkedIn', handle: 'linkedin.com/in/f-twenty-event-managment', url: 'https://www.linkedin.com/in/f-twenty-event-managment-4a2a53424', type: 'linkedin', description: 'تواصل معنا مهنياً وتابع آخر أخبار الشركة' },
+  { id: 7, name_ar: 'البريد الإلكتروني', name_en: 'Email', handle: 'info@f20event.com', url: 'mailto:info@f20event.com', type: 'email', description: 'راسلونا لأي استفسار أو طلب خدمة' },
+  { id: 8, name_ar: 'الموقع الرسمي', name_en: 'Official Website', handle: 'f20event.com', url: 'https://f20event.com', type: 'website', description: 'تصفح موقعنا الرسمي واستعرض خدماتنا' },
 ]
