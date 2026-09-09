@@ -14,6 +14,7 @@ import { useIsMobile } from '@/hooks/useIsMobile'
 
 const ALL = '__all__'
 const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager', 'Trainee']
+const VIEW_ALL_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
 
 interface WeeklyReportRow {
   id: string
@@ -69,6 +70,7 @@ export default function WeeklyReportsPage() {
   const supabase = createClient()
   const { profile } = useUserProfile()
   const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
+  const canViewAllEmployees = !!profile && VIEW_ALL_ROLES.includes(profile.role)
 
   const [reports, setReports] = useState<WeeklyReportRow[]>([])
   const [profiles, setProfiles] = useState<ProfileLite[]>([])
@@ -230,17 +232,19 @@ export default function WeeklyReportsPage() {
           direction: isRtl ? 'rtl' : 'ltr',
         }}
       >
-        <select
-          value={employeeFilter}
-          onChange={(e) => setEmployeeFilter(e.target.value)}
-          style={{ ...inputStyle, cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}
-        >
-          {employeeOptions.map((id) => (
-            <option key={id} value={id}>
-              {id === ALL ? t('allOption') : displayProfileName(profilesById.get(id))}
-            </option>
-          ))}
-        </select>
+        {canViewAllEmployees && (
+          <select
+            value={employeeFilter}
+            onChange={(e) => setEmployeeFilter(e.target.value)}
+            style={{ ...inputStyle, cursor: 'pointer', width: isMobile ? '100%' : 'auto' }}
+          >
+            {employeeOptions.map((id) => (
+              <option key={id} value={id}>
+                {id === ALL ? t('allOption') : displayProfileName(profilesById.get(id))}
+              </option>
+            ))}
+          </select>
+        )}
         <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>{t('weekFilterLabel')}</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
           <input
