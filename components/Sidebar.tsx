@@ -99,6 +99,7 @@ export default function Sidebar() {
     { href: '/weekly-reports', icon: ClipboardList, label: t('weeklyReports') },
     { href: '/employee-requests', icon: FileText, label: t('employeeRequests') },
     { href: '/predictions', icon: Trophy, label: t('predictions') },
+    { href: '/gulf-cup-predictions', icon: Trophy, label: t('gulfCupPredictions') },
     { href: '/courses', icon: BookOpen, label: t('courses') },
     { href: '/employees', icon: Users, label: t('employees') },
     { href: '/calendar', icon: Calendar, label: t('calendar') },

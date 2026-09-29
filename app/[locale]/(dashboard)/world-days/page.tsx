@@ -13,8 +13,6 @@ import { formatArabicDate, sortSoonestFirst } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
-const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
-
 interface WorldDayRow {
   id: string
   title_ar: string
@@ -69,7 +67,7 @@ export default function WorldDaysPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
-  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
+  const [canManage, setCanManage] = useState(false)
 
   const [days, setDays] = useState<WorldDayRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -94,9 +92,19 @@ export default function WorldDaysPage() {
     setLoading(false)
   }
 
+  const fetchCanManage = async () => {
+    const { data, error } = await supabase.rpc('has_extended_access')
+    if (!error) setCanManage(!!data)
+  }
+
   useEffect(() => {
     fetchDays()
   }, [])
+
+  useEffect(() => {
+    fetchCanManage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
 
   const displayTitle = (d: WorldDayRow) => (locale === 'en' && d.title_en ? d.title_en : d.title_ar)
 

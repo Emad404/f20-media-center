@@ -14,8 +14,6 @@ import { formatDateRange, sortSoonestFirst } from '@/lib/dateUtils'
 import { useIsMobile } from '@/hooks/useIsMobile'
 import { exportToExcel } from '@/lib/exportXlsx'
 
-const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
-
 const ALL = '__all__'
 const CITY_VALUES = ['الرياض', 'الشرقية', 'جدة'] as const
 const STATUS_VALUES = ['upcoming', 'ongoing', 'tbd'] as const
@@ -109,7 +107,7 @@ export default function ExhibitionsPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
-  const canManage = !!profile && MANAGE_ROLES.includes(profile.role)
+  const [canManage, setCanManage] = useState(false)
 
   const [exhibitions, setExhibitions] = useState<ExhibitionRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -136,10 +134,20 @@ export default function ExhibitionsPage() {
     setLoading(false)
   }
 
+  const fetchCanManage = async () => {
+    const { data, error } = await supabase.rpc('has_extended_access')
+    if (!error) setCanManage(!!data)
+  }
+
   useEffect(() => {
     fetchExhibitions()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    fetchCanManage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
 
   const displayTitle = (e: ExhibitionRow) => (locale === 'en' && e.title_en ? e.title_en : e.title_ar)
   const displayDescription = (e: ExhibitionRow) => ((locale === 'en' && e.description_en ? e.description_en : e.description_ar) || '')
