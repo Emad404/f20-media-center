@@ -100,6 +100,8 @@ const labelStyle: React.CSSProperties = {
   display: 'block',
 }
 
+const MANAGE_ROLES = ['developer', 'ceo', 'project_manager', 'PR_manager', 'media_manager']
+
 export default function ExhibitionsPage() {
   const t = useTranslations('Exhibitions')
   const locale = useLocale()
@@ -107,7 +109,8 @@ export default function ExhibitionsPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
-  const [canManage, setCanManage] = useState(false)
+  const [hasExtendedAccess, setHasExtendedAccess] = useState(false)
+  const canManage = (!!profile && MANAGE_ROLES.includes(profile.role)) || hasExtendedAccess
 
   const [exhibitions, setExhibitions] = useState<ExhibitionRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -136,7 +139,7 @@ export default function ExhibitionsPage() {
 
   const fetchCanManage = async () => {
     const { data, error } = await supabase.rpc('has_extended_access')
-    if (!error) setCanManage(!!data)
+    setHasExtendedAccess(!error && !!data)
   }
 
   useEffect(() => {
