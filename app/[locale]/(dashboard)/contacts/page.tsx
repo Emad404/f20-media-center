@@ -104,8 +104,8 @@ export default function ContactsPage() {
   const locale = useLocale()
   const isMobile = useIsMobile()
   const supabase = createClient()
-  const { profile } = useUserProfile()
-  const canManage = !!profile && ALLOWED_ROLES.includes(profile.role)
+  const { profile, hasExtendedAccess } = useUserProfile()
+  const canManage = (!!profile && ALLOWED_ROLES.includes(profile.role)) || hasExtendedAccess
 
   const [contacts, setContacts] = useState<Contact[]>([])
   const [loading, setLoading] = useState(true)
