@@ -387,7 +387,11 @@
     "deleteConfirm": "حذف \"{title}\"؟",
     "addSuccess": "تمت إضافة اليوم بنجاح",
     "saveSuccess": "تم تحديث اليوم بنجاح",
-    "deleteSuccess": "تم حذف اليوم بنجاح"
+    "deleteSuccess": "تم حذف اليوم بنجاح",
+    "markDone": "تحديد كمنجز",
+    "markNotDone": "إلغاء تحديد الإنجاز",
+    "doneLabel": "منجز",
+    "doneUpdateError": "تعذر تحديث حالة الإنجاز. حاول مرة أخرى."
   },
   "Exhibitions": {
     "pageTitle": "المعارض والمؤتمرات",

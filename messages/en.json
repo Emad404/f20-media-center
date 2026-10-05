@@ -386,7 +386,11 @@
     "deleteConfirm": "Delete \"{title}\"?",
     "addSuccess": "Day added successfully",
     "saveSuccess": "Day updated successfully",
-    "deleteSuccess": "Day deleted successfully"
+    "deleteSuccess": "Day deleted successfully",
+    "markDone": "Mark as done",
+    "markNotDone": "Mark as not done",
+    "doneLabel": "Done",
+    "doneUpdateError": "Could not update the done status. Please try again."
   },
   "Exhibitions": {
     "pageTitle": "Exhibitions & Conferences",

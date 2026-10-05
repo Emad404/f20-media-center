@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
-import { FileSpreadsheet } from 'lucide-react'
+import { Check, FileSpreadsheet } from 'lucide-react'
 import PageHeader from '@/components/PageHeader'
 import Modal from '@/components/Modal'
 import PersonCardMenu from '@/components/PersonCardMenu'
@@ -21,6 +21,7 @@ interface WorldDayRow {
   description_en: string | null
   day_date: string
   image_url: string | null
+  is_done: boolean
 }
 
 type WorldDayForm = {
@@ -82,6 +83,8 @@ export default function WorldDaysPage() {
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
+  const [pendingDoneIds, setPendingDoneIds] = useState<Set<string>>(new Set())
+  const [doneError, setDoneError] = useState('')
 
   const flashSuccess = (message: string) => {
     setSuccessMessage(message)
@@ -196,6 +199,34 @@ export default function WorldDaysPage() {
     flashSuccess(t('deleteSuccess'))
   }
 
+  const setDayDone = (id: string, isDone: boolean) =>
+    setDays((prev) => prev.map((d) => (d.id === id ? { ...d, is_done: isDone } : d)))
+
+  const handleToggleDone = async (day: WorldDayRow) => {
+    if (pendingDoneIds.has(day.id)) return
+    const previous = !!day.is_done
+    setDoneError('')
+    setPendingDoneIds((prev) => new Set(prev).add(day.id))
+    setDayDone(day.id, !previous)
+
+    const { data, error } = await supabase
+      .from('world_days')
+      .update({ is_done: !previous })
+      .eq('id', day.id)
+      .select('id, is_done')
+
+    // RLS blocks return no error and zero rows, so require exactly one row back
+    if (error || !data || data.length !== 1) {
+      setDayDone(day.id, previous)
+      setDoneError(t('doneUpdateError'))
+    }
+    setPendingDoneIds((prev) => {
+      const next = new Set(prev)
+      next.delete(day.id)
+      return next
+    })
+  }
+
   const handleExport = () => {
     const rows = days.map((day) => ({
       'Title (Arabic)': day.title_ar,
@@ -288,6 +319,19 @@ export default function WorldDaysPage() {
           </div>
         )}
 
+        {doneError && (
+          <div style={{
+            marginBottom: '16px',
+            padding: '10px 14px',
+            borderRadius: '8px',
+            background: 'var(--danger-bg)',
+            color: 'var(--danger-text)',
+            fontSize: '13px',
+          }}>
+            {doneError}
+          </div>
+        )}
+
         {loading ? (
           <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('loading')}</div>
         ) : grouped.size === 0 ? (
@@ -314,6 +358,8 @@ export default function WorldDaysPage() {
                   {monthDays.map((day) => {
                     const dateObj = new Date(day.day_date)
                     const dayNum = dateObj.getDate()
+                    const isDone = !!day.is_done
+                    const pending = pendingDoneIds.has(day.id)
                     return (
                       <div
                         key={day.id}
@@ -325,9 +371,60 @@ export default function WorldDaysPage() {
                           borderRadius: '8px',
                         }}
                       >
+                        {/* Done check */}
+                        {canManage ? (
+                          <button
+                            type="button"
+                            role="checkbox"
+                            aria-checked={isDone}
+                            aria-label={isDone ? t('markNotDone') : t('markDone')}
+                            title={isDone ? t('markNotDone') : t('markDone')}
+                            disabled={pending}
+                            onClick={() => handleToggleDone(day)}
+                            style={{
+                              width: 22,
+                              height: 22,
+                              borderRadius: '6px',
+                              border: isDone ? '1px solid var(--success-text)' : '1px solid var(--border-strong)',
+                              background: isDone ? 'var(--success-bg)' : 'transparent',
+                              color: 'var(--success-text)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              padding: 0,
+                              flexShrink: 0,
+                              cursor: pending ? 'not-allowed' : 'pointer',
+                              opacity: pending ? 0.6 : 1,
+                            }}
+                          >
+                            {isDone && <Check size={14} />}
+                          </button>
+                        ) : isDone ? (
+                          <span
+                            role="img"
+                            aria-label={t('doneLabel')}
+                            title={t('doneLabel')}
+                            style={{
+                              width: 22,
+                              height: 22,
+                              borderRadius: '6px',
+                              background: 'var(--success-bg)',
+                              border: '1px solid var(--success-text)',
+                              color: 'var(--success-text)',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                            }}
+                          >
+                            <Check size={14} />
+                          </span>
+                        ) : null}
+
                         {/* Date circle */}
                         <div
                           style={{
+                            opacity: isDone ? 0.55 : 1,
                             width: 36,
                             height: 36,
                             borderRadius: '50%',
@@ -346,14 +443,14 @@ export default function WorldDaysPage() {
                         </div>
 
                         {/* Title */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ flex: 1, minWidth: 0, opacity: isDone ? 0.55 : 1 }}>
                           <span style={{ fontSize: isMobile ? '13px' : '14px', fontWeight: 600, color: 'var(--text-primary)' }}>
                             {displayTitle(day)}
                           </span>
                         </div>
 
                         {/* Full date */}
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0, opacity: isDone ? 0.55 : 1 }}>
                           {formatArabicDate(day.day_date, locale)}
                         </div>
 
