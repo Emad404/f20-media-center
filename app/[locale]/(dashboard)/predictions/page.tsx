@@ -127,7 +127,8 @@ export default function PredictionsPage() {
   const isMobile = useIsMobile()
   const supabase = createClient()
   const { profile } = useUserProfile()
-  const canManageMatches = profile?.role === 'developer' || profile?.role === 'media_manager'
+  const [hasExtendedAccess, setHasExtendedAccess] = useState(false)
+  const canManageMatches = profile?.role === 'developer' || profile?.role === 'media_manager' || hasExtendedAccess
 
   const [loading, setLoading] = useState(true)
   const [nextMatch, setNextMatch] = useState<MatchRow | null>(null)
@@ -219,6 +220,16 @@ export default function PredictionsPage() {
     setAllMatches((data || []) as MatchRow[])
     setAdminLoading(false)
   }
+
+  const fetchCanManage = async () => {
+    const { data, error } = await supabase.rpc('has_extended_access')
+    setHasExtendedAccess(!error && !!data)
+  }
+
+  useEffect(() => {
+    fetchCanManage()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id])
 
   useEffect(() => {
     fetchPredictionsData()
