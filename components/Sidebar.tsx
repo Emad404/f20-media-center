@@ -108,7 +108,7 @@ export default function Sidebar() {
 
   const supabase = createClient()
   const router = useRouter()
-  const { profile: userProfile } = useUserProfile()
+  const { profile: userProfile, hasExtendedAccess } = useUserProfile()
   const locale = useLocale()
   const displayName = locale === 'en' && userProfile?.full_name_en ? userProfile.full_name_en : userProfile?.full_name_ar
   const displayJobTitle = locale === 'en' && userProfile?.job_title_en ? userProfile.job_title_en : userProfile?.job_title_ar
@@ -243,7 +243,7 @@ export default function Sidebar() {
           {toolsNav.map((item) => (
             <NavLink key={item.href} item={item} isActive={isActive(item.href)} onClick={isMobile ? closeSidebar : undefined} />
           ))}
-          {!!userProfile && CONTACTS_ALLOWED_ROLES.includes(userProfile.role) && (
+          {((!!userProfile && CONTACTS_ALLOWED_ROLES.includes(userProfile.role)) || hasExtendedAccess) && (
             <NavLink
               key="/contacts"
               item={{ href: '/contacts', icon: BookUser, label: t('contacts') }}
