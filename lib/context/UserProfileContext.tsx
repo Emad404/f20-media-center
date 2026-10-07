@@ -22,8 +22,6 @@ export interface UserProfile {
 interface UserProfileContextValue {
   profile: UserProfile | null
   loading: boolean
-  // Only ever ADDS access on top of role checks; false until the RPC succeeds.
-  hasExtendedAccess: boolean
   refreshProfile: () => Promise<void>
 }
 
@@ -33,7 +31,6 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
   const supabase = createClient()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [hasExtendedAccess, setHasExtendedAccess] = useState(false)
 
   const refreshProfile = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
@@ -57,24 +54,8 @@ export function UserProfileProvider({ children }: { children: ReactNode }) {
     init()
   }, [])
 
-  useEffect(() => {
-    if (!profile?.id) {
-      setHasExtendedAccess(false)
-      return
-    }
-    let cancelled = false
-    const check = async () => {
-      const { data, error } = await supabase.rpc('has_extended_access')
-      if (!cancelled) setHasExtendedAccess(!error && !!data)
-    }
-    check()
-    return () => {
-      cancelled = true
-    }
-  }, [profile?.id])
-
   return (
-    <UserProfileContext.Provider value={{ profile, loading, hasExtendedAccess, refreshProfile }}>
+    <UserProfileContext.Provider value={{ profile, loading, refreshProfile }}>
       {children}
     </UserProfileContext.Provider>
   )
